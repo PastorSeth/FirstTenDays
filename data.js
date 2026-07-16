@@ -62,7 +62,7 @@ const DAYS = [
     passage: "1 John 1:5-2:6",
     topic: "What\u2019s the Point of Doing a Bible Study?",
     speaker: null,
-    videoId: null,
+    videoId: "MMSHSvSmH4",
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS
   },
