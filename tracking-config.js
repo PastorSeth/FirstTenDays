@@ -12,4 +12,4 @@
       between the quotes.
    ============================================================ */
 
-const TRACKING_ENDPOINT = "";
+const TRACKING_ENDPOINT = "https://script.google.com/macros/s/AKfycbxvIo6pJrMY-ymbgKxcr_55jCG5LyflK6BZ23ELkBZopCaeDDvHC_Vi3mb-fODuiRV1/exec";
