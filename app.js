@@ -191,7 +191,7 @@ function renderDay(dayNum) {
     ? `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${d.videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
     : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
 
-  const reflections = d.reflections.map(r => {
+  function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);
     return `
       <div class="reflection">
@@ -201,7 +201,10 @@ function renderDay(dayNum) {
         <div class="save-status" data-status-for="${r.id}">Saved</div>
       </div>
     `;
-  }).join('');
+  }
+
+  const reflections = d.reflections.map(reflectionCard).join('');
+  const applyBlock = d.applyQuestion ? reflectionCard(d.applyQuestion) : '';
 
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
@@ -217,8 +220,6 @@ function renderDay(dayNum) {
       <span class="passage-pill">${d.passage}</span>
     </div>
 
-    <div class="video-wrap">${videoBlock}</div>
-
     <div class="section">
       <div class="prose">${d.intro}</div>
     </div>
@@ -227,6 +228,15 @@ function renderDay(dayNum) {
       <h2><span class="num">Reflect</span></h2>
       ${reflections}
     </div>
+
+    <div class="video-wrap">${videoBlock}</div>
+
+    ${applyBlock ? `
+      <div class="section">
+        <h2><span class="num">Apply</span></h2>
+        ${applyBlock}
+      </div>
+    ` : ''}
 
     <button class="complete-toggle ${complete ? 'is-complete' : ''}" id="complete-btn">
       ${complete ? ICONS.check + ' Day Complete' : 'Mark Day Complete'}
