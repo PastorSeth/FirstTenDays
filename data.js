@@ -49,7 +49,7 @@ const DAYS = [
     passage: "1 John 1:1-4",
     topic: "How to Study the Bible",
     speaker: "Seth Peacock",
-    videoId: https://youtube.com/shorts/CTgMaBdATBo?si=rjQWhkINcszF57y_,
+    videoId: CTgMaBdATBo?si=rjQWhkINcszF57y,
     intro: "<p>Content coming soon.</p>",
     reflections: [
       { id: "author", label: "Who wrote the book?", prompt: "" },
