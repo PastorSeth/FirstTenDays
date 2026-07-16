@@ -215,7 +215,6 @@ function renderDay(dayNum) {
       <div class="day-eyebrow">Day ${d.day} of 10</div>
       <h1>${d.topic}</h1>
       <span class="passage-pill">${d.passage}</span>
-      ${d.speaker ? `<div class="speaker-note">Video: ${d.speaker}</div>` : ''}
     </div>
 
     <div class="video-wrap">${videoBlock}</div>
