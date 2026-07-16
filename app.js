@@ -174,11 +174,30 @@ function renderHome() {
       </a>
     </div>
     ${trackingEnabled() && getStudentName() ? `<button class="change-name" id="change-name-btn">Not ${getStudentName()}? Change name</button>` : ''}
+    ${isAppInstalled() ? '' : `
+      <div class="section install-section">
+        <h2><span class="num">Install</span></h2>
+        <p class="prose">Skip past the prompt when you first opened this? You can still add First 10 Days to your home screen any time.</p>
+        <button class="complete-toggle is-complete" id="home-install-btn">Install App</button>
+        <p class="prose install-fallback hidden" id="install-fallback">
+          Your browser doesn't support one-tap install here &mdash; add it manually instead:<br>
+          <strong>Android (Chrome):</strong> tap the &#8942; menu &rarr; "Add to Home screen".<br>
+          <strong>iPhone (Safari):</strong> tap the Share icon &rarr; "Add to Home Screen".
+        </p>
+      </div>
+    `}
   `;
 
   document.getElementById('install-btn')?.addEventListener('click', triggerInstall);
   document.getElementById('install-dismiss')?.addEventListener('click', dismissInstallBanner);
   document.getElementById('change-name-btn')?.addEventListener('click', renderNamePrompt);
+  document.getElementById('home-install-btn')?.addEventListener('click', () => {
+    if (deferredInstallPrompt) {
+      triggerInstall();
+    } else {
+      document.getElementById('install-fallback')?.classList.remove('hidden');
+    }
+  });
 }
 
 /* ---------- Day page ---------- */
@@ -306,6 +325,10 @@ function renderResource(slug) {
 /* ---------- PWA install prompt ---------- */
 
 let deferredInstallPrompt = null;
+
+function isAppInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
 
 function setupInstallPrompt() {
   window.addEventListener('beforeinstallprompt', (e) => {
