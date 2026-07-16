@@ -1,2 +1,2 @@
 # FirstTenDays
-This is a test to see if everything works
+This is a test to try and build a Biblestudy app for a new Christian.
