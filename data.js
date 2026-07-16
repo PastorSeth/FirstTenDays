@@ -6,11 +6,24 @@
    here is plain data — no code logic lives in this file.
 
    HOW TO ADD A VIDEO:
-   Change videoId from null to the video's YouTube ID.
+   Change videoId from null to the video's YouTube ID, in quotes.
    Example: for https://www.youtube.com/watch?v=dQw4w9WgXcQ
    the videoId is:  "dQw4w9WgXcQ"
    (For YouTube Shorts: https://www.youtube.com/shorts/XXXXXXXX
    the ID is the XXXXXXXX part.)
+
+   IMPORTANT: only copy the part of the URL BEFORE any "?" —
+   links often have extra tracking text after a "?si=" that is
+   NOT part of the ID and should be left out.
+   Example: https://youtube.com/shorts/CTgMaBdATBo?si=rjQWhkI...
+   becomes:  videoId: "CTgMaBdATBo",
+   (with the quote marks kept, and nothing after the ID)
+
+   A quick gut-check before saving: every videoId should be
+   either the word null, or text inside "quote marks" — never
+   bare letters/numbers with no quotes. A mistake here can make
+   the ENTIRE site go blank, not just one day, since this file
+   holds every day's content.
 
    HOW TO FINISH A DAY'S CONTENT:
    Replace any "Content coming soon." placeholder text with
@@ -43,6 +56,15 @@ const MAPS_PROMPTS = [
   }
 ];
 
+// Shared "Application Question" — shown after the video, separate from the
+// MAPS reflection group above it. Edit the prompt text below if you want
+// different wording; it's reused across all 10 days.
+const APPLICATION_QUESTION = {
+  id: "application",
+  label: "Application Question",
+  prompt: "Now that you\u2019ve watched today\u2019s video, what\u2019s one specific way you\u2019ll put this into practice this week?"
+};
+
 const DAYS = [
   {
     day: 1,
@@ -55,16 +77,18 @@ const DAYS = [
       { id: "author", label: "Who wrote the book?", prompt: "" },
       { id: "audience", label: "Who was the original audience?", prompt: "" },
       { id: "purpose", label: "What was the purpose for writing the book?", prompt: "" }
-    ]
+    ],
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 2,
     passage: "1 John 1:5-2:6",
     topic: "What\u2019s the Point of Doing a Bible Study?",
     speaker: null,
-    videoId: "_MMSHSvSmH4",
+    videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 3,
@@ -73,7 +97,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 4,
@@ -82,7 +107,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 5,
@@ -91,7 +117,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 6,
@@ -100,7 +127,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 7,
@@ -109,7 +137,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 8,
@@ -118,7 +147,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 9,
@@ -127,7 +157,8 @@ const DAYS = [
     speaker: null,
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   },
   {
     day: 10,
@@ -136,7 +167,8 @@ const DAYS = [
     speaker: "Seth Peacock",
     videoId: null,
     intro: "<p>Content coming soon.</p>",
-    reflections: MAPS_PROMPTS
+    reflections: MAPS_PROMPTS,
+    applyQuestion: APPLICATION_QUESTION
   }
 ];
 
