@@ -119,7 +119,7 @@ a { color: var(--ink); }
 .trail::before {
   content: "";
   position: absolute;
-  left: 27px;
+  left: 31px;
   top: 34px;
   bottom: 34px;
   width: 2px;
