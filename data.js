@@ -87,7 +87,7 @@ const DAYS = [
     flow: "video-passage-video",
     videoId: "CTgMaBdATBo",
     videoId2: null,
-    intro: "<p>Content coming soon.</p>",
+    intro: "<p>If you havent yet, read 1 John 1:1-4</p>",
     reflections: [
       { id: "author", label: "Who wrote the book?", prompt: "" },
       { id: "audience", label: "Who was the original audience?", prompt: "" },
