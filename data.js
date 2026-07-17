@@ -29,6 +29,11 @@
    Replace any "Content coming soon." placeholder text with
    your real writing. You can use basic HTML tags like <p>,
    <strong>, <em>, and <a href="..."> inside these strings.
+
+   NOTE ON "speaker": this field is intentionally NOT shown
+   anywhere on the live site. It's kept here only for your own
+   reference. If you want it removed entirely that's fine, but
+   it isn't a bug that it's missing from the page.
    ============================================================ */
 
 // Reusable MAPS reflection prompts (Meditate / Apply / Pray / Share).
