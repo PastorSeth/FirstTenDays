@@ -87,7 +87,7 @@ const DAYS = [
     flow: "video-passage-video",
     videoId: "CTgMaBdATBo",
     videoId2: null,
-    intro: "<p>If you havent yet, read 1 John 1:1-4</p>",
+    intro: "<p>If you havent yet, read 1 John 1:1-4.</p>",
     reflections: [
       { id: "author", label: "Who wrote the book?", prompt: "" },
       { id: "audience", label: "Who was the original audience?", prompt: "" },
@@ -260,5 +260,10 @@ const RESOURCES = [
     slug: "spiritual-disciplines",
     title: "Spiritual Disciplines",
     body: "<p>Content coming soon.</p>"
+  },
+  {
+    slug: "leader-dashboard",
+    title: "Leader Dashboard",
+    body: "<p>See who's completed which days.</p><p><a class=\"pdf-link\" href=\"https://docs.google.com/spreadsheets/d/1zABmtpJDszh-znI6sj-QYeBx6c0gApEx8o9wTPE9Qro/edit?usp=sharing\" target=\"_blank\" rel=\"noopener\">Click here to view progress</a></p>"
   }
 ];
