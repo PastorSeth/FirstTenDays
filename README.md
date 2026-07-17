@@ -10,6 +10,28 @@ A 10-day Bible study, installable as an app on any phone (a "PWA").
 - `icons/` — the app icon shown on a phone's home screen.
 - `resources/` — the MAPS study guide PDF, and a place to drop any other files you link to from `data.js`.
 
+## Day page structure (intentional, please preserve)
+
+Each day page is built in this order on purpose: **Bible Passage → MAPS questions → Video → Reflection Question.** Day 1 is the one exception — it uses its own "who wrote it / who was it for / why" questions in place of MAPS, since it's the intro day.
+
+The Reflection Question at the end is deliberately a separate, per-day question (not shared/reused across days) — each day's `reflectionQuestion` in `data.js` is its own independent block, specifically so it can be written to reference that day's own video. Also intentional: the `speaker` field on each day is stored in `data.js` for the pastor's own reference but is NOT shown anywhere on the live page — that's by design, not an oversight.
+
+## IMPORTANT: after changing style.css, app.js, data.js, tracking-config.js, or manifest.json
+
+This site works offline, which means visitors' phones/browsers cache these files. If you change any of them and don't do the step below, people who've already opened the site may keep seeing the OLD version even after you push the update.
+
+**The fix:** open `service-worker.js` and bump the version number, e.g.:
+```js
+const CACHE_NAME = 'first-10-days-v3';
+```
+becomes
+```js
+const CACHE_NAME = 'first-10-days-v4';
+```
+Do this any time you change one of the files listed above, then commit/push as usual. (You don't need to do this for changes to `README.md` or files in `resources/`.)
+
+If a change still doesn't show up after that, the fix on the viewer's end is a hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) or clearing the site's cached data in the browser.
+
 ## Putting it online with GitHub Pages (free)
 
 1. Go to [github.com/new](https://github.com/new) and create a new repository (public). Name it anything, e.g. `first-10-days`.
