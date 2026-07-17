@@ -25,6 +25,10 @@
    the ENTIRE site go blank, not just one day, since this file
    holds every day's content.
 
+   Day 1 has a second video slot, videoId2 (Video #2), since Day 1 shows
+   two videos with the Bible passage in between. Set it the same way as
+   videoId, using the ID from the second video's YouTube URL.
+
    HOW TO FINISH A DAY'S CONTENT:
    Replace any "Content coming soon." placeholder text with
    your real writing. You can use basic HTML tags like <p>,
@@ -66,10 +70,13 @@ const MAPS_PROMPTS = [
 // a given day to ask something specific to that day's video — changing
 // one day's question will NOT affect any other day.
 
-// Optional per-day override: flow: "video-first" swaps a day's order to
-// Video -> MAPS -> Reflection Question (skipping the Bible Passage/intro
-// section) instead of the normal Bible Passage -> MAPS -> Video -> Reflection
-// Question. Currently only used on Day 2.
+// Optional per-day override via the "flow" field (default order is
+// Bible Passage -> MAPS -> Video -> Reflection Question):
+//   "video-first"          Video -> MAPS -> Reflection Question
+//                           (skips the Bible Passage/intro section). Used on Day 2.
+//   "video-passage-video"  Video #1 -> Bible Passage -> Video #2 -> MAPS ->
+//                           Reflection Question. Needs both videoId (Video #1)
+//                           and videoId2 (Video #2) set. Used on Day 1.
 
 const DAYS = [
   {
@@ -77,7 +84,9 @@ const DAYS = [
     passage: "1 John 1:1-4",
     topic: "How to Study the Bible",
     speaker: "Seth Peacock",
+    flow: "video-passage-video",
     videoId: "CTgMaBdATBo",
+    videoId2: null,
     intro: "<p>Content coming soon.</p>",
     reflections: [
       { id: "author", label: "Who wrote the book?", prompt: "" },

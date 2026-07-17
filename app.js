@@ -187,9 +187,11 @@ function renderDay(dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
   if (!d) { renderHome(); return; }
 
-  const videoBlock = d.videoId
-    ? `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${d.videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-    : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
+  function videoFrame(videoId) {
+    return videoId
+      ? `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+      : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
+  }
 
   function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);
@@ -207,10 +209,10 @@ function renderDay(dayNum) {
   const reflectionQuestionBlock = d.reflectionQuestion ? reflectionCard(d.reflectionQuestion) : '';
 
   // Normally: Bible Passage -> MAPS -> Video -> Reflection Question.
-  // A day can override this with flow: "video-first" to instead go
-  // Video -> MAPS -> Reflection Question (skipping the passage/intro section).
-  const videoFirst = d.flow === 'video-first';
-
+  // A day can override this with the "flow" field:
+  //   "video-first"        -> Video -> MAPS -> Reflection Question (no passage section)
+  //   "video-passage-video" -> Video #1 -> Bible Passage -> Video #2 -> MAPS -> Reflection Question
+  //                            (uses videoId as Video #1 and videoId2 as Video #2)
   const passageBlock = `
     <div class="section">
       <div class="prose">${d.intro}</div>
@@ -222,7 +224,17 @@ function renderDay(dayNum) {
       ${reflections}
     </div>
   `;
-  const videoWrap = `<div class="video-wrap">${videoBlock}</div>`;
+  const videoWrap = `<div class="video-wrap">${videoFrame(d.videoId)}</div>`;
+
+  let mainFlow;
+  if (d.flow === 'video-passage-video') {
+    const videoWrap2 = `<div class="video-wrap">${videoFrame(d.videoId2)}</div>`;
+    mainFlow = `${videoWrap}${passageBlock}${videoWrap2}${reflectBlock}`;
+  } else if (d.flow === 'video-first') {
+    mainFlow = `${videoWrap}${reflectBlock}`;
+  } else {
+    mainFlow = `${passageBlock}${reflectBlock}${videoWrap}`;
+  }
 
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
@@ -238,11 +250,7 @@ function renderDay(dayNum) {
       <span class="passage-pill">${d.passage}</span>
     </div>
 
-    ${videoFirst ? videoWrap : passageBlock}
-
-    ${reflectBlock}
-
-    ${videoFirst ? '' : videoWrap}
+    ${mainFlow}
 
     ${reflectionQuestionBlock ? `
       <div class="section">
