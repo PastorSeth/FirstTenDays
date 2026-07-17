@@ -56,14 +56,10 @@ const MAPS_PROMPTS = [
   }
 ];
 
-// Shared "Application Question" — shown after the video, separate from the
-// MAPS reflection group above it. Edit the prompt text below if you want
-// different wording; it's reused across all 10 days.
-const APPLICATION_QUESTION = {
-  id: "application",
-  label: "Application Question",
-  prompt: "Now that you\u2019ve watched today\u2019s video, what\u2019s one specific way you\u2019ll put this into practice this week?"
-};
+// Note: each day has its own "reflectionQuestion" below (after the MAPS
+// prompts), independent from every other day. Edit the "prompt" text for
+// a given day to ask something specific to that day's video — changing
+// one day's question will NOT affect any other day.
 
 const DAYS = [
   {
@@ -78,7 +74,11 @@ const DAYS = [
       { id: "audience", label: "Who was the original audience?", prompt: "" },
       { id: "purpose", label: "What was the purpose for writing the book?", prompt: "" }
     ],
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 2,
@@ -88,7 +88,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 3,
@@ -98,7 +102,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 4,
@@ -108,7 +116,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 5,
@@ -118,7 +130,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 6,
@@ -128,7 +144,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 7,
@@ -138,7 +158,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 8,
@@ -148,7 +172,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 9,
@@ -158,7 +186,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   },
   {
     day: 10,
@@ -168,7 +200,11 @@ const DAYS = [
     videoId: null,
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    applyQuestion: APPLICATION_QUESTION
+    reflectionQuestion: {
+      id: "reflection",
+      label: "Reflection Question",
+      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
+    }
   }
 ];
 
