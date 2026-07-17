@@ -5,7 +5,7 @@
    caches get cleared out.
    ========================================================== */
 
-const CACHE_NAME = 'first-10-days-v3';
+const CACHE_NAME = 'first-10-days-v4';
 
 // Paths are relative to this file's own location, so this works
 // whether the site is hosted at the root of a domain or in a

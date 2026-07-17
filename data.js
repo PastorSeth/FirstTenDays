@@ -66,6 +66,11 @@ const MAPS_PROMPTS = [
 // a given day to ask something specific to that day's video — changing
 // one day's question will NOT affect any other day.
 
+// Optional per-day override: flow: "video-first" swaps a day's order to
+// Video -> MAPS -> Reflection Question (skipping the Bible Passage/intro
+// section) instead of the normal Bible Passage -> MAPS -> Video -> Reflection
+// Question. Currently only used on Day 2.
+
 const DAYS = [
   {
     day: 1,
@@ -91,6 +96,7 @@ const DAYS = [
     topic: "What\u2019s the Point of Doing a Bible Study?",
     speaker: null,
     videoId: null,
+    flow: "video-first",
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
     reflectionQuestion: {

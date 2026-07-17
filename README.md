@@ -12,7 +12,7 @@ A 10-day Bible study, installable as an app on any phone (a "PWA").
 
 ## Day page structure (intentional, please preserve)
 
-Each day page is built in this order on purpose: **Bible Passage → MAPS questions → Video → Reflection Question.** Day 1 is the one exception — it uses its own "who wrote it / who was it for / why" questions in place of MAPS, since it's the intro day.
+Each day page is built in this order on purpose: **Bible Passage → MAPS questions → Video → Reflection Question.** There are two exceptions: Day 1 uses its own "who wrote it / who was it for / why" questions in place of MAPS, since it's the intro day. Day 2 uses a different order — **Video → MAPS → Reflection Question** (no Bible Passage section) — set via `flow: "video-first"` on that day's entry in `data.js`. That same override is available on any other day by adding `flow: "video-first"` to its entry.
 
 The Reflection Question at the end is deliberately a separate, per-day question (not shared/reused across days) — each day's `reflectionQuestion` in `data.js` is its own independent block, specifically so it can be written to reference that day's own video. Also intentional: the `speaker` field on each day is stored in `data.js` for the pastor's own reference but is NOT shown anywhere on the live page — that's by design, not an oversight.
 

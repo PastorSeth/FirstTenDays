@@ -206,6 +206,24 @@ function renderDay(dayNum) {
   const reflections = d.reflections.map(reflectionCard).join('');
   const reflectionQuestionBlock = d.reflectionQuestion ? reflectionCard(d.reflectionQuestion) : '';
 
+  // Normally: Bible Passage -> MAPS -> Video -> Reflection Question.
+  // A day can override this with flow: "video-first" to instead go
+  // Video -> MAPS -> Reflection Question (skipping the passage/intro section).
+  const videoFirst = d.flow === 'video-first';
+
+  const passageBlock = `
+    <div class="section">
+      <div class="prose">${d.intro}</div>
+    </div>
+  `;
+  const reflectBlock = `
+    <div class="section">
+      <h2><span class="num">Reflect</span></h2>
+      ${reflections}
+    </div>
+  `;
+  const videoWrap = `<div class="video-wrap">${videoBlock}</div>`;
+
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
   const next = DAYS.find(x => x.day === dayNum + 1);
@@ -220,16 +238,11 @@ function renderDay(dayNum) {
       <span class="passage-pill">${d.passage}</span>
     </div>
 
-    <div class="section">
-      <div class="prose">${d.intro}</div>
-    </div>
+    ${videoFirst ? videoWrap : passageBlock}
 
-    <div class="section">
-      <h2><span class="num">Reflect</span></h2>
-      ${reflections}
-    </div>
+    ${reflectBlock}
 
-    <div class="video-wrap">${videoBlock}</div>
+    ${videoFirst ? '' : videoWrap}
 
     ${reflectionQuestionBlock ? `
       <div class="section">
