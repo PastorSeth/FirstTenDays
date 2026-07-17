@@ -158,7 +158,7 @@ function renderHome() {
     <div class="hero">
       <div class="eyebrow">A 10-Day Bible Study</div>
       <h1>First 10 Days</h1>
-      <p>Ten days walking through 1 John &mdash; a short passage, a few honest questions, and space to write down what you're actually thinking.</p>
+      <p>Ten days walking through the book of 1 John &mdash; a short passage, some thoughts about what it means to follow Jesus, and space to write down what God is teaching you.</p>
     </div>
     <div class="trail">
       ${nodes}
