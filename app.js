@@ -204,7 +204,7 @@ function renderDay(dayNum) {
   }
 
   const reflections = d.reflections.map(reflectionCard).join('');
-  const applyBlock = d.applyQuestion ? reflectionCard(d.applyQuestion) : '';
+  const reflectionQuestionBlock = d.reflectionQuestion ? reflectionCard(d.reflectionQuestion) : '';
 
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
@@ -231,10 +231,9 @@ function renderDay(dayNum) {
 
     <div class="video-wrap">${videoBlock}</div>
 
-    ${applyBlock ? `
+    ${reflectionQuestionBlock ? `
       <div class="section">
-        <h2><span class="num">Apply</span></h2>
-        ${applyBlock}
+        ${reflectionQuestionBlock}
       </div>
     ` : ''}
 
