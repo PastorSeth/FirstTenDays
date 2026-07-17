@@ -177,6 +177,7 @@ a { color: var(--ink); }
 
 .trail-node .stone .check {
   display: none;
+  line-height: 0;
 }
 
 .trail-node.complete .stone .num { display: none; }
