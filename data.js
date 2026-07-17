@@ -93,11 +93,9 @@ const DAYS = [
       { id: "audience", label: "Who was the original audience?", prompt: "" },
       { id: "purpose", label: "What was the purpose for writing the book?", prompt: "" }
     ],
-    reflectionQuestion: {
-      id: "reflection",
-      label: "Reflection Question",
-      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
-    }
+    // Reflection Question turned off for Day 1 — set back to an object
+    // (see other days for the shape) to bring it back.
+    reflectionQuestion: null
   },
   {
     day: 2,
@@ -108,11 +106,9 @@ const DAYS = [
     flow: "video-first",
     intro: "<p>Content coming soon.</p>",
     reflections: MAPS_PROMPTS,
-    reflectionQuestion: {
-      id: "reflection",
-      label: "Reflection Question",
-      prompt: "Now that you’ve watched today’s video, what’s one specific way you’ll put this into practice this week?"
-    }
+    // Reflection Question turned off for Day 2 — set back to an object
+    // (see other days for the shape) to bring it back.
+    reflectionQuestion: null
   },
   {
     day: 3,
