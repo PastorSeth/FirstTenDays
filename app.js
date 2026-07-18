@@ -63,8 +63,16 @@ const ICONS = {
   chevron: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`,
   check: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
   compass: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/></svg>`,
-  film: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>`
+  film: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>`,
+  close: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  play: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`
 };
+
+function videoFrame(videoId) {
+  return videoId
+    ? `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+    : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
+}
 
 /* ---------- Router ---------- */
 
@@ -129,6 +137,25 @@ function renderNamePrompt() {
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
 }
 
+/* ---------- Welcome video modal ---------- */
+
+function renderWelcomeVideoModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-card video-modal">
+      <button class="modal-close" id="video-modal-close" aria-label="Close video">${ICONS.close}</button>
+      ${videoFrame(WELCOME_VIDEO_ID)}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  function close() { overlay.remove(); }
+
+  overlay.querySelector('#video-modal-close').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+}
+
 /* ---------- Home ---------- */
 
 function renderHome() {
@@ -158,7 +185,12 @@ function renderHome() {
     <div class="hero">
       <div class="eyebrow">A 10-Day Bible Study</div>
       <h1>First 10 Days</h1>
-      <p>Ten days walking through the book of 1 John &mdash; a short passage, some thoughts about what it means to follow Jesus, and space to write down what God is teaching you.</p>
+    </div>
+    <div class="welcome-video-banner">
+      <button class="welcome-video-pill" id="welcome-video-open">
+        <span class="icon">${ICONS.play}</span>
+        Watch the welcome video
+      </button>
     </div>
     <div class="trail">
       ${nodes}
@@ -179,6 +211,7 @@ function renderHome() {
   document.getElementById('install-btn')?.addEventListener('click', triggerInstall);
   document.getElementById('install-dismiss')?.addEventListener('click', dismissInstallBanner);
   document.getElementById('change-name-btn')?.addEventListener('click', renderNamePrompt);
+  document.getElementById('welcome-video-open')?.addEventListener('click', renderWelcomeVideoModal);
 }
 
 /* ---------- Day page ---------- */
@@ -186,12 +219,6 @@ function renderHome() {
 function renderDay(dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
   if (!d) { renderHome(); return; }
-
-  function videoFrame(videoId) {
-    return videoId
-      ? `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-      : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
-  }
 
   function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);

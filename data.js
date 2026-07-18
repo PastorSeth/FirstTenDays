@@ -29,6 +29,10 @@
    two videos with the Bible passage in between. Set it the same way as
    videoId, using the ID from the second video's YouTube URL.
 
+   There's also WELCOME_VIDEO_ID near the top of this file (below), for
+   the "Watch the welcome video" button on the home page. Same
+   null-or-"quoted ID" rule applies.
+
    HOW TO FINISH A DAY'S CONTENT:
    Replace any "Content coming soon." placeholder text with
    your real writing. You can use basic HTML tags like <p>,
@@ -39,6 +43,10 @@
    reference. If you want it removed entirely that's fine, but
    it isn't a bug that it's missing from the page.
    ============================================================ */
+
+// The video behind the "Watch the welcome video" button on the home
+// page. Set it the same way as a day's videoId.
+const WELCOME_VIDEO_ID = null;
 
 // Reusable MAPS reflection prompts (Meditate / Apply / Pray / Share).
 // Used on every day except Day 1, which has its own intro questions.
