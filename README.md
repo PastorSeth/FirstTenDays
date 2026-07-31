@@ -9,6 +9,7 @@ A 10-day Bible study, installable as an app on any phone (a "PWA").
 - `manifest.json` / `service-worker.js` — what makes the site installable and work offline. No need to touch these.
 - `icons/` — the app icon shown on a phone's home screen.
 - `resources/` — the MAPS study guide PDF, and a place to drop any other files you link to from `data.js`.
+- `sheet-setup/` — the Google Apps Script that powers progress tracking and the leader dashboard. It runs inside Google Sheets, not on the site.
 
 ## Day page structure (intentional, please preserve)
 
@@ -94,6 +95,30 @@ By default, this is off — nothing is sent anywhere, and every student's progre
 10. Upload the updated `tracking-config.js` to GitHub (and re-deploy the Apps Script with a new version any time you change the script itself).
 
 Once that's set, the first time a student opens the site they'll be asked their name, and each time they mark a day complete, a row updates in your sheet with their name, the day, a status, and a timestamp. If a student clears their browser data or switches devices, they'll just be asked for their name again.
+
+### Updating the script later
+
+Any time `sheet-setup/apps-script-code.gs` changes, paste the new version into the Apps Script editor, Save, then re-deploy — but re-deploy the *existing* deployment so your Web app URL doesn't change:
+
+**Deploy → Manage deployments → pencil icon → Version: "New version" → Deploy.**
+
+If you instead pick "New deployment," Google gives you a brand-new URL and you'd have to paste it into `tracking-config.js`. Editing the existing one avoids that.
+
+## The leader dashboard
+
+Extra Resources → **Leader Dashboard** → **View student progress** opens a Student Progress page inside the app itself, reading live from the same Google Sheet. It shows:
+
+- The 25 most recently active students, each with ten dots for the ten days and a "7/10" count.
+- A **Load 25 more** button at the bottom to pull further back in history.
+- A search box that filters the students you've loaded. If someone doesn't turn up, load more and search again — the page tells you how many haven't been pulled down yet.
+- Tapping a student opens their ten days with the date each was marked.
+
+Two things worth knowing:
+
+- **The dates are "last marked," not "first completed."** The script keeps one row per student per day and overwrites its timestamp, so if a student un-marks and re-marks a day, you see the most recent change. Good for spotting who's fallen behind; not a precise history.
+- **This page is reachable by anyone who can open the site**, same as the old shared-sheet link was. If you'd rather it weren't, that needs a passcode on the Apps Script side — ask and it can be added.
+
+If the page can't reach the sheet, it offers a link to open the Google Sheet directly instead. That link lives in `PROGRESS_SHEET_URL` near the top of `data.js`; set it to `null` to hide it.
 
 ## A note on the reflection boxes
 

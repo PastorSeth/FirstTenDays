@@ -659,6 +659,217 @@ a { color: var(--ink); }
   display: none;
 }
 
+/* ---------- Leader dashboard: student progress ---------- */
+
+.progress-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+  transition: border-color 0.15s ease;
+}
+
+.progress-search:focus-within { border-color: var(--brass); }
+
+.progress-search .icon {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--ink-soft);
+}
+
+.progress-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 11px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.progress-search input:focus { outline: none; }
+
+.progress-card {
+  display: block;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 13px 16px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.progress-card:active { transform: scale(0.995); }
+
+.progress-card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.progress-card .name {
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progress-card .when {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.progress-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.progress-dots .dot {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+}
+
+.progress-dots .dot.done {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.progress-dots .count {
+  margin-left: auto;
+  padding-left: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* One student's ten days */
+
+.progress-sub {
+  margin: -4px 0 16px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.progress-days {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 4px 16px;
+}
+
+.progress-day {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--parchment);
+}
+
+.progress-day:last-child { border-bottom: none; }
+
+.progress-day .num {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.progress-day.done .num {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+
+.progress-day .label {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+.progress-day.done .label {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.progress-day .when {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.progress-day:not(.done) .when { color: #B4B2A9; }
+
+/* Shared bits: load more, notes, empty + error states */
+
+.load-more {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.load-more:hover { border-color: var(--brass); }
+
+.progress-note {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.progress-empty {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.progress-empty .prose {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.progress-empty .complete-toggle { margin-top: 16px; }
+
+.progress-sheet-link {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+}
+
 /* Reduced motion */
 
 @media (prefers-reduced-motion: reduce) {

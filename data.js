@@ -48,6 +48,11 @@
 // page. Set it the same way as a day's videoId.
 const WELCOME_VIDEO_ID = null;
 
+// The Google Sheet behind the leader dashboard. The Student Progress
+// page reads the sheet directly now, so this link is only offered as a
+// backup if that page can't load. Set it to null to hide it entirely.
+const PROGRESS_SHEET_URL = "https://docs.google.com/spreadsheets/d/1zABmtpJDszh-znI6sj-QYeBx6c0gApEx8o9wTPE9Qro/edit?usp=sharing";
+
 // Reusable MAPS reflection prompts (Meditate / Apply / Pray / Share).
 // Used on every day except Day 1, which has its own intro questions.
 const MAPS_PROMPTS = [
@@ -272,6 +277,6 @@ const RESOURCES = [
   {
     slug: "leader-dashboard",
     title: "Leader Dashboard",
-    body: "<p>See who's completed which days.</p><p><a class=\"pdf-link\" href=\"https://docs.google.com/spreadsheets/d/1zABmtpJDszh-znI6sj-QYeBx6c0gApEx8o9wTPE9Qro/edit?usp=sharing\" target=\"_blank\" rel=\"noopener\">Click here to view progress</a></p>"
+    body: "<p>See who's completed which days.</p><p><a class=\"pdf-link\" href=\"#/progress\">View student progress</a></p>"
   }
 ];
