@@ -6,6 +6,7 @@
    - Ink        #21304A  primary text / dark elements
    - Brass      #B98B2E  accent, progress, active states
    - Sage       #6B8F71  completed state, secondary accent
+   - Alert      #A6412F  form errors (wrong password)
    - Paper      #FFFFFF  card surfaces
    ========================================================== */
 
@@ -16,6 +17,7 @@
   --brass: #B98B2E;
   --brass-soft: #E4CD97;
   --sage: #6B8F71;
+  --alert: #A6412F;
   --paper: #FFFFFF;
   --line: #DFD6C2;
   --shadow: 0 8px 24px rgba(33, 48, 74, 0.08);
@@ -637,6 +639,14 @@ a { color: var(--ink); }
   justify-content: center;
   box-shadow: 0 4px 14px rgba(0,0,0,0.3);
 }
+
+.modal-error {
+  margin: -6px 0 12px;
+  font-size: 0.83rem;
+  color: var(--alert);
+}
+
+.modal-error.hidden { display: none; }
 
 .change-name {
   display: block;

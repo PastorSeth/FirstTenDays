@@ -63,6 +63,30 @@ function setStudentName(name) {
   localStorage.setItem('student-name', name.trim());
 }
 
+/* The leader's dashboard password, once they've entered it correctly.
+   Checking happens in the Apps Script — this is only so they aren't
+   asked again on every visit. */
+
+function getDashboardKey() {
+  return localStorage.getItem('dashboard-key') || '';
+}
+
+function setDashboardKey(value) {
+  if (value) localStorage.setItem('dashboard-key', value);
+  else localStorage.removeItem('dashboard-key');
+}
+
+/* Remembered so a returning leader gets the password box straight away
+   instead of a pointless round trip that we know will be refused. */
+
+function dashboardRequiresKey() {
+  return localStorage.getItem('dashboard-requires-key') === 'true';
+}
+
+function setDashboardRequiresKey(value) {
+  localStorage.setItem('dashboard-requires-key', value ? 'true' : 'false');
+}
+
 /* ---------- Progress tracking (optional) ----------
    Only active if TRACKING_ENDPOINT is set in tracking-config.js.
    Sends just a name + day + complete/not-complete status —
@@ -430,6 +454,7 @@ const progressState = {
   total: 0,
   query: '',
   loading: false,
+  locked: false,
   error: '',
   fetchedAt: 0
 };
@@ -438,18 +463,109 @@ function progressSheetUrl() {
   return typeof PROGRESS_SHEET_URL === 'string' && PROGRESS_SHEET_URL.trim() ? PROGRESS_SHEET_URL : '';
 }
 
-function fetchProgress(params) {
+function progressUrl(params) {
   const query = Object.keys(params)
+    .filter(k => params[k] !== '' && params[k] !== null && params[k] !== undefined)
     .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
     .join('&');
-  const url = TRACKING_ENDPOINT + (TRACKING_ENDPOINT.indexOf('?') === -1 ? '?' : '&') + query;
+  return TRACKING_ENDPOINT + (TRACKING_ENDPOINT.indexOf('?') === -1 ? '?' : '&') + query;
+}
 
+function fetchJson(url) {
   return fetch(url)
     .then(res => {
       if (!res.ok) throw new Error('bad status');
       return res.json();
     })
     .catch(() => jsonpRequest(url));
+}
+
+function fetchProgress(params) {
+  return fetchJson(progressUrl(Object.assign({}, params, { key: getDashboardKey() })));
+}
+
+function isUnauthorized(data) {
+  return !!(data && data.ok === false && data.error === 'unauthorized');
+}
+
+/* Tries one small request with the typed password to see if it's right. */
+function verifyDashboardKey(value) {
+  return fetchJson(progressUrl({ limit: 1, offset: 0, key: value }))
+    .then(data => !!(data && data.ok));
+}
+
+function lockDashboard() {
+  setDashboardKey('');
+  progressState.locked = true;
+  progressState.students = [];
+  progressState.total = 0;
+  progressState.fetchedAt = 0;
+}
+
+/* ---------- Dashboard password prompt ---------- */
+
+function renderDashboardPasswordPrompt() {
+  if (document.getElementById('dashboard-password-modal')) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'dashboard-password-modal';
+  overlay.innerHTML = `
+    <div class="modal-card">
+      <h2>Leader access</h2>
+      <p class="prose">Enter the dashboard password to see student progress.</p>
+      <input type="password" id="dashboard-password-input" placeholder="Password" autocomplete="current-password">
+      <p class="modal-error hidden" id="dashboard-password-error"></p>
+      <button id="dashboard-password-submit" class="complete-toggle is-complete">Continue</button>
+      <button id="dashboard-password-cancel" class="change-name">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const input = overlay.querySelector('#dashboard-password-input');
+  const submitBtn = overlay.querySelector('#dashboard-password-submit');
+  const error = overlay.querySelector('#dashboard-password-error');
+  input.focus();
+
+  function showError(message) {
+    error.textContent = message;
+    error.classList.remove('hidden');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Continue';
+    input.select();
+  }
+
+  function submit() {
+    const value = input.value.trim();
+    if (!value) { input.focus(); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Checking…';
+    error.classList.add('hidden');
+
+    verifyDashboardKey(value)
+      .then(good => {
+        if (!good) { showError("That password didn't work. Try again."); return; }
+        setDashboardKey(value);
+        setDashboardRequiresKey(true);
+        progressState.locked = false;
+        progressState.students = [];
+        progressState.fetchedAt = 0;
+        overlay.remove();
+        router();
+      })
+      .catch(() => showError("Couldn't reach the sheet. Check your connection and try again."));
+  }
+
+  function cancel() {
+    overlay.remove();
+    window.location.hash = '#/resources/leader-dashboard';
+  }
+
+  submitBtn.addEventListener('click', submit);
+  overlay.querySelector('#dashboard-password-cancel').addEventListener('click', cancel);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) cancel(); });
 }
 
 /* Fallback for browsers/setups where reading the Apps Script response
@@ -499,19 +615,36 @@ function renderProgressList() {
     return;
   }
 
+  const needsPassword = dashboardRequiresKey() && !getDashboardKey();
+  progressState.locked = needsPassword;
+
   app.innerHTML = progressShell(`
-    <div class="progress-search">
-      <span class="icon">${ICONS.search}</span>
-      <input type="search" id="progress-search-input" placeholder="Search students" autocomplete="off" value="${escapeHtml(progressState.query)}">
-    </div>
+    ${needsPassword ? '' : `
+      <div class="progress-search">
+        <span class="icon">${ICONS.search}</span>
+        <input type="search" id="progress-search-input" placeholder="Search students" autocomplete="off" value="${escapeHtml(progressState.query)}">
+      </div>
+    `}
     <div id="progress-list"></div>
+    ${getDashboardKey() ? `<button class="change-name" id="dashboard-lock">Lock dashboard</button>` : ''}
   `);
 
-  const input = document.getElementById('progress-search-input');
-  input.addEventListener('input', () => {
-    progressState.query = input.value;
+  document.getElementById('progress-search-input')?.addEventListener('input', (e) => {
+    progressState.query = e.target.value;
     paintProgressList();
   });
+
+  document.getElementById('dashboard-lock')?.addEventListener('click', () => {
+    lockDashboard();
+    router();
+  });
+
+  // Known to need a password and we don't have one — ask before fetching.
+  if (needsPassword) {
+    paintProgressList();
+    renderDashboardPasswordPrompt();
+    return;
+  }
 
   const stillFresh = progressState.students.length > 0 &&
     (Date.now() - progressState.fetchedAt) < PROGRESS_CACHE_MS;
@@ -537,6 +670,11 @@ function loadProgressPage(reset) {
 
   fetchProgress({ limit: PROGRESS_PAGE_SIZE, offset: progressState.students.length })
     .then(data => {
+      if (isUnauthorized(data)) {
+        setDashboardRequiresKey(true);
+        lockDashboard();
+        return;
+      }
       if (!data || !data.ok) throw new Error('bad response');
       progressState.students = progressState.students.concat(data.students || []);
       progressState.total = typeof data.total === 'number' ? data.total : progressState.students.length;
@@ -547,7 +685,11 @@ function loadProgressPage(reset) {
     })
     .then(() => {
       progressState.loading = false;
-      paintProgressList();
+      if (progressState.locked) {
+        renderProgressList();  // rebuild without the search box, then prompt
+      } else {
+        paintProgressList();
+      }
     });
 }
 
@@ -575,6 +717,18 @@ function progressCard(student) {
 function paintProgressList() {
   const host = document.getElementById('progress-list');
   if (!host) return; // navigated away mid-load
+
+  if (progressState.locked) {
+    host.innerHTML = `
+      <div class="progress-empty">
+        <p class="prose">This dashboard is password protected.</p>
+        <button class="complete-toggle is-complete" id="progress-unlock">Enter password</button>
+      </div>
+    `;
+    document.getElementById('progress-unlock')
+      .addEventListener('click', () => renderDashboardPasswordPrompt());
+    return;
+  }
 
   const loaded = progressState.students;
   const query = progressState.query.trim();
@@ -654,6 +808,13 @@ function progressDetailShell(safeName, inner) {
 function renderProgressDetail(rawName) {
   if (!trackingEnabled()) { renderProgressList(); return; }
 
+  // Deep link into a student without the password — bounce to the list,
+  // which does the asking.
+  if (dashboardRequiresKey() && !getDashboardKey()) {
+    window.location.hash = '#/progress';
+    return;
+  }
+
   let name;
   try { name = decodeURIComponent(rawName); } catch (e) { name = rawName; }
 
@@ -665,6 +826,12 @@ function renderProgressDetail(rawName) {
 
   fetchProgress({ name })
     .then(data => {
+      if (isUnauthorized(data)) {
+        setDashboardRequiresKey(true);
+        lockDashboard();
+        window.location.hash = '#/progress';
+        return;
+      }
       if (!data || !data.ok || !(data.students || []).length) throw new Error('not found');
       paintProgressDetail(data.students[0]);
     })

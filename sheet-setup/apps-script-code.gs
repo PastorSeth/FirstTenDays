@@ -25,6 +25,29 @@
 
 const HEADERS = ["Student Name", "Day", "Status", "Last Updated"];
 
+/* ---------- Dashboard password ----------
+   The Student Progress page asks for this before it will show anything.
+
+   Set it in the Apps Script editor under:
+     Project Settings (gear icon) -> Script properties -> Add script property
+     Property: DASHBOARD_PASSWORD
+     Value:    whatever password you want leaders to type
+
+   Keeping it there instead of in this file means it never ends up in your
+   public GitHub repo. If you don't set the property at all, the dashboard
+   stays open to anyone who can reach the site — the same as before.
+
+   Note this only guards *reading* the dashboard. Students still record
+   their own progress without a password, which is what doPost handles. */
+
+function dashboardPassword() {
+  try {
+    return String(PropertiesService.getScriptProperties().getProperty('DASHBOARD_PASSWORD') || '').trim();
+  } catch (err) {
+    return '';
+  }
+}
+
 /* ---------- Writing: a student marked a day ---------- */
 
 function doPost(e) {
@@ -75,6 +98,11 @@ function doGet(e) {
   const callback = params.callback;
 
   try {
+    const required = dashboardPassword();
+    if (required && String(params.key || '') !== required) {
+      return jsonOut({ ok: false, error: "unauthorized" }, callback);
+    }
+
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     const students = readStudents(sheet);
 

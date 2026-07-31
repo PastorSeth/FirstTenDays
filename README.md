@@ -116,9 +116,27 @@ Extra Resources → **Leader Dashboard** → **View student progress** opens a S
 Two things worth knowing:
 
 - **The dates are "last marked," not "first completed."** The script keeps one row per student per day and overwrites its timestamp, so if a student un-marks and re-marks a day, you see the most recent change. Good for spotting who's fallen behind; not a precise history.
-- **This page is reachable by anyone who can open the site**, same as the old shared-sheet link was. If you'd rather it weren't, that needs a passcode on the Apps Script side — ask and it can be added.
+- **Without a password set (see below), this page is reachable by anyone who can open the site** — same as the old shared-sheet link was.
 
 If the page can't reach the sheet, it offers a link to open the Google Sheet directly instead. That link lives in `PROGRESS_SHEET_URL` near the top of `data.js`; set it to `null` to hide it.
+
+### Putting a password on the dashboard
+
+Do this in Google, not in these files — that's what keeps the password out of your public repo:
+
+1. Open your Apps Script project (from the sheet: **Extensions → Apps Script**).
+2. Click the **gear icon (Project Settings)** in the left sidebar.
+3. Scroll to **Script properties** and click **Add script property**.
+4. Property: `DASHBOARD_PASSWORD`. Value: whatever password you want leaders to type.
+5. Click **Save script properties**. No re-deploy needed for this part.
+
+Now anyone opening Student Progress gets a password box, and the sheet refuses to hand over any data until the right password is sent. **Because the check happens inside Google rather than in the website's code, the password can't be read out of the public repo** — which is exactly why it's worth doing this way rather than putting it in `data.js`.
+
+Once a leader enters it correctly, it's saved on that device and they won't be asked again. On a shared or borrowed device, the **Lock dashboard** button at the bottom of the page clears it.
+
+To change the password later, edit that same script property. Every leader will be asked for the new one the next time they open the page. To remove it entirely, delete the property — the dashboard goes back to being open to anyone.
+
+A caveat worth being honest about: this keeps out students and anyone casually poking around, which is what it's for. It is not bank-grade security — the password travels in the request URL, so treat it as a gate on a low-stakes list of names and day counts, not as protection for anything sensitive. Students' written reflections are never sent anywhere regardless, so they aren't at stake here.
 
 ## A note on the reflection boxes
 
