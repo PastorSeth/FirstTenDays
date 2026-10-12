@@ -568,7 +568,6 @@ a { color: inherit; }
   color: var(--ink);
   font: 400 16px/1.5 var(--font);
   resize: vertical;
-  transition: border-color .15s ease;
 }
 
 .reflection textarea:focus {
