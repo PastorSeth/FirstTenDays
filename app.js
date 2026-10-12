@@ -112,6 +112,8 @@ const ICONS = {
   film: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>`,
   close: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
   play: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  arrowRight: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
+  arrowLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`,
   search: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>`
 };
 
@@ -196,6 +198,7 @@ function router() {
   window.scrollTo(0, route.name === 'home' && from ? homeScrollY : 0);
   Motion.scan(view);
   if (from) focusHeading(view);
+  else if (route.name === 'home') Motion.entrance('home', view);   // the big entrance, first load only
 
   currentRoute = route;
   currentView = view;
@@ -283,25 +286,73 @@ function renderWelcomeVideoModal() {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 }
 
+/* ---------- Giant words and day helpers ---------- */
+
+/* "1" → "01" */
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
+function cleanWords(value) {
+  const list = typeof value === 'string' ? [value] : Array.isArray(value) ? value : [];
+  return list.filter(w => typeof w === 'string' && w.trim()).map(w => w.trim());
+}
+
+/* A day's giant words, or the home page's when the day has none of its
+   own. A single word typed without the [ ] still counts as one word. */
+function dayWords(day) {
+  const own = cleanWords(day && day.words);
+  if (own.length) return own;
+  return cleanWords(typeof HOME_WORDS !== 'undefined' ? HOME_WORDS : []);
+}
+
+/* The first day that isn't marked complete, or null once all of them are. */
+function upNextDay(days, isComplete) {
+  const first = days.find(d => !isComplete(d.day));
+  return first ? first.day : null;
+}
+
+/* The full-bleed rows of giant words. Rows alternate: outline sliding
+   left, then solid vermilion sliding right. Each word repeats enough to
+   overfill the screen while it slides, plus two faint copies for the
+   smear on a fast scroll. */
+function wordRowsHtml(words) {
+  if (!words || !words.length) return '';
+  const rows = words.map((word, i) => {
+    const text = Array(6).fill(typeset(String(word).toUpperCase())).join(' ');
+    const look = i % 2 === 0 ? 'outline' : 'solid';
+    const drift = i % 2 === 0 ? 'left' : 'right';
+    return `<div class="word-row-wrap"><div class="word-row t-giant word-row--${look}" data-drift="${drift}">${text}<span class="word-ghost word-ghost--1">${text}</span><span class="word-ghost word-ghost--2">${text}</span></div></div>`;
+  }).join('');
+  return `<div class="word-rows" aria-hidden="true">${rows}</div>`;
+}
+
 /* ---------- Home ---------- */
 
 function renderHome(view) {
-  const nodes = DAYS.map(d => {
-    const complete = isDayComplete(d.day);
+  const next = upNextDay(DAYS, isDayComplete);
+  const book = typeof BOOK_NAME === 'string' ? BOOK_NAME : '';
+
+  const rows = DAYS.map(d => {
+    const state = isDayComplete(d.day) ? 'done' : d.day === next ? 'next' : 'later';
+    const topic = typeset(d.topic);
     return `
-      <a href="#/day/${d.day}" class="trail-node ${complete ? 'complete' : ''}">
-        <span class="stone">
-          <span class="num">${d.day}</span>
-          <span class="check">${ICONS.check}</span>
+      <a href="#/day/${d.day}" class="day-row" data-state="${state}" aria-label="Day ${d.day}: ${topic}${state === 'done' ? ' (complete)' : ''}">
+        <span class="day-row-inner" data-slide-in>
+          <span class="day-num t-giant" data-day-num="${d.day}">${pad2(d.day)}</span>
+          <span class="day-topic">${topic}</span>
+          <span class="day-mark">${state === 'done' ? ICONS.check : ICONS.chevron}</span>
         </span>
-        <span class="info">
-          <span class="day-label">Day ${d.day}</span>
-          <span class="day-topic">${d.topic}</span>
-        </span>
-        <span class="chevron">${ICONS.chevron}</span>
       </a>
     `;
   }).join('');
+
+  const upNext = next
+    ? `<a class="up-next" href="#/day/${next}">
+         <span><span class="up-next-label">Up next</span> &middot; Day ${next}</span>
+         <span class="up-next-go" aria-hidden="true">${ICONS.arrowRight}</span>
+       </a>`
+    : `<div class="up-next up-next--done">${ICONS.check}<span>All ${DAYS.length} days complete</span></div>`;
 
   view.innerHTML = `
     <div class="install-banner" id="install-banner">
@@ -309,30 +360,26 @@ function renderHome(view) {
       <button id="install-btn">Install</button>
       <button id="install-dismiss" class="install-dismiss">Not now</button>
     </div>
-    <div class="hero">
-      <div class="eyebrow">A 10-Day Bible Study</div>
-      <h1>First 10 Days</h1>
+    <div class="masthead label"><span>${typeset(book)}</span><span>${DAYS.length} days</span></div>
+    <div class="masthead-rule"></div>
+    ${wordRowsHtml(dayWords({}))}
+    <div class="home-hero" data-rise>
+      <div class="label home-eyebrow">${DAYS.length}-day Bible study</div>
+      <h1 class="home-title t-condensed">First <span class="ten">10</span> Days</h1>
     </div>
-    <div class="welcome-video-banner">
-      <button class="welcome-video-pill" id="welcome-video-open">
-        <span class="icon">${ICONS.play}</span>
-        Watch the welcome video
-      </button>
+    <div class="home-welcome" data-rise>
+      <button class="btn-pill welcome-pill" id="welcome-video-open">${ICONS.play} Welcome video</button>
     </div>
-    <div class="trail">
-      ${nodes}
-    </div>
-    <div class="signpost">
-      <a href="#/resources" class="signpost-card">
-        <span class="icon">${ICONS.compass}</span>
-        <span>
-          <span class="title">Extra Resources</span>
-          <span class="sub">Study tools, guides, and deeper questions</span>
-        </span>
-        <span class="chevron">${ICONS.chevron}</span>
-      </a>
-    </div>
+    <nav class="day-list" aria-label="The days">${rows}</nav>
+    <a href="#/resources" class="signpost" data-rise>
+      <span>
+        <span class="label">Extra resources</span>
+        <span class="signpost-title t-condensed">Go deeper</span>
+      </span>
+      <span class="signpost-mark">${ICONS.chevron}</span>
+    </a>
     ${trackingEnabled() && getStudentName() ? `<button class="change-name" id="change-name-btn">Not ${escapeHtml(getStudentName())}? Change name</button>` : ''}
+    ${upNext}
   `;
 
   view.querySelector('#install-btn')?.addEventListener('click', triggerInstall);

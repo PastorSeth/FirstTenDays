@@ -162,6 +162,59 @@ const Motion = (() => {
     revealObserver.observe(el);
   }
 
+  /* ---------- One-off animations: entrances (and, later, transitions) ----------
+     These use the Web Animations API with fill: 'backwards', so an element
+     waits in its starting pose through its delay and hands back to the
+     stylesheet the moment it finishes. Every animation started here is
+     tracked, so finishActive() can settle them all at once. */
+
+  const EASE_OUT = 'cubic-bezier(.2,.8,.2,1)';
+  const RISE = [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }];
+  const running = new Set();
+
+  function canAnimate() {
+    return typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
+  }
+
+  function play(el, keyframes, options) {
+    const animation = el.animate(keyframes, Object.assign({ easing: EASE_OUT, fill: 'backwards' }, options));
+    running.add(animation);
+    const done = () => running.delete(animation);
+    animation.finished.then(done, done);
+    return animation;
+  }
+
+  /* Word rows sweep in from alternate edges: the first row (which drifts
+     left) arrives from the right, the next from the left, and so on. */
+  function sweepRows(root, baseDelay) {
+    root.querySelectorAll('.word-row-wrap').forEach((el, i) => {
+      const from = i % 2 === 0 ? '110%' : '-110%';
+      play(el, [{ transform: `translateX(${from})` }, { transform: 'none' }], { duration: 640, delay: baseDelay + i * 60 });
+    });
+  }
+
+  function entrance(kind, root) {
+    if (api.reduced() || !canAnimate() || !root || kind !== 'home') return;
+    root.querySelectorAll('.masthead-rule').forEach(el =>
+      play(el, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 500 }));
+    sweepRows(root, 80);
+    root.querySelectorAll('[data-rise]').forEach((el, i) =>
+      play(el, RISE, { duration: 420, delay: 220 + i * 60 }));
+    root.querySelectorAll('.day-row').forEach((el, i) =>
+      play(el, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 300 + i * 40 }));
+    root.querySelectorAll('.up-next').forEach(el =>
+      play(el, [{ transform: 'translateY(140%)' }, { transform: 'none' }], { duration: 420, delay: 600 }));
+  }
+
+  /* Jump every animation Motion started straight to its end — used when
+     the page changes again before the last change finished animating. */
+  function finishActive() {
+    running.forEach(animation => {
+      try { animation.finish(); } catch (e) { animation.cancel(); }
+    });
+    running.clear();
+  }
+
   /* ---------- Public ---------- */
 
   function init() {
@@ -209,6 +262,6 @@ const Motion = (() => {
     onScreen.clear();
   }
 
-  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, reduced, init, scan, clear };
+  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, reduced, init, scan, clear, entrance, finishActive };
   return api;
 })();

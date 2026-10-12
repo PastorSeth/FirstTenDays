@@ -41,3 +41,16 @@ test('motion: reduced motion turns motion-on off', () => {
   Motion.reduced = saved; Motion.init();
   assert(document.documentElement.classList.contains('motion-on'));
 });
+test('motion: home entrance animates marked elements, skipped under Reduce Motion', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div class="masthead-rule"></div><div class="word-row-wrap"></div><h1 data-rise>T</h1><a class="day-row">1</a><a class="up-next">U</a>';
+  document.body.appendChild(root);
+  Motion.entrance('home', root);
+  ['.masthead-rule', '.word-row-wrap', '[data-rise]', '.day-row', '.up-next'].forEach(s =>
+    assertEqual(root.querySelector(s).getAnimations().length, 1, s));
+  Motion.finishActive();
+  const saved = Motion.reduced; Motion.reduced = () => true;
+  Motion.entrance('home', root);
+  assertEqual(root.querySelector('[data-rise]').getAnimations().length, 0);
+  Motion.reduced = saved; root.remove();
+});

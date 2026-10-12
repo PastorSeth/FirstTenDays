@@ -213,6 +213,173 @@ a { color: inherit; }
   will-change: transform;
 }
 
+/* ---------- Home ---------- */
+
+/* Room at the bottom so the Up next bar never covers the last row. */
+.view--home { padding-bottom: 96px; }
+
+.view--home .word-rows {
+  margin-top: 6px;
+  font-size: clamp(96px, 30vw, 170px);
+}
+
+.word-row-wrap + .word-row-wrap { margin-top: -0.1em; }
+
+.home-hero { margin-top: 10px; }
+
+.home-eyebrow { color: var(--ink-60); }
+
+.home-title {
+  margin-top: 6px;
+  font-size: clamp(40px, 12vw, 64px);
+}
+
+.home-title .ten { color: var(--vermilion); }
+
+.home-welcome { margin: 16px 0 24px; }
+
+.welcome-pill svg { color: var(--vermilion); }
+
+.day-list { border-bottom: 1px solid var(--rule); }
+
+.day-row {
+  display: block;
+  min-height: 58px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.day-row-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 6px 0;
+}
+
+/* Rows slide in from the right as they come up the screen. */
+.motion-on [data-slide-in] {
+  transform: translateX(calc(var(--k, 0) * 60px));
+  opacity: calc(1 - var(--k, 0) * .85);
+}
+
+.day-num {
+  flex: 0 0 52px;
+  font-size: 44px;
+  color: var(--ink-30);
+}
+
+.day-row[data-state="done"] .day-num { color: var(--vermilion); }
+.day-row[data-state="next"] .day-num { color: var(--ink); }
+
+.day-topic {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.day-row[data-state="later"] .day-topic { color: var(--ink-60); }
+
+.day-mark {
+  flex: 0 0 auto;
+  display: flex;
+  color: var(--ink-30);
+}
+
+.day-row[data-state="done"] .day-mark { color: var(--vermilion-text); }
+
+.signpost {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  margin-top: 28px;
+  padding: 14px 0;
+  border-top: 3px solid var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.signpost .label {
+  display: block;
+  color: var(--vermilion-text);
+}
+
+.signpost-title {
+  display: block;
+  margin-top: 4px;
+  font-size: 28px;
+}
+
+.signpost-mark { display: flex; }
+
+.change-name {
+  display: block;
+  min-height: 44px;
+  margin: 18px auto 0;
+  border: none;
+  background: none;
+  color: var(--ink-60);
+  font: 500 14px var(--font);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* The Up next bar sits in thumb reach at the bottom of the screen. */
+.up-next {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 50;
+  max-width: 616px;
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 6px 6px 6px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.up-next-label {
+  color: var(--vermilion);
+  font-weight: 800;
+}
+
+.up-next-go {
+  flex: 0 0 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--vermilion);
+  color: var(--ink);
+}
+
+.up-next--done {
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 22px;
+}
+
+.up-next--done svg { color: var(--vermilion); }
+
 /* ---------- States the app relies on ---------- */
 
 .hidden { display: none !important; }
