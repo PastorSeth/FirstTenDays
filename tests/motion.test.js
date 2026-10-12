@@ -54,3 +54,12 @@ test('motion: home entrance animates marked elements, skipped under Reduce Motio
   assertEqual(root.querySelector('[data-rise]').getAnimations().length, 0);
   Motion.reduced = saved; root.remove();
 });
+test('motion: day entrance sweeps rows and raises content', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div class="word-row-wrap"></div><div class="word-row-wrap"></div><h1 data-rise>T</h1>';
+  document.body.appendChild(root);
+  Motion.entrance('day', root);
+  assertEqual(root.querySelectorAll('.word-row-wrap')[1].getAnimations().length, 1);
+  assertEqual(root.querySelector('[data-rise]').getAnimations().length, 1);
+  Motion.finishActive(); root.remove();
+});

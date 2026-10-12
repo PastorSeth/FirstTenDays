@@ -79,3 +79,46 @@ test('app: renderHome marks done, next and later rows and the up-next bar', () =
     assertIncludes(v.querySelector('.up-next--done').textContent, 'All 10 days complete');
   });
 });
+test('app: readingText default and custom', () => {
+  assertEqual(readingText({ passage: '1 John 2:7-11' }), 'Open your Bible to 1 John 2:7-11 and read it through.');
+  assertEqual(readingText({ passage: 'x', reading: '  Custom.  ' }), 'Custom.');
+  assertEqual(readingText({ passage: 'x', reading: '   ' }), 'Open your Bible to x and read it through.');
+});
+test('app: renderDay shows the Day 1 study and the Day 2 placeholder', () => {
+  const v = document.createElement('div');
+  renderDay(v, 1);
+  assertEqual(v.querySelectorAll('.study .study-h').length, 2);
+  assertEqual(v.querySelector('.day-big-num').textContent, '01');
+  assertIncludes(v.querySelector('.read-callout').textContent, 'hit the brakes');
+  assertEqual(v.querySelectorAll('.word-row').length, 2);
+  renderDay(v, 2);
+  assertEqual(v.querySelector('.study-placeholder').textContent.trim(), 'Study coming soon.');
+  assertIncludes(v.querySelector('.read-callout').textContent, 'Open your Bible to 1 John 1:5–2:6 and read it through.');
+  assertIncludes(v.querySelector('h1').textContent, 'What’s the Point');
+});
+test('app: saved answers from the current version still load', () => {
+  withStorage({ 'reflection:1:author': 'An answer I wrote last week' }, () => {
+    const v = document.createElement('div'); renderDay(v, 1);
+    assertEqual(v.querySelector('#r-author').value, 'An answer I wrote last week');
+  });
+});
+test('app: tapping the check icon toggles the complete button correctly', () => {
+  withStorage({ 'complete:1': 'true' }, () => {
+    const v = document.createElement('div'); document.body.appendChild(v); renderDay(v, 1);
+    const btn = v.querySelector('.complete-btn');
+    assert(btn.classList.contains('is-complete'));
+    btn.querySelector('svg').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    assert(!btn.classList.contains('is-complete'), 'button no longer complete');
+    assertIncludes(btn.textContent, 'Mark day complete');
+    assertEqual(localStorage.getItem('complete:1'), 'false');
+    v.remove();
+  });
+});
+test('app: day nav links', () => {
+  const v = document.createElement('div');
+  renderDay(v, 1);
+  assert(!v.querySelector('.day-nav [data-dir="prev"]'));
+  assertEqual(v.querySelector('.day-nav [data-dir="next"]').getAttribute('href'), '#/day/2');
+  renderDay(v, 10);
+  assert(!v.querySelector('.day-nav [data-dir="next"]'));
+});

@@ -198,7 +198,7 @@ function router() {
   window.scrollTo(0, route.name === 'home' && from ? homeScrollY : 0);
   Motion.scan(view);
   if (from) focusHeading(view);
-  else if (route.name === 'home') Motion.entrance('home', view);   // the big entrance, first load only
+  else if (route.name === 'home' || route.name === 'day') Motion.entrance(route.name, view);   // first load only
 
   currentRoute = route;
   currentView = view;
@@ -390,6 +390,16 @@ function renderHome(view) {
 
 /* ---------- Day page ---------- */
 
+/* The "Read" box: a day's own reading prompt, or the standard one. */
+function readingText(day) {
+  const own = typeof day.reading === 'string' ? day.reading.trim() : '';
+  return own || `Open your Bible to ${day.passage} and read it through.`;
+}
+
+function completeLabel(done) {
+  return done ? `${ICONS.check}<span>Day complete</span>` : '<span>Mark day complete</span>';
+}
+
 function renderDay(view, dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
   if (!d) { renderHome(view); return; }
@@ -398,74 +408,49 @@ function renderDay(view, dayNum) {
     const val = loadReflection(dayNum, r.id);
     return `
       <div class="reflection">
-        <label for="r-${r.id}">${r.label}</label>
-        ${r.prompt ? `<div class="prompt">${r.prompt}</div>` : ''}
-        <textarea id="r-${r.id}" data-field="${r.id}" placeholder="Write your answer here&hellip;">${val}</textarea>
+        <label for="r-${r.id}">${typeset(r.label)}</label>
+        ${r.prompt ? `<div class="prompt">${typeset(r.prompt)}</div>` : ''}
+        <textarea id="r-${r.id}" data-field="${r.id}" placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>
         <div class="save-status" data-status-for="${r.id}">Saved</div>
       </div>
     `;
   }
 
-  const reflections = d.reflections.map(reflectionCard).join('');
-  const reflectionQuestionBlock = d.reflectionQuestion ? reflectionCard(d.reflectionQuestion) : '';
-
-  // Normally: Bible Passage -> MAPS -> Video -> Reflection Question.
-  // A day can override this with the "flow" field:
-  //   "video-first"        -> Video -> MAPS -> Reflection Question (no passage section)
-  //   "video-passage-video" -> Video #1 -> Bible Passage -> Video #2 -> MAPS -> Reflection Question
-  //                            (uses videoId as Video #1 and videoId2 as Video #2)
-  const passageBlock = `
-    <div class="section">
-      <div class="prose">${d.intro}</div>
-    </div>
-  `;
-  const reflectBlock = `
-    <div class="section">
-      <h2><span class="num">Reflect</span></h2>
-      ${reflections}
-    </div>
-  `;
-  const videoWrap = `<div class="video-wrap">${videoFrame(d.videoId)}</div>`;
-
-  let mainFlow;
-  if (d.flow === 'video-passage-video') {
-    const videoWrap2 = `<div class="video-wrap">${videoFrame(d.videoId2)}</div>`;
-    mainFlow = `${videoWrap}${passageBlock}${videoWrap2}${reflectBlock}`;
-  } else if (d.flow === 'video-first') {
-    mainFlow = `${videoWrap}${reflectBlock}`;
-  } else {
-    mainFlow = `${passageBlock}${reflectBlock}${videoWrap}`;
-  }
+  const study = typeof d.study === 'string' && d.study.trim()
+    ? `<div class="study">${formatStudy(d.study)}</div>`
+    : '<div class="study-placeholder">Study coming soon.</div>';
 
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
   const next = DAYS.find(x => x.day === dayNum + 1);
 
   view.innerHTML = `
-    <div class="topbar">
-      <a href="#/" class="back-link">${ICONS.back} All Days</a>
+    <a href="#/" class="back-link" data-rise>${ICONS.arrowLeft}<span>All days</span></a>
+    <div class="day-masthead" data-rise>
+      <div class="masthead label"><span>Day ${d.day} of ${DAYS.length}</span><span>${typeset(d.passage)}</span></div>
+      <div class="masthead-rule"></div>
     </div>
-    <div class="day-header">
-      <div class="day-eyebrow">Day ${d.day} of 10</div>
-      <h1>${d.topic}</h1>
-      <span class="passage-pill">${d.passage}</span>
-    </div>
-
-    ${mainFlow}
-
-    ${reflectionQuestionBlock ? `
-      <div class="section">
-        ${reflectionQuestionBlock}
-      </div>
-    ` : ''}
-
-    <button class="complete-toggle ${complete ? 'is-complete' : ''}" id="complete-btn">
-      ${complete ? ICONS.check + ' Day Complete' : 'Mark Day Complete'}
-    </button>
-
-    <div class="day-nav">
-      ${prev ? `<a href="#/day/${prev.day}">&larr; Day ${prev.day}</a>` : '<span></span>'}
-      ${next ? `<a href="#/day/${next.day}">Day ${next.day} &rarr;</a>` : '<span></span>'}
+    <header class="day-header">
+      ${wordRowsHtml(dayWords(d))}
+      <span class="day-big-num t-giant" aria-hidden="true">${pad2(d.day)}</span>
+    </header>
+    <h1 class="day-title t-condensed" data-rise>${typeset(d.topic)}</h1>
+    <section class="read-callout" data-rise>
+      <div class="label">Read</div>
+      <p>${formatInline(readingText(d))}</p>
+    </section>
+    <div class="day-body" data-rise>
+      ${study}
+      <section class="reflect">
+        <h2 class="section-h t-condensed">Reflect</h2>
+        ${d.reflections.map(reflectionCard).join('')}
+      </section>
+      ${d.reflectionQuestion ? `<section class="reflect reflect--question">${reflectionCard(d.reflectionQuestion)}</section>` : ''}
+      <button class="complete-btn btn-pill ${complete ? 'is-complete' : ''}" id="complete-btn">${completeLabel(complete)}</button>
+      <nav class="day-nav" aria-label="Other days">
+        ${prev ? `<a data-dir="prev" href="#/day/${prev.day}">${ICONS.arrowLeft}<span>Day ${prev.day}</span></a>` : '<span></span>'}
+        ${next ? `<a data-dir="next" href="#/day/${next.day}"><span>Day ${next.day}</span>${ICONS.arrowRight}</a>` : '<span></span>'}
+      </nav>
     </div>
   `;
 
@@ -484,11 +469,13 @@ function renderDay(view, dayNum) {
     });
   });
 
+  // currentTarget, not target: a tap can land on the check icon inside the button.
   view.querySelector('#complete-btn').addEventListener('click', (e) => {
+    const button = e.currentTarget;
     const nowComplete = !isDayComplete(dayNum);
     setDayComplete(dayNum, nowComplete);
-    e.target.classList.toggle('is-complete', nowComplete);
-    e.target.innerHTML = nowComplete ? ICONS.check + ' Day Complete' : 'Mark Day Complete';
+    button.classList.toggle('is-complete', nowComplete);
+    button.innerHTML = completeLabel(nowComplete);
     if (trackingEnabled() && !getStudentName()) {
       renderNamePrompt();
     }

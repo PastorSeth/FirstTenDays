@@ -380,6 +380,223 @@ a { color: inherit; }
 
 .up-next--done svg { color: var(--vermilion); }
 
+/* ---------- Day page ---------- */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: -6px 0 2px;
+  color: var(--ink-60);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.day-header {
+  position: relative;
+  min-height: calc(clamp(110px, 34vw, 170px) * .95);
+  margin-top: 6px;
+}
+
+.view--day .word-rows { font-size: clamp(84px, 24vw, 150px); }
+
+/* The big day number sits in front of the sliding rows. */
+.day-big-num {
+  position: absolute;
+  left: 0;
+  top: calc(50% - .45em);
+  z-index: 1;
+  font-size: clamp(110px, 34vw, 170px);
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.day-title {
+  margin-top: 10px;
+  font-size: clamp(32px, 9.5vw, 52px);
+}
+
+.read-callout {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 3px solid var(--ink);
+}
+
+.read-callout .label { color: var(--vermilion-text); }
+
+.read-callout p {
+  margin: 8px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.read-callout a,
+.study a {
+  color: var(--vermilion-text);
+  font-weight: 600;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.study { margin-top: 8px; }
+
+.study p,
+.study li {
+  font-size: 18px;
+  line-height: 1.65;
+  color: rgba(10, 10, 20, 0.88);
+}
+
+.study p { margin: 0 0 .9em; }
+
+.study li { margin-bottom: .4em; }
+
+/* Study headings come from the formatter without the .t-condensed class,
+   so they take its look here. */
+.study-h,
+.section-h {
+  margin: 30px 0 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 26px;
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: .95;
+}
+
+.study-ul {
+  margin: 0 0 1em;
+  padding-left: 1.3em;
+  list-style: square;
+}
+
+.study-ul li::marker { color: var(--vermilion); }
+
+.study-ol {
+  margin: 0 0 1em;
+  padding-left: 1.5em;
+}
+
+.study-ol li::marker {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+/* Pull quotes: poster-size, with a vermilion bar underneath. */
+.pull {
+  margin: 22px 0 28px;
+  font-size: clamp(52px, 16vw, 88px);
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: .86;
+  color: var(--ink);
+}
+
+.study .pull p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.pull::after {
+  content: '';
+  display: block;
+  width: 62%;
+  height: 8px;
+  margin-top: 12px;
+  background: var(--vermilion);
+}
+
+.study-placeholder {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1.5px dashed var(--rule);
+  border-radius: 10px;
+  color: var(--ink-60);
+  font-size: 16px;
+}
+
+.reflection { margin-top: 18px; }
+
+.reflection label {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.reflection .prompt {
+  margin-top: 4px;
+  color: var(--ink-60);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* 16px keeps iPhones from zooming in when a box gets focus. */
+.reflection textarea {
+  display: block;
+  width: 100%;
+  min-height: 104px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 400 16px/1.5 var(--font);
+  resize: vertical;
+  transition: border-color .15s ease;
+}
+
+.reflection textarea:focus {
+  outline: none;
+  border-color: var(--vermilion);
+}
+
+.save-status {
+  height: 18px;
+  margin-top: 4px;
+  color: var(--ink-60);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.complete-btn {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 30px;
+  font-size: 16px;
+}
+
+.complete-btn.is-complete {
+  background: var(--vermilion);
+  color: var(--ink);
+}
+
+.day-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.day-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 20px;
+  font-stretch: 75%;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 /* ---------- States the app relies on ---------- */
 
 .hidden { display: none !important; }

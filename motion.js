@@ -193,17 +193,26 @@ const Motion = (() => {
     });
   }
 
+  /* The first-load entrance. Both pages sweep their word rows in and raise
+     their content; home also draws its masthead rule, cascades the day
+     rows, and slides the Up next bar up. */
   function entrance(kind, root) {
-    if (api.reduced() || !canAnimate() || !root || kind !== 'home') return;
-    root.querySelectorAll('.masthead-rule').forEach(el =>
-      play(el, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 500 }));
+    if (api.reduced() || !canAnimate() || !root) return;
+    if (kind !== 'home' && kind !== 'day') return;
+
+    if (kind === 'home') {
+      root.querySelectorAll('.masthead-rule').forEach(el =>
+        play(el, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 500 }));
+    }
     sweepRows(root, 80);
     root.querySelectorAll('[data-rise]').forEach((el, i) =>
       play(el, RISE, { duration: 420, delay: 220 + i * 60 }));
-    root.querySelectorAll('.day-row').forEach((el, i) =>
-      play(el, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 300 + i * 40 }));
-    root.querySelectorAll('.up-next').forEach(el =>
-      play(el, [{ transform: 'translateY(140%)' }, { transform: 'none' }], { duration: 420, delay: 600 }));
+    if (kind === 'home') {
+      root.querySelectorAll('.day-row').forEach((el, i) =>
+        play(el, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 300 + i * 40 }));
+      root.querySelectorAll('.up-next').forEach(el =>
+        play(el, [{ transform: 'translateY(140%)' }, { transform: 'none' }], { duration: 420, delay: 600 }));
+    }
   }
 
   /* Jump every animation Motion started straight to its end — used when
