@@ -105,10 +105,8 @@ function sendProgressUpdate(dayNum, complete) {
 /* ---------- Icons (inline SVG, no external requests) ---------- */
 
 const ICONS = {
-  back: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`,
   chevron: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`,
   check: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
-  compass: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/></svg>`,
   film: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>`,
   close: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
   play: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
@@ -280,7 +278,7 @@ function renderNamePrompt() {
       <h2>What's your name?</h2>
       <p class="prose">Your leader can see which days you've completed &mdash; not what you write in your reflections. Just your first and last name is enough.</p>
       <input type="text" id="name-input" placeholder="Your name" autocomplete="name">
-      <button id="name-submit" class="complete-toggle is-complete">Continue</button>
+      <button id="name-submit" class="btn-pill btn-wide">Continue</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -389,7 +387,7 @@ function renderHome(view) {
   view.innerHTML = `
     <div class="install-banner" id="install-banner">
       <span>Add this to your home screen for quick daily access.</span>
-      <button id="install-btn">Install</button>
+      <button id="install-btn" class="btn-pill btn-pill--accent">Install</button>
       <button id="install-dismiss" class="install-dismiss">Not now</button>
     </div>
     <div class="masthead label"><span>${typeset(book)}</span><span>${DAYS.length} days</span></div>
@@ -527,18 +525,18 @@ function renderResourceList(view) {
 
   view.innerHTML = `
     <div class="topbar">
-      <a href="#/" class="back-link">${ICONS.back} All Days</a>
+      <a href="#/" class="back-link">${ICONS.arrowLeft}<span>All days</span></a>
     </div>
-    <div class="day-header">
-      <div class="day-eyebrow">Extra Resources</div>
+    <div class="page-header">
+      <div class="label page-eyebrow">Extra Resources</div>
       <h1>Go Deeper</h1>
     </div>
     ${items}
     ${isAppInstalled() ? '' : `
       <div class="section install-section">
-        <h2><span class="num">Install</span></h2>
+        <h2 class="section-h t-condensed">Install</h2>
         <p class="prose">Skip past the prompt on the main page? You can still add First 10 Days to your home screen any time.</p>
-        <button class="complete-toggle is-complete" id="resource-install-btn">Install App</button>
+        <button class="btn-pill btn-wide" id="resource-install-btn">Install App</button>
         <p class="prose install-fallback hidden" id="install-fallback">
           Your browser doesn't support one-tap install here &mdash; add it manually instead:<br>
           <strong>Android (Chrome):</strong> tap the &#8942; menu &rarr; "Add to Home screen".<br>
@@ -563,9 +561,9 @@ function renderResource(view, slug) {
 
   view.innerHTML = `
     <div class="topbar">
-      <a href="#/resources" class="back-link">${ICONS.back} Extra Resources</a>
+      <a href="#/resources" class="back-link">${ICONS.arrowLeft}<span>Extra resources</span></a>
     </div>
-    <div class="day-header">
+    <div class="page-header">
       <h1>${r.title}</h1>
     </div>
     <div class="prose">${r.body}</div>
@@ -648,7 +646,7 @@ function renderDashboardPasswordPrompt() {
       <p class="prose">Enter the dashboard password to see student progress.</p>
       <input type="password" id="dashboard-password-input" placeholder="Password" autocomplete="current-password">
       <p class="modal-error hidden" id="dashboard-password-error"></p>
-      <button id="dashboard-password-submit" class="complete-toggle is-complete">Continue</button>
+      <button id="dashboard-password-submit" class="btn-pill btn-wide">Continue</button>
       <button id="dashboard-password-cancel" class="change-name">Cancel</button>
     </div>
   `;
@@ -727,10 +725,10 @@ function jsonpRequest(url) {
 function progressShell(inner) {
   return `
     <div class="topbar">
-      <a href="#/resources/leader-dashboard" class="back-link">${ICONS.back} Leader Dashboard</a>
+      <a href="#/resources/leader-dashboard" class="back-link">${ICONS.arrowLeft}<span>Leader Dashboard</span></a>
     </div>
-    <div class="day-header">
-      <div class="day-eyebrow">For leaders</div>
+    <div class="page-header">
+      <div class="label page-eyebrow">For leaders</div>
       <h1>Student Progress</h1>
     </div>
     ${inner}
@@ -854,7 +852,7 @@ function paintProgressList() {
     host.innerHTML = `
       <div class="progress-empty">
         <p class="prose">This dashboard is password protected.</p>
-        <button class="complete-toggle is-complete" id="progress-unlock">Enter password</button>
+        <button class="btn-pill btn-wide" id="progress-unlock">Enter password</button>
       </div>
     `;
     document.getElementById('progress-unlock')
@@ -884,7 +882,7 @@ function paintProgressList() {
       host.innerHTML = `
         <div class="progress-empty">
           <p class="prose">${progressState.error}</p>
-          <button class="complete-toggle is-complete" id="progress-retry">Try again</button>
+          <button class="btn-pill btn-wide" id="progress-retry">Try again</button>
           ${sheet ? `<a class="progress-sheet-link" href="${sheet}" target="_blank" rel="noopener">Open the Google Sheet instead</a>` : ''}
         </div>
       `;
@@ -928,9 +926,9 @@ function paintProgressList() {
 function progressDetailShell(safeName, inner) {
   return `
     <div class="topbar">
-      <a href="#/progress" class="back-link">${ICONS.back} All Students</a>
+      <a href="#/progress" class="back-link">${ICONS.arrowLeft}<span>All students</span></a>
     </div>
-    <div class="day-header">
+    <div class="page-header">
       <h1>${safeName}</h1>
     </div>
     ${inner}
@@ -982,7 +980,7 @@ function paintProgressDetail(view, student) {
     return `
       <div class="progress-day ${done ? 'done' : ''}">
         <span class="num">${d.day}</span>
-        <span class="label">Day ${d.day}</span>
+        <span class="progress-day-label">Day ${d.day}</span>
         <span class="when">${done ? shortDate(record.updated) : '&mdash;'}</span>
       </div>
     `;
