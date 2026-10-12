@@ -10,7 +10,10 @@
   Then:
     powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-tests.ps1
 #>
-param([int]$Port = 8778)
+param(
+  [int]$Port = 8778,
+  [int]$TimeoutSec = 60
+)
 
 $edge = @(
   "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
@@ -27,13 +30,31 @@ New-Item -ItemType Directory -Force -Path $work | Out-Null
 $domFile = Join-Path $work 'dom.html'
 $errFile = Join-Path $work 'edge-err.txt'
 
+$profileDir = Join-Path $work 'profile'
+
+# A headless Edge left over from an earlier run holds the profile and can
+# stall this one, so clear any that are using it.
+function Stop-TestEdge {
+  Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" |
+    Where-Object { $_.CommandLine -like "*$profileDir*" } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+}
+Stop-TestEdge
+Remove-Item -LiteralPath $domFile -ErrorAction SilentlyContinue
+
 $edgeArgs = @(
   '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
-  "--user-data-dir=$(Join-Path $work 'profile')",
+  '--disable-extensions', '--disable-component-update', '--disable-background-networking',
+  '--disable-sync', '--no-pings', "--user-data-dir=$profileDir",
   '--virtual-time-budget=20000', '--dump-dom', $url
 )
-Start-Process -FilePath $edge -ArgumentList $edgeArgs -Wait -NoNewWindow `
+$run = Start-Process -FilePath $edge -ArgumentList $edgeArgs -NoNewWindow -PassThru `
   -RedirectStandardOutput $domFile -RedirectStandardError $errFile
+if (-not $run.WaitForExit($TimeoutSec * 1000)) {
+  Stop-TestEdge
+  Write-Host "Edge didn't finish the test page within $TimeoutSec seconds."
+  exit 3
+}
 
 $dom = Get-Content -LiteralPath $domFile -Raw -Encoding UTF8
 if (-not $dom) { Write-Host 'Edge produced no output.'; exit 1 }

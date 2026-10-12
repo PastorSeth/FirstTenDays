@@ -5,18 +5,8 @@
 
 const app = document.getElementById('app');
 
-/* ---------- Text helpers ---------- */
-
-/* Anything a student typed (their name) gets run through this before
-   going into the page, so a stray < or & can't break the markup. */
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+/* ---------- Text helpers ----------
+   escapeHtml lives in format.js, which loads before this file. */
 
 /* "4h ago" / "3d ago" — used on the leader's student list. */
 function relativeTime(ms) {
