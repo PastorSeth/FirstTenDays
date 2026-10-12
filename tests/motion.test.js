@@ -63,3 +63,44 @@ test('motion: day entrance sweeps rows and raises content', () => {
   assertEqual(root.querySelector('[data-rise]').getAnimations().length, 1);
   Motion.finishActive(); root.remove();
 });
+function twoViews() {
+  const a = document.createElement('div'), b = document.createElement('div');
+  a.innerHTML = '<span class="day-num" style="font-size:44px;line-height:.9">02</span>';
+  b.innerHTML = '<span class="day-big-num" style="font-size:120px;line-height:.9">02</span>';
+  document.body.prepend(b); document.body.prepend(a);
+  return { a, b, from: a.firstChild, to: b.firstChild, done: () => { a.remove(); b.remove(); } };
+}
+test('motion: open flight hides the target number until it lands', async () => {
+  const v = twoViews();
+  const p = Motion.transition('open', v.a, v.b, { fromEl: v.from, toEl: v.to });
+  assertEqual(v.to.style.visibility, 'hidden');
+  assertEqual(document.querySelectorAll('.fly-num').length, 2);
+  await p;
+  assertEqual(v.to.style.visibility, '');
+  assertEqual(document.querySelectorAll('.fly-num').length, 0);
+  v.done();
+});
+test('motion: next transition resolves in time and leaves no running animations', async () => {
+  const v = twoViews(); const t0 = performance.now();
+  await Motion.transition('next', v.a, v.b, {});
+  assert(performance.now() - t0 < 700, 'finished in time');
+  assertEqual(v.b.getAnimations().length, 0);
+  v.done();
+});
+test('motion: finishActive settles a running transition immediately', async () => {
+  const v = twoViews();
+  const p = Motion.transition('open', v.a, v.b, { fromEl: v.from, toEl: v.to });
+  const t0 = performance.now(); Motion.finishActive(); await p;
+  assert(performance.now() - t0 < 100, 'settled quickly');
+  assertEqual(document.querySelectorAll('.fly-num').length, 0);
+  v.done();
+});
+test('motion: Reduce Motion turns transitions into a short crossfade', async () => {
+  const v = twoViews(); const saved = Motion.reduced; Motion.reduced = () => true;
+  const t0 = performance.now();
+  const p = Motion.transition('open', v.a, v.b, { fromEl: v.from, toEl: v.to });
+  assertEqual(document.querySelectorAll('.fly-num').length, 0);
+  await p;
+  assert(performance.now() - t0 < 250, 'short crossfade');
+  Motion.reduced = saved; v.done();
+});

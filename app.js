@@ -181,12 +181,37 @@ function focusHeading(view) {
   heading.focus({ preventScroll: true });
 }
 
+/* Pin the outgoing page where it is on screen, so it can animate away
+   while the new page takes its place underneath. */
+function freezeView(view) {
+  const rect = view.getBoundingClientRect();
+  view.classList.add('view--leaving');
+  Object.assign(view.style, { position: 'fixed', top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, margin: '0' });
+  // A fixed bar inside a moving page would jump, so the bar just leaves.
+  view.querySelectorAll('.up-next').forEach(bar => { bar.style.visibility = 'hidden'; });
+}
+
 function router() {
+  // Settle anything still animating from the last change before starting this one.
+  Motion.finishActive();
+  app.querySelectorAll('.view--leaving').forEach(v => v.remove());
+
   const route = parseRoute(window.location.hash);
   const from = currentRoute;
+  const type = transitionType(from, route);
+  const oldView = currentView;
 
   if (from && from.name === 'home') homeScrollY = window.scrollY;
-  if (currentView) currentView.remove();
+
+  // The number that flies between the two pages, if this change has one.
+  let fromEl = null;
+  if (oldView && type === 'open') fromEl = oldView.querySelector(`[data-day-num="${route.day}"]`);
+  if (oldView && type === 'close') fromEl = oldView.querySelector('.day-big-num');
+
+  if (oldView) {
+    if (type === 'none') oldView.remove();
+    else freezeView(oldView);
+  }
 
   Motion.clear();
   const view = document.createElement('div');
@@ -202,6 +227,13 @@ function router() {
 
   currentRoute = route;
   currentView = view;
+
+  if (oldView && type !== 'none') {
+    let toEl = null;
+    if (type === 'open') toEl = view.querySelector('.day-big-num');
+    if (type === 'close') toEl = view.querySelector(`[data-day-num="${from.day}"]`);
+    Motion.transition(type, oldView, view, { fromEl, toEl }).then(() => oldView.remove());
+  }
 }
 
 /* ---------- Start-up ---------- */

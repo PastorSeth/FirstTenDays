@@ -215,13 +215,148 @@ const Motion = (() => {
     }
   }
 
-  /* Jump every animation Motion started straight to its end — used when
-     the page changes again before the last change finished animating. */
+  /* ---------- Page transitions ---------- */
+
+  const EASE_INOUT = 'cubic-bezier(.7,0,.2,1)';
+  let settlePending = null;   // tidies up the transition that's still running, if any
+
+  /* Resolve once every animation has finished (or been finished early),
+     after running the cleanup. */
+  function settle(animations, cleanup) {
+    return new Promise(resolve => {
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        if (settlePending === done) settlePending = null;
+        if (cleanup) cleanup();
+        resolve();
+      };
+      settlePending = done;
+      Promise.all(animations.map(a => a.finished.catch(() => {}))).then(done);
+    });
+  }
+
+  function isOnScreen(rect) {
+    return rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight &&
+      rect.right > 0 && rect.left < window.innerWidth;
+  }
+
+  /* The tapped day's number flies to where the new page's big number sits
+     (or back again). Two stacked copies crossfade so the color changes
+     without ever animating `color`. */
+  function flyNumber(fromEl, toEl) {
+    if (!fromEl || !toEl) return null;
+    const from = fromEl.getBoundingClientRect();
+    if (!isOnScreen(from)) return null;
+    const to = toEl.getBoundingClientRect();
+    const fromSize = parseFloat(getComputedStyle(fromEl).fontSize) || 1;
+    const toSize = parseFloat(getComputedStyle(toEl).fontSize) || fromSize;
+    const scale = toSize / fromSize;
+    const dx = to.left - from.left;
+    const dy = to.top - from.top;
+
+    function copy(color, opacity) {
+      const el = fromEl.cloneNode(true);
+      el.removeAttribute('data-day-num');
+      el.classList.add('fly-num');
+      Object.assign(el.style, {
+        position: 'fixed', left: `${from.left}px`, top: `${from.top}px`, margin: '0',
+        transformOrigin: '0 0', zIndex: '1000', pointerEvents: 'none',
+        color, opacity: String(opacity), visibility: 'visible'
+      });
+      document.body.appendChild(el);
+      return el;
+    }
+    const a = copy(getComputedStyle(fromEl).color, 1);
+    const b = copy(getComputedStyle(toEl).color, 0);
+    fromEl.style.visibility = 'hidden';
+    toEl.style.visibility = 'hidden';
+
+    const start = 'translate(0px, 0px) scale(1)';
+    const end = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    const options = { duration: 560, easing: EASE_INOUT, fill: 'forwards' };
+    const animations = [
+      play(a, [{ transform: start, opacity: 1 }, { transform: end, opacity: 0 }], options),
+      play(b, [{ transform: start, opacity: 0 }, { transform: end, opacity: 1 }], options)
+    ];
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      fromEl.style.visibility = '';
+      toEl.style.visibility = '';
+      a.remove();
+      b.remove();
+    };
+    // Show the real number the moment the flight lands, not when the rest
+    // of the page has finished arriving.
+    Promise.all(animations.map(x => x.finished.catch(() => {}))).then(cleanup);
+    return { animations, cleanup };
+  }
+
+  const FADE_UP = [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }];
+
+  function transition(type, oldView, newView, opts) {
+    const options = opts || {};
+    if (!canAnimate()) return Promise.resolve();
+
+    // Reduce Motion: a plain, short crossfade — nothing slides or flies.
+    if (api.reduced()) {
+      return settle([
+        play(oldView, [{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'linear', fill: 'forwards' }),
+        play(newView, [{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'linear' })
+      ]);
+    }
+
+    const animations = [];
+    let cleanup = null;
+
+    if (type === 'open' || type === 'close') {
+      const flight = flyNumber(options.fromEl, options.toEl);
+      if (flight) {
+        animations.push(...flight.animations);
+        cleanup = flight.cleanup;
+      }
+    }
+
+    if (type === 'open') {
+      animations.push(play(oldView, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(14px)' }],
+        { duration: 260, easing: 'ease-in', fill: 'forwards' }));
+      // Tighter than the first-load entrance, so the whole change settles in
+      // about 0.7s while the number is still in flight for most of it.
+      newView.querySelectorAll('.word-row-wrap').forEach((el, i) => {
+        const from = i % 2 === 0 ? '110%' : '-110%';
+        animations.push(play(el, [{ transform: `translateX(${from})` }, { transform: 'none' }], { duration: 520, delay: 120 + i * 40 }));
+      });
+      newView.querySelectorAll('[data-rise]').forEach((el, i) =>
+        animations.push(play(el, RISE, { duration: 380, delay: 160 + i * 40 })));
+    } else if (type === 'close') {
+      animations.push(play(oldView, [{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in', fill: 'forwards' }));
+      newView.querySelectorAll('.masthead, .masthead-rule, .word-rows, [data-rise], .day-row, .up-next').forEach((el, i) =>
+        animations.push(play(el, FADE_UP, { duration: 300, delay: 120 + i * 14 })));
+    } else if (type === 'next' || type === 'prev') {
+      // On Next the old page leaves to the left and the new one arrives from the right.
+      const out = type === 'next' ? '-100%' : '100%';
+      const inFrom = type === 'next' ? '100%' : '-100%';
+      animations.push(play(oldView, [{ transform: 'none' }, { transform: `translateX(${out})` }],
+        { duration: 400, easing: EASE_INOUT, fill: 'forwards' }));
+      animations.push(play(newView, [{ transform: `translateX(${inFrom})` }, { transform: 'none' }],
+        { duration: 400, easing: EASE_INOUT }));
+    }
+
+    return settle(animations, cleanup);
+  }
+
+  /* Jump every animation Motion started straight to its end, and tidy up a
+     transition still in progress — used when the page changes again before
+     the last change finished animating. */
   function finishActive() {
     running.forEach(animation => {
       try { animation.finish(); } catch (e) { animation.cancel(); }
     });
     running.clear();
+    if (settlePending) settlePending();
   }
 
   /* ---------- Public ---------- */
@@ -271,6 +406,6 @@ const Motion = (() => {
     onScreen.clear();
   }
 
-  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, reduced, init, scan, clear, entrance, finishActive };
+  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, reduced, init, scan, clear, entrance, transition, finishActive };
   return api;
 })();

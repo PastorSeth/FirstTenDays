@@ -213,6 +213,26 @@ a { color: inherit; }
   will-change: transform;
 }
 
+/* ---------- Pages and the transitions between them ----------
+   During a transition the outgoing page is pinned in place underneath
+   (see freezeView in app.js) while the new one arrives on top. */
+
+.view {
+  position: relative;
+  z-index: 1;
+}
+
+.view--leaving {
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* The copies of the day number that fly between pages. */
+.fly-num {
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 /* ---------- Home ---------- */
 
 /* Room at the bottom so the Up next bar never covers the last row. */
