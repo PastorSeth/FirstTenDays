@@ -91,19 +91,32 @@ try {
   $socket = New-Object System.Net.WebSockets.ClientWebSocket
   $socket.ConnectAsync([Uri]$socketUrl, $cancel.Token).Wait()
 
-  # Ask the page for its results once the harness has finished.
+  # Ask the page for its results once the harness has finished. If we ask
+  # while the page is still swapping in its first document, Edge answers
+  # "execution context was destroyed" — so ask again until the real page
+  # answers.
   $expression = 'new Promise(done => { const wait = () => window.__testsDone ? window.__testsDone.then(r => done(JSON.stringify(r))) : setTimeout(wait, 50); wait(); })'
-  $request = @{ id = 1; method = 'Runtime.evaluate'; params = @{ expression = $expression; awaitPromise = $true; returnByValue = $true } }
-  Send-Text $socket ($request | ConvertTo-Json -Compress -Depth 5) $cancel.Token
-
   $reply = $null
-  while (-not $reply) {
-    $message = Receive-Text $socket $cancel.Token | ConvertFrom-Json
-    if ($message.id -eq 1) { $reply = $message }
+  $attempt = 0
+  while (-not $reply -and (Get-Date) -lt $deadline) {
+    $attempt++
+    $request = @{ id = $attempt; method = 'Runtime.evaluate'; params = @{ expression = $expression; awaitPromise = $true; returnByValue = $true } }
+    Send-Text $socket ($request | ConvertTo-Json -Compress -Depth 5) $cancel.Token
+    $answer = $null
+    while (-not $answer) {
+      $message = Receive-Text $socket $cancel.Token | ConvertFrom-Json
+      if ($message.id -eq $attempt) { $answer = $message }
+    }
+    if ($answer.error -and $answer.error.message -like '*context*destroyed*') { Start-Sleep -Milliseconds 200 }
+    else { $reply = $answer }
   }
+  if (-not $reply) { throw "the test page never settled within $TimeoutSec seconds" }
 
   $json = $reply.result.result.value
-  if (-not $json) { throw "the test page didn't report results" }
+  if (-not $json) {
+    $detail = if ($reply.result.exceptionDetails) { $reply.result.exceptionDetails.exception.description } else { ($reply | ConvertTo-Json -Compress -Depth 6) }
+    throw "the test page didn't report results ($detail)"
+  }
   $results = $json | ConvertFrom-Json
   $results.failures | ForEach-Object { Write-Host "FAIL $($_.name) - $($_.message)" }
   Write-Host "$($results.passed) passed, $($results.failed) failed"
