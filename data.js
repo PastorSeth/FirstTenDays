@@ -14,15 +14,18 @@
      ## Heading              a section heading
      * item   or   - item    a bullet point
      1. item                 a numbered list
-     > Text                  a big poster-size pull quote
+     > Text                  a big poster-size pull quote (keep its
+                             words to about ten letters or fewer, or
+                             they break across lines on a phone)
      **words**               bold, anywhere in a line
      [label](https://...)    a link (opens in a new tab)
      [label](#/resources)    a link to a page inside the app
 
    Two things to avoid inside the backticks: another backtick ( ` ),
    and a dollar sign right before a curly brace ( ${ ). Either one
-   cuts the text off. Typed HTML tags (like <p>) show up as plain
-   text, so the marks above are the way to format.
+   breaks the whole file, and the site shows its typo message instead
+   of the study. Typed HTML tags (like <p>) show up as plain text, so
+   the marks above are the way to format.
 
    The `reading` field is the "Read" box at the top of a day. Leave
    it out and the day says "Open your Bible to [passage] and read it

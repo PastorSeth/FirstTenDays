@@ -390,6 +390,13 @@ const Motion = (() => {
   function scan(root) {
     root.querySelectorAll('[data-reveal]').forEach(watchReveal);
     if (!allowed) return;
+    // A new page has just gone up, after a jump to its top (or back to
+    // where the list was). Measure scrolling from here, so the jump itself
+    // doesn't read as a flick.
+    velocity = 0;
+    lastY = window.scrollY;
+    lastTime = performance.now();
+    writeVelocity();
     root.querySelectorAll('[data-drift]').forEach(el => register(el, drifting));
     root.querySelectorAll('[data-slide-in]').forEach(el => register(el, sliding));
     updateAll([...drifting, ...sliding]);

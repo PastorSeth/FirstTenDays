@@ -122,3 +122,60 @@ test('app: day nav links', () => {
   renderDay(v, 10);
   assert(!v.querySelector('.day-nav [data-dir="next"]'));
 });
+test('app: shows a content error when data.js throws while loading', async () => {
+  const f = document.createElement('iframe'); f.src = 'runtime-typo.html';
+  document.body.appendChild(f);
+  await new Promise(r => { f.onload = r; });
+  await new Promise(r => setTimeout(r, 50));
+  const message = f.contentDocument.querySelector('.content-error');
+  assert(message, 'a content error is shown instead of a blank page');
+  assertIncludes(message.textContent, 'data.js');
+  f.remove();
+});
+test('app: shows a content error when data.js throws after the days', async () => {
+  const f = document.createElement('iframe'); f.src = 'runtime-typo-resources.html';
+  document.body.appendChild(f);
+  await new Promise(r => { f.onload = r; });
+  await new Promise(r => setTimeout(r, 50));
+  const message = f.contentDocument.querySelector('.content-error');
+  assert(message, 'a content error is shown instead of a half-working site');
+  assertIncludes(message.textContent, 'data.js');
+  f.remove();
+});
+test('app: a reading written over several lines keeps its lines and marks', () => {
+  const day = DAYS.find(x => x.day === 2);
+  const saved = day.reading;
+  day.reading = `
+    First, read 1 John 1:5-10.
+    Then read it again, **slowly**.
+    * Circle every "light"
+  `;
+  const v = document.createElement('div');
+  try { renderDay(v, 2); } finally { day.reading = saved; }
+  const callout = v.querySelector('.read-callout');
+  assertEqual(callout.querySelectorAll('p').length, 2);
+  assertIncludes(callout.querySelectorAll('p')[1].innerHTML, '<strong>slowly</strong>');
+  assertEqual(callout.querySelectorAll('.study-ul li').length, 1);
+});
+test('app: a day without reflections still opens, with no Reflect section', () => {
+  const day = DAYS.find(x => x.day === 2);
+  const saved = day.reflections;
+  delete day.reflections;
+  const v = document.createElement('div');
+  try { renderDay(v, 2); } finally { day.reflections = saved; }
+  assert(!v.querySelector('.reflect'), 'no empty Reflect section');
+  assert(v.querySelector('#complete-btn'), 'the rest of the day is there');
+});
+test('app: a page that fails to draw says so instead of freezing the screen', async () => {
+  const f = document.createElement('iframe'); f.src = 'day-gap.html';
+  document.body.appendChild(f);
+  await new Promise(r => { f.onload = r; });
+  await new Promise(r => setTimeout(r, 100));
+  f.contentWindow.location.hash = '#/day/3';
+  await new Promise(r => setTimeout(r, 1200));
+  const doc = f.contentDocument;
+  assertEqual(doc.querySelectorAll('.view--leaving').length, 0, 'the old page is gone');
+  assert(doc.querySelector('.view .content-error'), 'the new page says what went wrong');
+  assertEqual(doc.querySelector('.view .back-link').getAttribute('href'), '#/');
+  f.remove();
+});

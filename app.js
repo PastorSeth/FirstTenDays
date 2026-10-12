@@ -189,6 +189,9 @@ function freezeView(view) {
   view.querySelectorAll('.up-next').forEach(bar => { bar.style.visibility = 'hidden'; });
 }
 
+// What the student sees when data.js has a typo in it.
+const CONTENT_ERROR = `<div class="content-error">The study couldn't load because the content file (data.js) has a typo. Check the most recent change to data.js.</div>`;
+
 function router() {
   // Settle anything still animating from the last change before starting this one.
   Motion.finishActive();
@@ -215,7 +218,13 @@ function router() {
   const view = document.createElement('div');
   view.className = `view view--${route.name}`;
   app.appendChild(view);
-  renderRoute(route, view);
+  try {
+    renderRoute(route, view);
+  } catch (e) {
+    // Something in data.js isn't shaped the way this page expects. Say so
+    // here, rather than leaving the last page frozen on screen.
+    view.innerHTML = `<a href="#/" class="back-link">${ICONS.arrowLeft}<span>All days</span></a>${CONTENT_ERROR}`;
+  }
 
   // Coming back to the home page puts you where you left the list.
   window.scrollTo(0, route.name === 'home' && from ? homeScrollY : 0);
@@ -236,11 +245,23 @@ function router() {
 
 /* ---------- Start-up ---------- */
 
+/* data.js can break two ways: a typo that stops it being read at all
+   leaves its lists undefined, and one that stops it partway (a
+   misspelled name) leaves every list after that point unreadable, so
+   even looking at one throws. RESOURCES is the last list in the file,
+   so if it can be read, everything before it loaded too. */
+function contentReady() {
+  try {
+    return Array.isArray(DAYS) && Array.isArray(RESOURCES);
+  } catch (e) {
+    return false;
+  }
+}
+
 function bootApp() {
-  // If data.js has a typo it never defines DAYS — say so plainly instead
-  // of leaving a blank page.
-  if (typeof DAYS === 'undefined' || !Array.isArray(DAYS)) {
-    app.innerHTML = `<div class="content-error">The study couldn't load because the content file (data.js) has a typo. Check the most recent change to data.js.</div>`;
+  // Say so plainly instead of leaving a blank page.
+  if (!contentReady()) {
+    app.innerHTML = CONTENT_ERROR;
     return;
   }
 
@@ -446,6 +467,9 @@ function renderDay(view, dayNum) {
     `;
   }
 
+  // A day can leave out its reflection boxes; then it has no Reflect section.
+  const reflections = Array.isArray(d.reflections) ? d.reflections : [];
+
   const study = typeof d.study === 'string' && d.study.trim()
     ? `<div class="study">${formatStudy(d.study)}</div>`
     : '<div class="study-placeholder">Study coming soon.</div>';
@@ -467,14 +491,14 @@ function renderDay(view, dayNum) {
     <h1 class="day-title t-condensed" data-rise>${typeset(d.topic)}</h1>
     <section class="read-callout" data-rise>
       <div class="label">Read</div>
-      <p>${formatInline(readingText(d))}</p>
+      ${formatStudy(readingText(d))}
     </section>
     <div class="day-body" data-rise>
       ${study}
-      <section class="reflect">
+      ${reflections.length ? `<section class="reflect">
         <h2 class="section-h t-condensed">Reflect</h2>
-        ${d.reflections.map(reflectionCard).join('')}
-      </section>
+        ${reflections.map(reflectionCard).join('')}
+      </section>` : ''}
       ${d.reflectionQuestion ? `<section class="reflect reflect--question">${reflectionCard(d.reflectionQuestion)}</section>` : ''}
       <button class="complete-btn btn-pill ${complete ? 'is-complete' : ''}" id="complete-btn">${completeLabel(complete)}</button>
       <nav class="day-nav" aria-label="Other days">

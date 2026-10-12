@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>First 10 Days — data.js throws while loading</title>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+  // Stands in for a data.js with a misspelled name in it: the file parses,
+  // but throws while running, which leaves DAYS permanently uninitialized.
+  const DAYS = [TYPO_NOT_DEFINED];
+</script>
+<script src="../format.js"></script>
+<script src="../motion.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

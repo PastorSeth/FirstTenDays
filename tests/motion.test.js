@@ -104,3 +104,20 @@ test('motion: Reduce Motion turns transitions into a short crossfade', async () 
   assert(performance.now() - t0 < 250, 'short crossfade');
   Motion.reduced = saved; v.done();
 });
+test('motion: the jump to a new page is not read as a flick', async () => {
+  const frame = () => new Promise(r => requestAnimationFrame(() => r()));
+  const speed = () => Math.abs(Number(document.documentElement.style.getPropertyValue('--v') || 0));
+  const spacer = document.createElement('div');
+  spacer.style.height = '6000px';
+  document.body.appendChild(spacer);
+  Motion.init();
+  window.scrollTo(0, 3000);
+  await frame(); await frame();
+  // What the router does when a page changes: jump, then scan the new page.
+  window.scrollTo(0, 0);
+  Motion.scan(document.createElement('div'));
+  let largest = 0;
+  for (let i = 0; i < 4; i++) { await frame(); largest = Math.max(largest, speed()); }
+  spacer.remove();
+  assert(largest < 0.05, `the rows skewed as if flicked (speed ${largest.toFixed(3)})`);
+});

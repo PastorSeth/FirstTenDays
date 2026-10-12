@@ -99,13 +99,32 @@ $handleConnection = {
       return
     }
 
+    # Only plain names inside the project are served, and every part of the
+    # path is checked before the disk is looked at. Hidden folders (.git,
+    # .claude), "..", short names like GIT~1, drive letters and network
+    # paths (\\server\share) are all refused — Windows would otherwise try
+    # to reach a network path, offering it this computer's sign-in. Device
+    # names (CON, NUL) come back from GetFullPath outside the project, so
+    # the inside-the-project check turns those away.
     $pathPart = $target.Split('?')[0].Split('#')[0]
-    $relative = [System.Uri]::UnescapeDataString($pathPart).TrimStart('/')
-    $full = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($root, $relative))
-    if (Test-Path -LiteralPath $full -PathType Container) { $full = [System.IO.Path]::Combine($full, 'index.html') }
+    $segments = @([System.Uri]::UnescapeDataString($pathPart) -split '[\\/]' | Where-Object { $_ -ne '' })
+    $plain = $true
+    foreach ($segment in $segments) {
+      if ($segment -notmatch '^[A-Za-z0-9][A-Za-z0-9 ._()-]*$') { $plain = $false }
+    }
 
-    $insideRoot = $full.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)
-    if ($insideRoot -and (Test-Path -LiteralPath $full -PathType Leaf)) {
+    $full = $null
+    if ($plain) {
+      $candidate = [System.IO.Path]::GetFullPath($root + '\' + ($segments -join '\'))
+      $insideRoot = $candidate.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+      if ($insideRoot -and (Test-Path -LiteralPath $candidate -PathType Container)) {
+        $candidate = [System.IO.Path]::Combine($candidate, 'index.html')
+      }
+      $insideRoot = $candidate.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+      if ($insideRoot -and (Test-Path -LiteralPath $candidate -PathType Leaf)) { $full = $candidate }
+    }
+
+    if ($full) {
       $contentType = $types[[System.IO.Path]::GetExtension($full).ToLower()]
       if (-not $contentType) { $contentType = 'application/octet-stream' }
       Send-Response $stream 200 'OK' $contentType ([System.IO.File]::ReadAllBytes($full)) $headOnly

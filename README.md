@@ -35,7 +35,7 @@ Each day in `data.js` has a `study` field. Write the study between its two backt
 | `## Heading` | A section heading |
 | `* item` or `- item` | A bullet point |
 | `1. item` | A numbered list |
-| `> Text` | A big poster-size pull quote that slides in as you reach it |
+| `> Text` | A big poster-size pull quote that slides in as you reach it. Keep its words short: one longer than about ten letters won't fit across a phone and breaks onto the next line |
 | `**words**` | Bold, anywhere in a line |
 | `[label](https://...)` | A link (opens in a new tab) |
 | `[label](#/resources)` | A link to a page inside the app |
@@ -54,7 +54,7 @@ Head over to [The Bible Project](https://bibleproject.com/videos/1-3-john/) and 
 `,
 ```
 
-Two things to avoid inside the backticks: another backtick ( `` ` `` ), and a dollar sign right before a curly brace ( `${` ). Either one cuts the text off. HTML tags you type (like `<p>`) show up as plain text, so the marks above are the way to format. Straight quotes and apostrophes turn into curly ones, and a dash between numbers (`1:1-4`) turns into a proper en dash on its own.
+Two things to avoid inside the backticks: another backtick ( `` ` `` ), and a dollar sign right before a curly brace ( `${` ). Either one breaks the whole file, and the site shows its typo message instead of the study. HTML tags you type (like `<p>`) show up as plain text, so the marks above are the way to format. Straight quotes and apostrophes turn into curly ones, and a dash between numbers (`1:1-4`) turns into a proper en dash on its own.
 
 **The Read box** comes from the day's `reading` field, written the same way. Leave `reading` out and the day says "Open your Bible to [passage] and read it through."
 
@@ -207,6 +207,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-tests.ps1
 ```
 
 Don't open the app itself on port 8778 — its offline cache would start holding on to old copies of the test files. Use port 8777 for the app.
+
+The local server has its own checks: that it hands out the app's files and refuses everything else, like hidden folders and network paths. They start their own server on port 8790, so nothing else needs to be running:
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/serve.test.ps1
+```
 
 ## Testing on your phone
 
