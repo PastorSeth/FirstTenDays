@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>First 10 Days — service worker registration</title>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+  // Stand in for the browser's service worker so the test can see what
+  // the app asks to register (this machine's browsers refuse real ones).
+  window.__swCalls = [];
+  Object.defineProperty(navigator, 'serviceWorker', {
+    configurable: true,
+    value: { register: (url) => { window.__swCalls.push(url); return Promise.resolve({}); } }
+  });
+</script>
+<script src="../data.js"></script>
+<script src="../format.js"></script>
+<script src="../motion.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

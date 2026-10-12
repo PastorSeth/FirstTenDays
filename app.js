@@ -121,37 +121,113 @@ function videoFrame(videoId) {
     : `<div class="video-frame"><div class="video-placeholder">${ICONS.film}<span>Video coming soon</span></div></div>`;
 }
 
-/* ---------- Router ---------- */
+/* ---------- Router ----------
+   Each page renders into its own .view element inside #app, so that
+   during a page transition the old page and the new one can both be on
+   screen. */
 
-function router() {
-  const hash = window.location.hash.replace(/^#\/?/, '');
-  const parts = hash.split('/').filter(Boolean);
+function parseRoute(hash) {
+  const parts = String(hash).replace(/^#\/?/, '').split('/').filter(Boolean);
 
-  if (parts.length === 0) {
-    renderHome();
-  } else if (parts[0] === 'day' && parts[1]) {
-    renderDay(parseInt(parts[1], 10));
-  } else if (parts[0] === 'resources' && !parts[1]) {
-    renderResourceList();
-  } else if (parts[0] === 'resources' && parts[1]) {
-    renderResource(parts[1]);
-  } else if (parts[0] === 'progress' && !parts[1]) {
-    renderProgressList();
-  } else if (parts[0] === 'progress' && parts[1]) {
-    renderProgressDetail(parts[1]);
-  } else {
-    renderHome();
+  if (parts[0] === 'day' && parts.length === 2 && /^\d+$/.test(parts[1])) {
+    const day = parseInt(parts[1], 10);
+    if (DAYS.some(d => d.day === day)) return { name: 'day', day };
+  } else if (parts[0] === 'resources' && parts.length === 1) {
+    return { name: 'resources' };
+  } else if (parts[0] === 'resources' && parts.length === 2) {
+    return { name: 'resource', slug: parts[1] };
+  } else if (parts[0] === 'progress' && parts.length === 1) {
+    return { name: 'progress' };
+  } else if (parts[0] === 'progress' && parts.length === 2) {
+    let student;
+    try { student = decodeURIComponent(parts[1]); } catch (e) { student = parts[1]; }
+    return { name: 'student', student };
   }
-
-  window.scrollTo(0, 0);
+  return { name: 'home' };
 }
 
-window.addEventListener('hashchange', router);
-window.addEventListener('DOMContentLoaded', () => {
+/* Which page transition, if any, moving between two routes calls for. */
+function transitionType(from, to) {
+  if (!from) return 'none';
+  if (from.name === 'home' && to.name === 'day') return 'open';
+  if (from.name === 'day' && to.name === 'home') return 'close';
+  if (from.name === 'day' && to.name === 'day' && to.day !== from.day) {
+    return to.day > from.day ? 'next' : 'prev';
+  }
+  return 'none';
+}
+
+function renderRoute(route, view) {
+  switch (route.name) {
+    case 'day': renderDay(view, route.day); break;
+    case 'resources': renderResourceList(view); break;
+    case 'resource': renderResource(view, route.slug); break;
+    case 'progress': renderProgressList(view); break;
+    case 'student': renderProgressDetail(view, route.student); break;
+    default: renderHome(view);
+  }
+}
+
+let currentRoute = null;
+let currentView = null;
+let homeScrollY = 0;
+
+function focusHeading(view) {
+  const heading = view.querySelector('h1');
+  if (!heading) return;
+  heading.setAttribute('tabindex', '-1');
+  heading.focus({ preventScroll: true });
+}
+
+function router() {
+  const route = parseRoute(window.location.hash);
+  const from = currentRoute;
+
+  if (from && from.name === 'home') homeScrollY = window.scrollY;
+  if (currentView) currentView.remove();
+
+  Motion.clear();
+  const view = document.createElement('div');
+  view.className = `view view--${route.name}`;
+  app.appendChild(view);
+  renderRoute(route, view);
+
+  // Coming back to the home page puts you where you left the list.
+  window.scrollTo(0, route.name === 'home' && from ? homeScrollY : 0);
+  Motion.scan(view);
+  if (from) focusHeading(view);
+
+  currentRoute = route;
+  currentView = view;
+}
+
+/* ---------- Start-up ---------- */
+
+function bootApp() {
+  // If data.js has a typo it never defines DAYS — say so plainly instead
+  // of leaving a blank page.
+  if (typeof DAYS === 'undefined' || !Array.isArray(DAYS)) {
+    app.innerHTML = `<div class="content-error">The study couldn't load because the content file (data.js) has a typo. Check the most recent change to data.js.</div>`;
+    return;
+  }
+
+  Motion.init();
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.addEventListener('hashchange', router);
   router();
   setupInstallPrompt();
   maybeShowNamePrompt();
-});
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {
+        /* offline support just won't be available; site still works online */
+      });
+    });
+  }
+}
+
+if (app) window.addEventListener('DOMContentLoaded', bootApp);
 
 /* ---------- Name prompt modal ---------- */
 
@@ -209,7 +285,7 @@ function renderWelcomeVideoModal() {
 
 /* ---------- Home ---------- */
 
-function renderHome() {
+function renderHome(view) {
   const nodes = DAYS.map(d => {
     const complete = isDayComplete(d.day);
     return `
@@ -227,7 +303,7 @@ function renderHome() {
     `;
   }).join('');
 
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="install-banner" id="install-banner">
       <span>Add this to your home screen for quick daily access.</span>
       <button id="install-btn">Install</button>
@@ -259,17 +335,17 @@ function renderHome() {
     ${trackingEnabled() && getStudentName() ? `<button class="change-name" id="change-name-btn">Not ${escapeHtml(getStudentName())}? Change name</button>` : ''}
   `;
 
-  document.getElementById('install-btn')?.addEventListener('click', triggerInstall);
-  document.getElementById('install-dismiss')?.addEventListener('click', dismissInstallBanner);
-  document.getElementById('change-name-btn')?.addEventListener('click', renderNamePrompt);
-  document.getElementById('welcome-video-open')?.addEventListener('click', renderWelcomeVideoModal);
+  view.querySelector('#install-btn')?.addEventListener('click', triggerInstall);
+  view.querySelector('#install-dismiss')?.addEventListener('click', dismissInstallBanner);
+  view.querySelector('#change-name-btn')?.addEventListener('click', renderNamePrompt);
+  view.querySelector('#welcome-video-open')?.addEventListener('click', renderWelcomeVideoModal);
 }
 
 /* ---------- Day page ---------- */
 
-function renderDay(dayNum) {
+function renderDay(view, dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
-  if (!d) { renderHome(); return; }
+  if (!d) { renderHome(view); return; }
 
   function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);
@@ -318,7 +394,7 @@ function renderDay(dayNum) {
   const prev = DAYS.find(x => x.day === dayNum - 1);
   const next = DAYS.find(x => x.day === dayNum + 1);
 
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="topbar">
       <a href="#/" class="back-link">${ICONS.back} All Days</a>
     </div>
@@ -347,12 +423,12 @@ function renderDay(dayNum) {
   `;
 
   // Wire up auto-saving textareas
-  app.querySelectorAll('textarea[data-field]').forEach(ta => {
+  view.querySelectorAll('textarea[data-field]').forEach(ta => {
     let saveTimer;
     ta.addEventListener('input', () => {
       const field = ta.getAttribute('data-field');
       saveReflection(dayNum, field, ta.value);
-      const status = app.querySelector(`.save-status[data-status-for="${field}"]`);
+      const status = view.querySelector(`.save-status[data-status-for="${field}"]`);
       if (status) {
         status.classList.add('show');
         clearTimeout(saveTimer);
@@ -361,7 +437,7 @@ function renderDay(dayNum) {
     });
   });
 
-  document.getElementById('complete-btn').addEventListener('click', (e) => {
+  view.querySelector('#complete-btn').addEventListener('click', (e) => {
     const nowComplete = !isDayComplete(dayNum);
     setDayComplete(dayNum, nowComplete);
     e.target.classList.toggle('is-complete', nowComplete);
@@ -375,7 +451,7 @@ function renderDay(dayNum) {
 
 /* ---------- Resource list ---------- */
 
-function renderResourceList() {
+function renderResourceList(view) {
   const items = RESOURCES.map(r => `
     <a href="#/resources/${r.slug}" class="resource-item">
       <span class="title">${r.title}</span>
@@ -383,7 +459,7 @@ function renderResourceList() {
     </a>
   `).join('');
 
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="topbar">
       <a href="#/" class="back-link">${ICONS.back} All Days</a>
     </div>
@@ -406,20 +482,20 @@ function renderResourceList() {
     `}
   `;
 
-  document.getElementById('resource-install-btn')?.addEventListener('click', () => {
+  view.querySelector('#resource-install-btn')?.addEventListener('click', () => {
     if (deferredInstallPrompt) {
       triggerInstall();
     } else {
-      document.getElementById('install-fallback')?.classList.remove('hidden');
+      view.querySelector('#install-fallback')?.classList.remove('hidden');
     }
   });
 }
 
-function renderResource(slug) {
+function renderResource(view, slug) {
   const r = RESOURCES.find(x => x.slug === slug);
-  if (!r) { renderResourceList(); return; }
+  if (!r) { renderResourceList(view); return; }
 
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="topbar">
       <a href="#/resources" class="back-link">${ICONS.back} Extra Resources</a>
     </div>
@@ -595,9 +671,9 @@ function progressShell(inner) {
   `;
 }
 
-function renderProgressList() {
+function renderProgressList(view) {
   if (!trackingEnabled()) {
-    app.innerHTML = progressShell(`
+    view.innerHTML = progressShell(`
       <div class="progress-empty">
         <p class="prose">Progress tracking isn't connected yet. See "Student progress tracking" in the README for the one-time setup.</p>
       </div>
@@ -608,7 +684,7 @@ function renderProgressList() {
   const needsPassword = dashboardRequiresKey() && !getDashboardKey();
   progressState.locked = needsPassword;
 
-  app.innerHTML = progressShell(`
+  view.innerHTML = progressShell(`
     ${needsPassword ? '' : `
       <div class="progress-search">
         <span class="icon">${ICONS.search}</span>
@@ -619,12 +695,12 @@ function renderProgressList() {
     ${getDashboardKey() ? `<button class="change-name" id="dashboard-lock">Lock dashboard</button>` : ''}
   `);
 
-  document.getElementById('progress-search-input')?.addEventListener('input', (e) => {
+  view.querySelector('#progress-search-input')?.addEventListener('input', (e) => {
     progressState.query = e.target.value;
     paintProgressList();
   });
 
-  document.getElementById('dashboard-lock')?.addEventListener('click', () => {
+  view.querySelector('#dashboard-lock')?.addEventListener('click', () => {
     lockDashboard();
     router();
   });
@@ -676,7 +752,7 @@ function loadProgressPage(reset) {
     .then(() => {
       progressState.loading = false;
       if (progressState.locked) {
-        renderProgressList();  // rebuild without the search box, then prompt
+        router();  // rebuild without the search box, then prompt
       } else {
         paintProgressList();
       }
@@ -795,8 +871,9 @@ function progressDetailShell(safeName, inner) {
   `;
 }
 
-function renderProgressDetail(rawName) {
-  if (!trackingEnabled()) { renderProgressList(); return; }
+/* `name` arrives already decoded from the URL by parseRoute. */
+function renderProgressDetail(view, name) {
+  if (!trackingEnabled()) { renderProgressList(view); return; }
 
   // Deep link into a student without the password — bounce to the list,
   // which does the asking.
@@ -805,14 +882,11 @@ function renderProgressDetail(rawName) {
     return;
   }
 
-  let name;
-  try { name = decodeURIComponent(rawName); } catch (e) { name = rawName; }
-
   const cached = progressState.students.find(s => s.name.toLowerCase() === name.toLowerCase());
-  if (cached) { paintProgressDetail(cached); return; }
+  if (cached) { paintProgressDetail(view, cached); return; }
 
   // Opened directly, or after a refresh — pull just this student.
-  app.innerHTML = progressDetailShell(escapeHtml(name), `<div class="progress-empty"><p class="prose">Loading&hellip;</p></div>`);
+  view.innerHTML = progressDetailShell(escapeHtml(name), `<div class="progress-empty"><p class="prose">Loading&hellip;</p></div>`);
 
   fetchProgress({ name })
     .then(data => {
@@ -823,16 +897,16 @@ function renderProgressDetail(rawName) {
         return;
       }
       if (!data || !data.ok || !(data.students || []).length) throw new Error('not found');
-      paintProgressDetail(data.students[0]);
+      paintProgressDetail(view, data.students[0]);
     })
     .catch(() => {
-      app.innerHTML = progressDetailShell(escapeHtml(name), `
+      view.innerHTML = progressDetailShell(escapeHtml(name), `
         <div class="progress-empty"><p class="prose">Couldn't load this student's progress.</p></div>
       `);
     });
 }
 
-function paintProgressDetail(student) {
+function paintProgressDetail(view, student) {
   const byDay = {};
   (student.days || []).forEach(d => { byDay[d.day] = d; });
 
@@ -850,7 +924,7 @@ function paintProgressDetail(student) {
 
   const count = DAYS.filter(d => byDay[d.day] && byDay[d.day].complete).length;
 
-  app.innerHTML = progressDetailShell(escapeHtml(student.name), `
+  view.innerHTML = progressDetailShell(escapeHtml(student.name), `
     <p class="progress-sub">${count} of ${DAYS.length} days &middot; last active ${relativeTime(student.lastActive)}</p>
     <div class="progress-days">${rows}</div>
     <p class="progress-note">Dates show when a day was last marked &mdash; not necessarily the first time.</p>
@@ -887,14 +961,4 @@ function triggerInstall() {
 function dismissInstallBanner() {
   localStorage.setItem('install-dismissed', 'true');
   document.getElementById('install-banner')?.classList.remove('show');
-}
-
-/* ---------- Service worker registration ---------- */
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {
-      /* offline support just won't be available; site still works online */
-    });
-  });
 }

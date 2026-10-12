@@ -33,9 +33,28 @@ $types = @{
   '.md'   = 'text/plain; charset=utf-8'
 }
 
-$address = if ($Lan) { [System.Net.IPAddress]::Any } else { [System.Net.IPAddress]::Loopback }
-$listener = New-Object System.Net.Sockets.TcpListener($address, $Port)
-$listener.Start()
+# "localhost" means ::1 (IPv6) before 127.0.0.1 on Windows. Page loads quietly
+# fall back to IPv4, but the browser's service worker fetch doesn't — so
+# listen on both.
+$listeners = New-Object System.Collections.ArrayList
+function Add-Listener([System.Net.IPAddress]$address, [bool]$dualMode) {
+  try {
+    $l = New-Object System.Net.Sockets.TcpListener($address, $Port)
+    if ($dualMode) { $l.Server.DualMode = $true }
+    $l.Start()
+    [void]$listeners.Add($l)
+  } catch {
+    # This address family isn't available on this machine; the other one is enough.
+  }
+}
+if ($Lan) {
+  Add-Listener ([System.Net.IPAddress]::IPv6Any) $true
+  if ($listeners.Count -eq 0) { Add-Listener ([System.Net.IPAddress]::Any) $false }
+} else {
+  Add-Listener ([System.Net.IPAddress]::Loopback) $false
+  Add-Listener ([System.Net.IPAddress]::IPv6Loopback) $false
+}
+if ($listeners.Count -eq 0) { Write-Host "Couldn't listen on port $Port (is it already in use?)"; exit 1 }
 
 Write-Host "Serving $root"
 Write-Host "  http://localhost:$Port/"
@@ -45,30 +64,30 @@ if ($Lan) {
     ForEach-Object { Write-Host "  http://$($_.IPAddressToString):$Port/   (on your phone, same Wi-Fi)" }
 }
 
-function Send-Response($stream, [int]$status, [string]$reason, [string]$contentType, [byte[]]$body, [bool]$headOnly) {
-  $header = "HTTP/1.1 $status $reason`r`n" +
-            "Content-Type: $contentType`r`n" +
-            "Content-Length: $($body.Length)`r`n" +
-            "Cache-Control: no-store`r`n" +
-            "Connection: close`r`n`r`n"
-  $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($header)
-  $stream.Write($headerBytes, 0, $headerBytes.Length)
-  if (-not $headOnly -and $body.Length -gt 0) { $stream.Write($body, 0, $body.Length) }
-}
+# Each connection is handled on its own worker, so a browser's spare
+# connection that sends its request late (or never) just waits there
+# instead of holding up everything else.
+$handleConnection = {
+  param($client, $root, $rootPrefix, $types)
 
-while ($true) {
-  $client = $listener.AcceptTcpClient()
+  function Send-Response($stream, [int]$status, [string]$reason, [string]$contentType, [byte[]]$body, [bool]$headOnly) {
+    $header = "HTTP/1.1 $status $reason`r`n" +
+              "Content-Type: $contentType`r`n" +
+              "Content-Length: $($body.Length)`r`n" +
+              "Cache-Control: no-store`r`n" +
+              "Connection: close`r`n`r`n"
+    $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($header)
+    $stream.Write($headerBytes, 0, $headerBytes.Length)
+    if (-not $headOnly -and $body.Length -gt 0) { $stream.Write($body, 0, $body.Length) }
+  }
+
   try {
-    # Browsers open spare connections they may never use. Requests arrive
-    # right after connecting, so drop a connection that stays silent
-    # rather than letting it hold up the one-at-a-time loop.
-    if (-not $client.Client.Poll(500000, [System.Net.Sockets.SelectMode]::SelectRead) -or $client.Available -eq 0) { continue }
-
+    $client.ReceiveTimeout = 15000
     $stream = $client.GetStream()
     $reader = New-Object System.IO.StreamReader($stream, [System.Text.Encoding]::ASCII, $false, 4096, $true)
     $requestLine = $reader.ReadLine()
+    if (-not $requestLine) { return }
     while ($true) { $line = $reader.ReadLine(); if ([string]::IsNullOrEmpty($line)) { break } }
-    if (-not $requestLine) { continue }
 
     $parts = $requestLine.Split(' ')
     $method = $parts[0]
@@ -77,7 +96,7 @@ while ($true) {
 
     if ($method -ne 'GET' -and -not $headOnly) {
       Send-Response $stream 405 'Method Not Allowed' 'text/plain; charset=utf-8' ([System.Text.Encoding]::UTF8.GetBytes('405')) $false
-      continue
+      return
     }
 
     $pathPart = $target.Split('?')[0].Split('#')[0]
@@ -94,8 +113,35 @@ while ($true) {
       Send-Response $stream 404 'Not Found' 'text/plain; charset=utf-8' ([System.Text.Encoding]::UTF8.GetBytes("404 $pathPart")) $headOnly
     }
   } catch {
-    Write-Host "request error: $($_.Exception.Message)"
+    # A connection that timed out or hung up — nothing to answer.
   } finally {
     $client.Close()
+  }
+}
+
+$workers = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspacePool(1, 16)
+$workers.Open()
+$inFlight = New-Object System.Collections.ArrayList
+
+while ($true) {
+  $accepted = $false
+  foreach ($l in $listeners) {
+    while ($l.Pending()) {
+      $client = $l.AcceptTcpClient()
+      $shell = [PowerShell]::Create()
+      $shell.RunspacePool = $workers
+      [void]$shell.AddScript($handleConnection).AddArgument($client).AddArgument($root).AddArgument($rootPrefix).AddArgument($types)
+      [void]$inFlight.Add([pscustomobject]@{ Shell = $shell; Handle = $shell.BeginInvoke() })
+      $accepted = $true
+    }
+  }
+  if (-not $accepted) { Start-Sleep -Milliseconds 5 }
+
+  foreach ($job in @($inFlight)) {
+    if ($job.Handle.IsCompleted) {
+      try { [void]$job.Shell.EndInvoke($job.Handle) } catch { }
+      $job.Shell.Dispose()
+      [void]$inFlight.Remove($job)
+    }
   }
 }
