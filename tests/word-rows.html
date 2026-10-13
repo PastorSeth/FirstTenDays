@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First 10 Days — the giant word rows</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+  // The real app and stylesheet, minus the offline cache (and with no
+  // tracking-config.js, so nothing is sent to the progress sheet).
+  Object.defineProperty(navigator, 'serviceWorker', {
+    configurable: true,
+    value: { register: () => Promise.resolve({}) }
+  });
+</script>
+<script src="../data.js"></script>
+<script src="../format.js"></script>
+<script src="../motion.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

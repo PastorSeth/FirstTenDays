@@ -121,3 +121,22 @@ test('motion: the jump to a new page is not read as a flick', async () => {
   spacer.remove();
   assert(largest < 0.05, `the rows skewed as if flicked (speed ${largest.toFixed(3)})`);
 });
+test('motion: opening a day slides each word row in from its own side', async () => {
+  const f = document.createElement('iframe'); f.src = 'word-rows.html';
+  f.style.cssText = 'width:375px;height:812px;border:0';
+  document.body.prepend(f);
+  await new Promise(r => { f.onload = r; });
+  const win = f.contentWindow, doc = f.contentDocument;
+  await new Promise(r => setTimeout(r, 1300));   // let the first-load entrance finish
+  const opened = new Promise(r => win.addEventListener('hashchange', r, { once: true }));
+  win.location.hash = '#/day/1';
+  await opened;
+  await new Promise(r => win.requestAnimationFrame(() => r()));
+  const width = doc.documentElement.clientWidth;
+  const extent = (row) => { const range = doc.createRange(); range.selectNodeContents(row.firstChild); return range.getBoundingClientRect(); };
+  const [outlined, red] = doc.querySelectorAll('.view--day:not(.view--leaving) .word-row');
+  const outlinedLeft = Math.round(extent(outlined).left), redRight = Math.round(extent(red).right);
+  f.remove();
+  assert(outlinedLeft >= width, `the outlined row starts past the right edge (its left end was at ${outlinedLeft}px)`);
+  assert(redRight <= 0, `the red row starts past the left edge (its right end was at ${redRight}px)`);
+});

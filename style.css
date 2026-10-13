@@ -174,9 +174,14 @@ a { color: inherit; }
   transform: translateX(calc(var(--p, 0) * -150px)) skewX(calc(var(--v, 0) * -12deg));
 }
 
+/* The red rows end flush with the right edge, mirroring the outlined rows
+   that start flush with the left, so each can slide in from its own side
+   and settle against it. The row is sized to its text, so 100% here is
+   the text's width. */
 [data-drift="right"] {
   --dir: -1;
-  transform: translateX(calc(-190px + var(--p, 0) * 150px)) skewX(calc(var(--v, 0) * 12deg));
+  width: max-content;
+  transform: translateX(calc(100vw - 100% + var(--p, 0) * 150px)) skewX(calc(var(--v, 0) * 12deg));
 }
 
 /* The smear: two faint copies that trail the row only while it's moving fast. */
