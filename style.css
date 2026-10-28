@@ -608,6 +608,133 @@ a { color: inherit; }
   color: var(--ink);
 }
 
+/* ---------- Day complete: the finish line ----------
+   Shown under a completed day. Right after the tap, the two giant rows
+   slam in from opposite sides, the way the home page's rows enter. */
+
+.celebrate { margin-top: 26px; }
+
+.celebrate-rows {
+  font-size: clamp(84px, 26vw, 160px);
+  /* Line the words up with the page's own edges, not the screen's. */
+  padding: 0 max(var(--gutter), calc((100vw - var(--max-width)) / 2 + var(--gutter)));
+}
+
+.celebrate-row { white-space: nowrap; }
+
+.celebrate-row + .celebrate-row { margin-top: -0.1em; }
+
+.celebrate-row--outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+.celebrate-row--solid {
+  color: var(--vermilion);
+  text-align: right;
+}
+
+.celebrate-count {
+  margin: 14px 0 0;
+  font-size: 20px;
+  font-stretch: 75%;
+  font-weight: 900;
+}
+
+/* All ten days in a row: the done ones filled vermilion. */
+.celebrate-track {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-60);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.celebrate-track li::after {
+  content: '';
+  display: block;
+  height: 8px;
+  margin-top: 4px;
+  background: var(--rule);
+  transform-origin: left;
+}
+
+.celebrate-track li.is-done { color: var(--ink); }
+
+.celebrate-track li.is-done::after { background: var(--vermilion); }
+
+.celebrate-next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  margin-top: 22px;
+  padding: 10px 8px 10px 22px;
+  border-radius: 32px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.celebrate-next-topic {
+  display: block;
+  margin-top: 2px;
+  font-size: 19px;
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.motion-on .celebrate--play .celebrate-row--outline {
+  animation: celebrate-in-left .7s var(--ease-out) .08s both;
+}
+
+.motion-on .celebrate--play .celebrate-row--solid {
+  animation: celebrate-in-right .7s var(--ease-out) .2s both;
+}
+
+.motion-on .celebrate--play .celebrate-count,
+.motion-on .celebrate--play .celebrate-next {
+  animation: celebrate-rise .45s var(--ease-out) .5s both;
+}
+
+.motion-on .celebrate--play .is-today::after {
+  animation: celebrate-fill .5s var(--ease-out) .6s both;
+}
+
+/* Reduce Motion: no sliding, just a quick fade so the moment still lands. */
+html:not(.motion-on) .celebrate--play {
+  animation: celebrate-fade .2s ease-out both;
+}
+
+@keyframes celebrate-in-left {
+  from { transform: translateX(-100%) skewX(-14deg); }
+}
+
+@keyframes celebrate-in-right {
+  from { transform: translateX(100%) skewX(14deg); }
+}
+
+@keyframes celebrate-rise {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes celebrate-fill {
+  from { transform: scaleX(0); }
+}
+
+@keyframes celebrate-fade {
+  from { opacity: 0; }
+}
+
 .day-nav {
   display: flex;
   justify-content: space-between;
@@ -1036,6 +1163,19 @@ a { color: inherit; }
 /* ---------- States the app relies on ---------- */
 
 .hidden { display: none !important; }
+
+/* Read aloud by screen readers, never shown. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .install-banner:not(.show) { display: none; }
 

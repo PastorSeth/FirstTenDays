@@ -114,6 +114,35 @@ test('app: tapping the check icon toggles the complete button correctly', () => 
     v.remove();
   });
 });
+test('app: marking a day complete shows the finish line, unmarking clears it', () => {
+  const keys = {}; DAYS.forEach(d => { keys['complete:' + d.day] = d.day === 2 ? 'true' : 'false'; });
+  withStorage(keys, () => {
+    const v = document.createElement('div'); document.body.appendChild(v); renderDay(v, 1);
+    const btn = v.querySelector('.complete-btn');
+    assertEqual(btn.getAttribute('aria-pressed'), 'false');
+    assert(!v.querySelector('.celebrate'), 'no finish line before the tap');
+    btn.click();
+    assertEqual(btn.getAttribute('aria-pressed'), 'true');
+    assert(v.querySelector('.celebrate--play'), 'the finish line plays');
+    assertIncludes(v.querySelector('.celebrate-row--outline').textContent, 'Day 01');
+    assertEqual(v.querySelector('.celebrate-count').textContent, '2 of 10 days done. 8 to go.');
+    assertEqual(v.querySelectorAll('.celebrate-track .is-done').length, 2);
+    assertEqual(v.querySelector('.celebrate-next').getAttribute('href'), '#/day/3');
+    assertIncludes(v.querySelector('#complete-status').textContent, 'Day 1 complete.');
+    btn.click();
+    assert(!v.querySelector('.celebrate'), 'finish line gone after unmarking');
+    assertIncludes(v.querySelector('#complete-status').textContent, 'not complete');
+    v.remove();
+  });
+  const all = {}; DAYS.forEach(d => { all['complete:' + d.day] = 'true'; });
+  withStorage(all, () => {
+    const v = document.createElement('div'); renderDay(v, 10);
+    assert(v.querySelector('.celebrate'), 'a finished day keeps its finish line, without replaying it');
+    assert(!v.querySelector('.celebrate--play'));
+    assertEqual(v.querySelector('.celebrate-count').textContent, 'All 10 days done.');
+    assert(!v.querySelector('.celebrate-next'), 'nothing left to go to');
+  });
+});
 test('app: day nav links', () => {
   const v = document.createElement('div');
   renderDay(v, 1);

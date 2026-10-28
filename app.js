@@ -451,6 +451,47 @@ function completeLabel(done) {
   return done ? `${ICONS.check}<span>Day complete</span>` : '<span>Mark day complete</span>';
 }
 
+/* "1 of 10 days done. 9 to go." — said on screen and to screen readers. */
+function completeMessage() {
+  const done = DAYS.filter(x => isDayComplete(x.day)).length;
+  const left = DAYS.length - done;
+  return left ? `${done} of ${DAYS.length} days done. ${left} to go.` : `All ${DAYS.length} days done.`;
+}
+
+/* The finish line under a completed day: the day and DONE as giant rows
+   (outline from the left, vermilion from the right, like the home page),
+   a track of all the days, and a way on to the next unfinished one. */
+function celebrationHtml(dayNum) {
+  const next = upNextDay(DAYS, isDayComplete);
+  const nextDay = next ? DAYS.find(x => x.day === next) : null;
+  const track = DAYS.map(x => {
+    const cls = [isDayComplete(x.day) ? 'is-done' : '', x.day === dayNum ? 'is-today' : ''].join(' ').trim();
+    return `<li${cls ? ` class="${cls}"` : ''}>${pad2(x.day)}</li>`;
+  }).join('');
+  return `
+    <div class="celebrate">
+      <div class="word-rows celebrate-rows" aria-hidden="true">
+        <div class="celebrate-row celebrate-row--outline t-giant">Day ${pad2(dayNum)}</div>
+        <div class="celebrate-row celebrate-row--solid t-giant">Done</div>
+      </div>
+      <p class="celebrate-count">${completeMessage()}</p>
+      <ol class="celebrate-track" aria-hidden="true">${track}</ol>
+      ${nextDay ? `<a class="celebrate-next" href="#/day/${nextDay.day}">
+        <span class="celebrate-next-text"><span class="up-next-label">Up next</span> &middot; Day ${nextDay.day}<span class="celebrate-next-topic">${typeset(nextDay.topic)}</span></span>
+        <span class="up-next-go" aria-hidden="true">${ICONS.arrowRight}</span>
+      </a>` : ''}
+    </div>
+  `;
+}
+
+/* Plays the finish line once, right after the tap, and brings it on screen. */
+function playCelebration(el) {
+  if (!el) return;
+  el.classList.add('celebrate--play');
+  const calm = typeof Motion !== 'undefined' && Motion.reduced();
+  if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+}
+
 function renderDay(view, dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
   if (!d) { renderHome(view); return; }
@@ -500,7 +541,9 @@ function renderDay(view, dayNum) {
         ${reflections.map(reflectionCard).join('')}
       </section>` : ''}
       ${d.reflectionQuestion ? `<section class="reflect reflect--question">${reflectionCard(d.reflectionQuestion)}</section>` : ''}
-      <button class="complete-btn btn-pill ${complete ? 'is-complete' : ''}" id="complete-btn">${completeLabel(complete)}</button>
+      <button class="complete-btn btn-pill ${complete ? 'is-complete' : ''}" id="complete-btn" aria-pressed="${complete}">${completeLabel(complete)}</button>
+      <p class="sr-only" role="status" id="complete-status"></p>
+      <div class="celebrate-slot">${complete ? celebrationHtml(dayNum) : ''}</div>
       <nav class="day-nav" aria-label="Other days">
         ${prev ? `<a data-dir="prev" href="#/day/${prev.day}">${ICONS.arrowLeft}<span>Day ${prev.day}</span></a>` : '<span></span>'}
         ${next ? `<a data-dir="next" href="#/day/${next.day}"><span>Day ${next.day}</span>${ICONS.arrowRight}</a>` : '<span></span>'}
@@ -529,7 +572,14 @@ function renderDay(view, dayNum) {
     const nowComplete = !isDayComplete(dayNum);
     setDayComplete(dayNum, nowComplete);
     button.classList.toggle('is-complete', nowComplete);
+    button.setAttribute('aria-pressed', String(nowComplete));
     button.innerHTML = completeLabel(nowComplete);
+    const slot = view.querySelector('.celebrate-slot');
+    slot.innerHTML = nowComplete ? celebrationHtml(dayNum) : '';
+    view.querySelector('#complete-status').textContent = nowComplete
+      ? `Day ${dayNum} complete. ${completeMessage()}`
+      : `Day ${dayNum} marked not complete.`;
+    if (nowComplete) playCelebration(slot.querySelector('.celebrate'));
     if (trackingEnabled() && !getStudentName()) {
       renderNamePrompt();
     }
