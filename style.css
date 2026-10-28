@@ -624,6 +624,20 @@ a { color: inherit; }
 
 .celebrate-row + .celebrate-row { margin-top: -0.1em; }
 
+/* The smear, like the word rows up top: two faint copies trail each word
+   while it slides in, then fade away as it settles. Hidden at rest. */
+.celebrate-word {
+  position: relative;
+  display: inline-block;
+}
+
+.celebrate-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
 .celebrate-row--outline {
   color: transparent;
   -webkit-text-stroke: 2px var(--ink);
@@ -697,9 +711,27 @@ a { color: inherit; }
   animation: celebrate-in-left .7s var(--ease-out) .08s both;
 }
 
+.motion-on .celebrate--play .celebrate-row--outline .celebrate-word {
+  animation: celebrate-tilt-left .9s cubic-bezier(.45, 0, .25, 1) .08s both;
+}
+
 .motion-on .celebrate--play .celebrate-row--solid {
   animation: celebrate-in-right .7s var(--ease-out) .2s both;
 }
+
+.motion-on .celebrate--play .celebrate-row--solid .celebrate-word {
+  animation: celebrate-tilt-right .9s cubic-bezier(.45, 0, .25, 1) .2s both;
+}
+
+.motion-on .celebrate--play .celebrate-ghost {
+  animation: .8s linear both;
+}
+
+/* --dir points back the way each word came from, so the copies trail it. */
+.motion-on .celebrate--play .celebrate-row--outline .celebrate-ghost { --dir: -1; animation-delay: .08s; }
+.motion-on .celebrate--play .celebrate-row--solid .celebrate-ghost { --dir: 1; animation-delay: .2s; }
+.motion-on .celebrate--play .celebrate-ghost--1 { animation-name: celebrate-smear-1; }
+.motion-on .celebrate--play .celebrate-ghost--2 { animation-name: celebrate-smear-2; }
 
 .motion-on .celebrate--play .celebrate-count,
 .motion-on .celebrate--play .celebrate-next {
@@ -716,11 +748,33 @@ html:not(.motion-on) .celebrate--play {
 }
 
 @keyframes celebrate-in-left {
-  from { transform: translateX(-100%) skewX(-14deg); }
+  from { transform: translateX(-100%); }
 }
 
 @keyframes celebrate-in-right {
-  from { transform: translateX(100%) skewX(14deg); }
+  from { transform: translateX(100%); }
+}
+
+/* The tilt runs on the word itself, slower and gentler than the slide, so
+   the word arrives still leaning and straightens up in one smooth motion. */
+@keyframes celebrate-tilt-left {
+  from { transform: skewX(-12deg); }
+}
+
+@keyframes celebrate-tilt-right {
+  from { transform: skewX(12deg); }
+}
+
+/* The copies hold while the word is crossing the screen, then catch up
+   and fade as it brakes. */
+@keyframes celebrate-smear-1 {
+  0%, 25% { opacity: .35; transform: translateX(calc(var(--dir) * .18em)); }
+  70% { opacity: 0; transform: none; }
+}
+
+@keyframes celebrate-smear-2 {
+  0%, 25% { opacity: .15; transform: translateX(calc(var(--dir) * .36em)); }
+  70% { opacity: 0; transform: none; }
 }
 
 @keyframes celebrate-rise {

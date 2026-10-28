@@ -461,6 +461,10 @@ function completeMessage() {
 /* The finish line under a completed day: the day and DONE as giant rows
    (outline from the left, vermilion from the right, like the home page),
    a track of all the days, and a way on to the next unfinished one. */
+/* A word with the same two trailing copies the top word rows smear with. */
+function smearHtml(text) {
+  return `<span class="celebrate-word">${text}<span class="celebrate-ghost celebrate-ghost--1">${text}</span><span class="celebrate-ghost celebrate-ghost--2">${text}</span></span>`;
+}
 function celebrationHtml(dayNum) {
   const next = upNextDay(DAYS, isDayComplete);
   const nextDay = next ? DAYS.find(x => x.day === next) : null;
@@ -471,8 +475,8 @@ function celebrationHtml(dayNum) {
   return `
     <div class="celebrate">
       <div class="word-rows celebrate-rows" aria-hidden="true">
-        <div class="celebrate-row celebrate-row--outline t-giant">Day ${pad2(dayNum)}</div>
-        <div class="celebrate-row celebrate-row--solid t-giant">Done</div>
+        <div class="celebrate-row celebrate-row--outline t-giant">${smearHtml(`Day ${pad2(dayNum)}`)}</div>
+        <div class="celebrate-row celebrate-row--solid t-giant">${smearHtml('Done')}</div>
       </div>
       <p class="celebrate-count">${completeMessage()}</p>
       <ol class="celebrate-track" aria-hidden="true">${track}</ol>
