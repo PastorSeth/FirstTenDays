@@ -415,7 +415,7 @@ function renderHome(view) {
     <div class="masthead-rule"></div>
     ${wordRowsHtml(dayWords({}))}
     <div class="home-hero" data-rise>
-      <div class="label home-eyebrow">${DAYS.length}-day Bible study</div>
+      <div class="label home-eyebrow">Ten foundations for faith</div>
       <h1 class="home-title t-condensed">First <span class="ten">10</span> Days</h1>
     </div>
     <div class="home-welcome" data-rise>
