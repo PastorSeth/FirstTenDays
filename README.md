@@ -105,7 +105,7 @@ Two things to avoid inside the backticks: another backtick ( `` ` `` ), and a do
 
 The big sliding words come from `data.js` — no code changes needed:
 
-- `HOME_WORDS` near the top of the file sets the home page's rows, one row per word: `const HOME_WORDS = ["Light", "Love"];`
+- `HOME_WORDS` near the top of the file sets the home page's rows, one row per word: `const HOME_WORDS = ["Into", "The light"];`
 - Any day can have its own with a `words` line, like Day 1's `words: ["Context", "Is key"],`
 - A day without `words` uses `HOME_WORDS`.
 

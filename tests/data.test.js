@@ -4,7 +4,7 @@ test('data: video and flow fields are gone', () => {
 });
 test('data: book name and home words', () => {
   assertEqual(BOOK_NAME, '1 John');
-  assertEqual(HOME_WORDS, ['Light', 'Love']);
+  assertEqual(HOME_WORDS, ['Into', 'The light']);
 });
 test('data: Day 1 teaches first, then asks the three context questions with hints', () => {
   const d1 = DAYS[0];

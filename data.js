@@ -80,7 +80,7 @@ const WELCOME_VIDEO_ID = null;
 const BOOK_NAME = "1 John";
 
 // The big sliding words on the home page, one row each.
-const HOME_WORDS = ["Light", "Love"];
+const HOME_WORDS = ["Into", "The light"];
 
 // The Google Sheet behind the leader dashboard. The Student Progress
 // page reads the sheet directly now, so this link is only offered as a
