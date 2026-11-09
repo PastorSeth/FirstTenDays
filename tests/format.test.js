@@ -126,6 +126,20 @@ test('format: ::: type wraps each letter, keeps a readable copy', () => {
   assertIncludes(out, '<span class="ch" style="--i:0">G</span>');
   assertIncludes(out, '<strong><span class="ch" style="--i:8">Y</span>');
 });
+test('format: ::: retype types a line, with a button under the next line to correct it', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: retype Make it clearer\nGod put Christians here.\nActually… let me be clear.\nGod put **YOU** here!\n:::');
+  const fx = box.querySelector('.fx-retype[data-retype]');
+  assert(fx, 'retype block');
+  assertEqual([...fx.children].map(c => c.className), ['fx-type', 'retype-say', 'retype-btn btn-pill', 'retype-next']);
+  assertEqual(fx.querySelector('.fx-type[data-fx] .type-chars').textContent, 'God put Christians here.');
+  assertEqual(fx.querySelector('.fx-type .sr-only').getAttribute('aria-live'), 'polite');
+  assertEqual(fx.querySelector('.retype-say').textContent, 'Actually… let me be clear.');
+  assertEqual(fx.querySelector('.retype-btn').textContent, 'Make it clearer');
+  assertEqual(fx.querySelector('.retype-btn').getAttribute('type'), 'button');
+  assertEqual(fx.querySelector('.retype-next').innerHTML, 'God put <strong>YOU</strong> here!');
+  assertEqual(formatStudy('::: retype\nA\nB\nC\n:::').includes('>Make it clearer</button>'), true, 'default button label');
+});
 test('format: ::: stack stamps one line at a time', () => {
   assertEqual(formatStudy('::: stack\nGOD\n**YOUR**\n:::'),
     '<div class="fx-stack" data-fx><p class="stack-line" style="--i:0">GOD</p><p class="stack-line" style="--i:1"><strong>YOUR</strong></p></div>');

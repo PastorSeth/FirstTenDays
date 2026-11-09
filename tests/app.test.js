@@ -386,3 +386,43 @@ test('app: pen marks are drawn over a highlighted verse once the highlighter is 
     assertEqual(layer.querySelector('.pen-circle').style.getPropertyValue('--delay'), '1950ms');
   });
 });
+test('app: the retype button backspaces to where the lines differ, then types the correction', async () => {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const html = document.documentElement;
+  const hadMotion = html.classList.contains('motion-on');
+  html.classList.add('motion-on');
+  const day = DAYS.find(x => x.day === 5);
+  const saved = day.study;
+  day.study = '::: retype\nGod put Christians here.\nActually.\nGod put **YOU** here!\n:::';
+  const v = document.createElement('div');
+  document.body.prepend(v);
+  try {
+    renderDay(v, 5);
+    const fx = v.querySelector('.fx-retype');
+    const chars = () => fx.querySelector('.type-chars').textContent;
+    fx.querySelector('.retype-btn').click();
+    await wait(600);
+    const partway = chars();
+    assert(partway.length < 'God put Christians here.'.length && partway.startsWith('God put '), `backspacing (${partway})`);
+    await wait(1400);
+    assertEqual(chars(), 'God put YOU here!');
+    assertEqual(fx.querySelector('.type-chars strong').textContent, 'YOU');
+    const all = [...fx.querySelectorAll('.type-chars .ch')];
+    assert(all.slice(0, 8).every(c => parseFloat(c.style.getPropertyValue('--i')) < 0), 'the part that stays is already typed');
+    assertEqual(all[8].style.getPropertyValue('--i'), '0', 'typing picks up where the lines differ');
+    assertEqual(fx.querySelector('.sr-only').innerHTML, 'God put <strong>YOU</strong> here!');
+    assert(fx.querySelector('.retype-btn').hidden, 'the button goes away');
+  } finally { day.study = saved; v.remove(); if (!hadMotion) html.classList.remove('motion-on'); }
+});
+test('app: without motion, the retype button swaps the correction straight in', () => {
+  const html = document.documentElement;
+  const hadMotion = html.classList.contains('motion-on');
+  html.classList.remove('motion-on');
+  try {
+    withDay5({ study: '::: retype\nGod put Christians here.\nActually.\nGod put **YOU** here!\n:::' }, v => {
+      v.querySelector('.retype-btn').click();
+      assertEqual(v.querySelector('.type-chars').textContent, 'God put YOU here!');
+      assert(v.querySelector('.retype-btn').hidden);
+    });
+  } finally { if (hadMotion) html.classList.add('motion-on'); }
+});

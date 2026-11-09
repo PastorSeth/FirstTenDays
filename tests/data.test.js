@@ -39,8 +39,14 @@ test('data: Days 3-10 read, then MAPS, then the study, then application question
     assertEqual(new Set(d.questions.map(q => q.id)).size, d.questions.length, `day ${d.day} question ids are unique`);
   });
 });
+test('data: Day 7 types "That\'s why…" big, then corrects it to YOU', () => {
+  const s = DAYS.find(d => d.day === 7).study;
+  assertIncludes(s, "There are all kinds of lies being spoken all around you.\n::: retype");
+  assertIncludes(s, "\nThat's why God has positioned Christians all through the world to be a voice of truth.\nActually… Let me make myself a little more clear.\nThat's why God has positioned **YOU** in this world to be a voice of truth!\n:::");
+  assert(!s.includes('So, God has positioned'), 'the old "So," sentence is gone');
+});
 test('data: each written lesson has its own effect', () => {
-  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: type', 8: '::: trinity', 9: '::: stack' };
+  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: retype', 8: '::: trinity', 9: '::: stack' };
   Object.keys(effects).forEach(day => {
     const d = DAYS[day - 1];
     assertIncludes(d.study, effects[day], `day ${day}`);

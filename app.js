@@ -722,6 +722,56 @@ function setUpPen(hl) {
   if (document.fonts) document.fonts.ready.then(draw);
 }
 
+/* Day 7's correction. The button backspaces the big typed line back to
+   where it and the correction differ, then the correction types on from
+   there (style.css types each letter by its --i; the letters that stay
+   get a --i far in the past so they're already there). With Reduce
+   Motion it simply swaps in. */
+const RETYPE_BACKSPACE_MS = 28;
+
+function setUpRetype(fx) {
+  const typed = fx.querySelector('.fx-type');
+  const chars = typed.querySelector('.type-chars');
+  const reader = typed.querySelector('.sr-only');
+  const btn = fx.querySelector('.retype-btn');
+  const next = fx.querySelector('.retype-next').innerHTML;
+
+  btn.addEventListener('click', () => {
+    btn.hidden = true;
+    typed.setAttribute('tabindex', '-1');
+    typed.focus({ preventScroll: true });
+
+    const fresh = document.createElement('span');
+    fresh.innerHTML = wrapChars(next).html;
+    const oldChars = [...chars.querySelectorAll('.ch')];
+    const newChars = [...fresh.querySelectorAll('.ch')];
+    let keep = 0;
+    while (keep < oldChars.length && keep < newChars.length && oldChars[keep].textContent === newChars[keep].textContent) keep++;
+    newChars.forEach((c, i) => c.style.setProperty('--i', i < keep ? -1000 : i - keep));
+
+    const finish = () => {
+      chars.innerHTML = fresh.innerHTML;
+      typed.style.setProperty('--n', newChars.length);
+      reader.innerHTML = next;
+    };
+    if (!document.documentElement.classList.contains('motion-on')) { finish(); return; }
+
+    typed.classList.add('is-revealed');
+    // Holds its height while it backspaces, so the page doesn't jump.
+    typed.style.minHeight = typed.offsetHeight + 'px';
+    let left = oldChars.length;
+    const backspace = () => {
+      if (left > keep) {
+        oldChars[--left].remove();
+        setTimeout(backspace, RETYPE_BACKSPACE_MS);
+      } else {
+        setTimeout(finish, 300);
+      }
+    };
+    setTimeout(backspace, 250);
+  });
+}
+
 /* The taps that make a study's effects work: swap tabs, hint buttons,
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
@@ -729,6 +779,7 @@ function wireStudyEffects(view) {
   view.querySelectorAll('.hold-card').forEach(setUpHold);
   view.querySelectorAll('.fx-together').forEach(setUpTogether);
   view.querySelectorAll('.hl[data-pen]').forEach(setUpPen);
+  view.querySelectorAll('.fx-retype').forEach(setUpRetype);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

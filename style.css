@@ -1627,6 +1627,12 @@ html:not(.motion-on) .celebrate--play {
   animation: caret 900ms steps(1) 8;
 }
 
+/* The line under it, and the button that corrects it. */
+.fx-type:focus { outline: none; }
+.fx-retype .retype-say { margin-bottom: 12px; }
+.fx-retype .retype-btn { margin: 0 0 26px; }
+.fx-retype .retype-btn[hidden] { display: none; }
+
 @keyframes type-in { to { opacity: 1; } }
 
 @keyframes caret { 50% { opacity: 0; } }

@@ -364,6 +364,18 @@ const BLOCKS = {
     }).join('');
   },
 
+  /* A line typed out big, the next line said normally with a button under
+     it, and a correction: the button backspaces the big line back to where
+     the two differ and types the correction in its place (app.js). The
+     title after "::: retype" is the button's label. */
+  retype(lines, label) {
+    const [first = '', say = '', next = ''] = lines;
+    const typed = BLOCKS.type([first]).replace('<span class="sr-only">', '<span class="sr-only" aria-live="polite">');
+    return `<div class="fx-retype" data-retype>${typed}<p class="retype-say">${formatInline(say)}</p>` +
+      `<button type="button" class="retype-btn btn-pill">${typeset(label || 'Make it clearer')}</button>` +
+      `<template class="retype-next">${formatInline(next)}</template></div>`;
+  },
+
   // A soft sign-off at the end of a study, set apart and a little larger.
   closing(lines) {
     return `<div class="fx-closing" data-fx>${lines.map(l => `<p>${formatInline(l)}</p>`).join('')}</div>`;

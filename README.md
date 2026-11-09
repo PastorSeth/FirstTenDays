@@ -69,7 +69,8 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: typewriter C.S. Lewis \| images/cs-lewis-signature.webp` … `:::` | A quote on a typed page that tips up flat, then types out as you scroll. Mark a phrase with `==…==` for a red-pencil underline once it's typed. The part after `\|` is an optional signature picture from the site's `images` folder; leave it out to sign with the name in text | Day 3 |
 | `::: together We are united in worship and study` … `:::`, one card per line | A dark box with the heading in big type over one card per line. The cards start scattered and tilted, and line up neatly as the box scrolls into view | Day 3 |
 | `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words, each followed by what it means. Each word fills with color once it scrolls up to the middle of the screen | Day 4 |
-| `::: type` … `:::` | A sentence that types itself out, letter by letter | Day 7 |
+| `::: type` … `:::` | A sentence that types itself out, letter by letter | Not used right now |
+| `::: retype Make it clearer` … `:::` | Three lines: a sentence typed out big, a normal line under it, then a correction. The button (labelled with the words after `retype`) backspaces the big sentence to where the two differ and types the correction in its place | Day 7 |
 | `::: stack` … `:::` | Big words stamped down one line at a time | Day 9 |
 | `::: closing` … `:::` | A soft sign-off to end a study: the first line as a quiet greeting, the next a little larger, both fading up gently | Day 9 |
 | `::: video` and a YouTube ID, on one line | An embedded video (the ID is the part after `v=` in a YouTube link) | Days 1 and 8 |

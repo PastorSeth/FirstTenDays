@@ -30,7 +30,7 @@
 
    EFFECTS: a line like "::: stack" starts one and a line of just
    ":::" ends it — flip, swap, scripture, hold, light, reveal, typewriter,
-   terms, together, type, stack and closing. "::: video YOUTUBE-ID" and
+   terms, together, type, retype, stack and closing. "::: video YOUTUBE-ID" and
    "::: trinity" stand on one line. README.md ("Effects") shows what
    each one does and which day uses it.
 
@@ -346,10 +346,11 @@ This is the big culmination of the passage we are reading today. Some of your no
     reflectTitle: "MAPS",
     reflections: MAPS_PROMPTS,
     study: `
-Today's passage builds off of something we talked about yesterday: how there are all of these people out there trying to lead you and everyone else astray. There are all kinds of lies being spoken all around you. So, God has positioned Christians all through the world to be a voice of truth.
+Today's passage builds off of something we talked about yesterday: how there are all of these people out there trying to lead you and everyone else astray. There are all kinds of lies being spoken all around you.
+::: retype Make it clearer
+That's why God has positioned Christians all through the world to be a voice of truth.
 Actually… Let me make myself a little more clear.
-::: type
-God has positioned **YOU** in this world to be a voice of truth!
+That's why God has positioned **YOU** in this world to be a voice of truth!
 :::
 I'm going to keep it short today, because I want you to spend more time reflecting than reading. I want you to think about YOUR STORY. Because God has done something awesome in YOUR life, and the world needs to know about it!
 Yesterday, you identified a friend in your life who God has uniquely positioned you to share Jesus with. One of the best ways to do that is to tell them what Jesus has done in your life. Think about it. This person knows you. They have a front row seat for your story as it plays out. And God has given you an opportunity to help them see behind the scenes — to show them that Jesus is the one that made all the difference.
