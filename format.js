@@ -289,6 +289,11 @@ const BLOCKS = {
     }).join('');
   },
 
+  // A soft sign-off at the end of a study, set apart and a little larger.
+  closing(lines) {
+    return `<div class="fx-closing" data-fx>${lines.map(l => `<p>${formatInline(l)}</p>`).join('')}</div>`;
+  },
+
   // Big words stamped down one line at a time.
   stack(lines) {
     return `<div class="fx-stack" data-fx>${lines.map((l, i) =>

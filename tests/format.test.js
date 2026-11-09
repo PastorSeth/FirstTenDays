@@ -151,3 +151,7 @@ test('format: ::: typewriter only uses a signature picture from the site itself'
   });
   assert(!formatStudy('::: typewriter\nQuote\n:::').includes('tw-name'), 'no name, no signature');
 });
+test('format: ::: closing sets a soft sign-off apart', () => {
+  assertEqual(formatStudy('::: closing\nDear friend,\nGod answers prayer.\n:::'),
+    '<div class="fx-closing" data-fx><p>Dear friend,</p><p>God answers prayer.</p></div>');
+});

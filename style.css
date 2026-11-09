@@ -1266,6 +1266,54 @@ a { color: inherit; }
   to { opacity: 1; transform: none; }
 }
 
+/* A soft sign-off at the end of a study: a short rule, the greeting in
+   quiet italic, then the line itself a little larger. Both fade up gently. */
+.fx-closing {
+  position: relative;
+  margin: 34px 0 8px;
+  padding-top: 18px;
+}
+
+.fx-closing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--vermilion);
+}
+
+.study .fx-closing p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.study .fx-closing p:first-child:not(:last-child) {
+  margin-bottom: 2px;
+  color: var(--ink-60);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.motion-on .fx-closing p {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.motion-on .fx-closing.is-revealed p {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1000ms var(--ease-out), transform 1000ms var(--ease-out);
+}
+
+.motion-on .fx-closing.is-revealed p:nth-child(2) { transition-delay: 500ms; }
+
 /* Church vocab: a word you can tap for its meaning. */
 .vocab {
   padding: 0;

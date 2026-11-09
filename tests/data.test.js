@@ -63,3 +63,6 @@ test('data: MAPS prompt ids unchanged (saved answers depend on them)', () => {
 test('data: Day 7 gives the story question a large box', () => {
   assertEqual(DAYS[6].questions[0].size, 'large');
 });
+test('data: Day 9 ends with a soft "Dear friend, God answers prayer."', () => {
+  assert(DAYS[8].study.trim().endsWith('::: closing\nDear friend,\nGod answers prayer.\n:::'), 'closing block at the end');
+});

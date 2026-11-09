@@ -67,6 +67,7 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words that fill with color, each followed by what it means | Day 4 |
 | `::: type` … `:::` | A sentence that types itself out, letter by letter | Day 7 |
 | `::: stack` … `:::` | Big words stamped down one line at a time | Day 9 |
+| `::: closing` … `:::` | A soft sign-off to end a study: the first line as a quiet greeting, the next a little larger, both fading up gently | Day 9 |
 | `::: video` and a YouTube ID, on one line | An embedded video (the ID is the part after `v=` in a YouTube link) | Days 1 and 8 |
 | `::: trinity`, on one line | The Shield of the Trinity — tap Father, Son, or Holy Spirit | Day 8 |
 

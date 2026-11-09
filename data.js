@@ -27,7 +27,7 @@
 
    EFFECTS: a line like "::: stack" starts one and a line of just
    ":::" ends it — swap, scripture, light, reveal, typewriter, terms,
-   type and stack. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
+   type, stack and closing. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
    README.md ("Effects") shows what each one does, and Days 1-9
    below have an example of every one.
 
@@ -416,8 +416,10 @@ Seriously, go back and read verse 14. Underline it. Bookmark it. Read it slowly.
 Don't fall into the same trap that I fell into. For many years, as a young believer, genuine prayers for me were sparse because I simply never understood the significance of verse 14. I didn't understand that God answers prayers.
 ## One Final Note
 Listen, I don't want to oversimplify it. Prayer is not a magic wand that will give you what you want. And there will be seasons in your life where you feel discouraged because you are praying and it _feels_ like God is not listening. There will be other times where you ask for something, and God does not give you the answer you were hoping for. In all of those situations, it's tough. But don't allow the enemy to harden your heart. You know you have a loving Father who delights in the prayers of his children. He delights in YOU! Sometimes, when you're tempted to stray away because you don't _feel_ it, you have to trust what you _know_ rather than what you _feel_.
+::: closing
 Dear friend,
 God answers prayer.
+:::
 `,
     questions: [
       { id: "confidence", type: "scale", low: "Not at all", high: "Totally", label: "On a scale from one to ten, how confident do you feel in your ability to pray out loud in front of people without fumbling over your words and feeling embarrassed?" },
