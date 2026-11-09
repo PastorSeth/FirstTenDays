@@ -359,3 +359,12 @@ test('app: holding the light reveals the answer, and letting go early lets it fa
     assert(!b.querySelector('.hold-answer').hasAttribute('aria-hidden'), 'screen readers hear the answer once it is revealed');
   } finally { day.study = saved; v.remove(); }
 });
+test('app: the together cards line up as they scroll into place', () => {
+  withDay5({ study: '::: together United\nOne\nTwo\n:::' }, v => {
+    const fx = v.querySelector('.fx-together');
+    fx.__read(0, 800, 800, 300);              // just reaching the bottom of the screen
+    assertEqual(fx.style.getPropertyValue('--t'), '0.000');
+    fx.__read(0, 800 * 0.35, 800, 300);       // two-thirds of the way up
+    assertEqual(fx.style.getPropertyValue('--t'), '1.000');
+  });
+});

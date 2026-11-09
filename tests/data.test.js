@@ -81,3 +81,9 @@ test('data: Day 8 shows the Trinity shield right after the underlining instructi
   assertEqual(lines[read + 1], '::: trinity');
   assertEqual(lines.filter(l => l === '::: trinity').length, 1);
 });
+test('data: Day 3 brings its five "Even…" lines together under one heading', () => {
+  const s = DAYS[2].study;
+  assertIncludes(s, '::: together We are united in worship and study');
+  assertIncludes(s, '**Small groups** filled with fellow believers are so powerful!');
+  assert(!s.includes('\n-- '), 'no sub-bullets left');
+});

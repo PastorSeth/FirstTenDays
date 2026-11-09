@@ -186,3 +186,11 @@ test('format: ::: hold makes a card per line, with the answer hidden until it is
   assert(!cards[1].querySelector('.hold-lead'), 'a line without | is all answer');
   assertEqual(cards[1].querySelector('.hold-answer').textContent, 'Only an answer Embrace the light!');
 });
+test('format: ::: together puts a heading over cards that come together', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy("::: together We are united\nEven when the music isn't my style\nEven if I don't like singing\n:::");
+  const fx = box.querySelector('.fx-together[data-together]');
+  assert(fx, 'together block');
+  assertEqual(fx.querySelector('.together-head').textContent, 'We are united');
+  assertEqual([...fx.querySelectorAll('.together-card')].map(c => c.textContent), ['Even when the music isn’t my style', 'Even if I don’t like singing']);
+});

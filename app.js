@@ -496,6 +496,17 @@ function playCelebration(el) {
   if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
 }
 
+/* A together block. motion.js passes where it is on screen; the cards are
+   scattered (--t 0) as it comes up from the bottom of the screen and lined
+   up (--t 1) by the time it's two-thirds of the way up. Without motion
+   --t is never set, and the cards are simply lined up. */
+function setUpTogether(el) {
+  el.__read = (r, top, vh) => {
+    const t = Math.min(1, Math.max(0, (vh - top) / (vh * 0.65)));
+    el.style.setProperty('--t', t.toFixed(3));
+  };
+}
+
 /* A hold-the-light card. While the button is held the light builds (about
    two seconds to full): the ring fills, the glow spreads, and the answer is
    drawn in. Let go early and it drains back; once full, it stays lit. All
@@ -595,6 +606,7 @@ function setUpTypewriter(tw) {
 function wireStudyEffects(view) {
   view.querySelectorAll('.fx-typewriter').forEach(setUpTypewriter);
   view.querySelectorAll('.hold-card').forEach(setUpHold);
+  view.querySelectorAll('.fx-together').forEach(setUpTogether);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

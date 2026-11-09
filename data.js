@@ -27,7 +27,7 @@
 
    EFFECTS: a line like "::: stack" starts one and a line of just
    ":::" ends it — flip, swap, scripture, hold, light, reveal, typewriter,
-   terms, type, stack and closing. "::: video YOUTUBE-ID" and
+   terms, together, type, stack and closing. "::: video YOUTUBE-ID" and
    "::: trinity" stand on one line. README.md ("Effects") shows what
    each one does and which day uses it.
 
@@ -246,12 +246,15 @@ C.S. Lewis is saying that it may have taken a while, but he eventually understoo
 Here is the thing about C.S. Lewis: I think what he felt is honestly common among new Christians. Maybe it's because of the music, maybe the people, maybe something else… But Satan wants to tempt you into isolating yourself from other Christians. This has been a problem for 2,000 years, and that is why John, all the way back then, wrote what he did in this passage we read today.
 Go back and read verses 10-11 one more time. Maybe even mark them up if you haven't yet.
 Christian community is so important! But this is not just a warning. We don't go to church because we have to. We go because these are our brothers and sisters in Christ! We build one another up! We spur one another on!
-* Worshipping together on Sundays and Wednesdays is so meaningful!
--- even when the music isn't my style
--- even if I don't like singing
-* Small groups filled with fellow believers are so helpful
--- you don't have to dress the same or have the same background
--- you don't even have to have any similar interests or hobbies
+**Worshipping together** on Sundays and Wednesdays is so meaningful!
+**Small groups** filled with fellow believers are so powerful!
+::: together We are united in worship and study
+Even when the music isn't my style
+Even if I don't like singing
+Even if I'm not dressed the same as the person next to me
+Even if we don't all have the same background
+Even when we don't have the same interests and hobbies
+:::
 Our love for CHRIST is what brings us all together, and the unity that we get to experience in His Church is like nothing else in this world.
 `,
     questions: [

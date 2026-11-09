@@ -1410,6 +1410,53 @@ html:not(.motion-on) .celebrate--play {
 .motion-on .fx-typewriter.is-done .tw-signature,
 .motion-on .fx-typewriter.is-done .tw-name { transition: opacity 800ms var(--ease-out) 200ms; }
 
+/* Day 3 — a dark box whose cards start scattered and line up as it scrolls
+   in. app.js sets --t from 0 (scattered) to 1 (lined up); without motion
+   it's never set, so the cards are simply lined up. */
+.fx-together {
+  position: relative;
+  overflow: hidden;
+  margin: 24px 0 28px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: var(--ink);
+}
+
+.study .together-head {
+  margin: 2px 0 14px;
+  color: var(--paper);
+  font-size: clamp(26px, 8vw, 34px);
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.together-cards {
+  display: grid;
+  gap: 8px;
+}
+
+.together-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  opacity: calc(.55 + var(--t, 1) * .45);
+  transform:
+    translate(calc((1 - var(--t, 1)) * var(--dx)), calc((1 - var(--t, 1)) * var(--dy)))
+    rotate(calc((1 - var(--t, 1)) * var(--r)));
+}
+
+.together-card:nth-child(5n + 1) { --dx: 40px; --dy: 30px; --r: -9deg; }
+.together-card:nth-child(5n + 2) { --dx: -36px; --dy: 10px; --r: 7deg; }
+.together-card:nth-child(5n + 3) { --dx: 30px; --dy: -14px; --r: 11deg; }
+.together-card:nth-child(5n + 4) { --dx: -44px; --dy: -34px; --r: -6deg; }
+.together-card:nth-child(5n + 5) { --dx: 34px; --dy: -48px; --r: 8deg; }
+
 /* Day 4 — key words that fill with color, one at a time. */
 .fx-terms { margin: 24px 0 28px; }
 

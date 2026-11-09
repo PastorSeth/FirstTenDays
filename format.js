@@ -244,6 +244,14 @@ const BLOCKS = {
       `<p class="sr-only">${escapeHtml(full)}</p>${sign}</div></figure>`;
   },
 
+  // A dark box with a heading (the words after "together") over one card
+  // per line. The cards start scattered and line up as the box scrolls in.
+  together(lines, heading) {
+    const head = heading ? `<h3 class="together-head">${typeset(heading)}</h3>` : '';
+    const cards = lines.map(l => `<div class="together-card">${formatInline(l)}</div>`).join('');
+    return `<div class="fx-together" data-together>${head}<div class="together-cards">${cards}</div></div>`;
+  },
+
   // One dark card per line. The part after " | " stays hidden until the
   // student presses and holds the light; words after "hold" are added in
   // orange to every answer.

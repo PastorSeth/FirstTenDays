@@ -200,3 +200,13 @@ test('motion: a "middle" effect waits until it scrolls up to the middle of the s
   assert(!early, 'still unfilled while it sits in the bottom half');
   assert(later, 'fills once it passes the middle');
 });
+test('motion: a together block hears the scroll too', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div data-together style="height:120px">Q</div>';
+  document.body.prepend(root);
+  let heard = false;
+  root.firstChild.__read = () => { heard = true; };
+  Motion.init(); Motion.scan(root);
+  Motion.clear(); root.remove();
+  assert(heard, 'scan passed the scroll position to the together block');
+});
