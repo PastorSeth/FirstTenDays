@@ -6,7 +6,7 @@
    caches get cleared out.
    ========================================================== */
 
-const CACHE_NAME = 'first-10-days-v31';
+const CACHE_NAME = 'first-10-days-v32';
 
 // The web font lives in its own cache, so bumping CACHE_NAME for an app
 // change doesn't throw away the font and make everyone download it again.
@@ -48,11 +48,19 @@ function cachesToDelete(keys) {
   return keys.filter(key => key !== CACHE_NAME && key !== FONT_CACHE);
 }
 
+/* A new version downloads the app's files fresh from the site. The
+   browser keeps its own copy of each file for up to ten minutes, and
+   without this a new version could save those old copies as its own. */
+function shellRequests() {
+  return APP_SHELL.map(path => new Request(path, { cache: 'reload' }));
+}
+
 /* The app's own files: answer from the cache straight away, and refresh
-   the cached copy from the network in the background. */
+   the cached copy from the network in the background (checking with the
+   site, not the browser's own copy). */
 function fromAppCache(request) {
   return caches.match(request).then((cached) => {
-    const networked = fetch(request)
+    const networked = fetch(request, { cache: 'no-cache' })
       .then((response) => {
         if (response && response.status === 200) {
           const copy = response.clone();
@@ -89,7 +97,7 @@ function cacheFirst(request) {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(shellRequests()))
   );
   self.skipWaiting();
 });

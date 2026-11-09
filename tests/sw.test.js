@@ -48,3 +48,21 @@ test('sw: the font stylesheet falls back to the cached copy offline', async () =
     await caches.delete(FONT_CACHE);
   }
 });
+test('sw: installing a new version fetches the app files fresh, not from the browser\'s own cache', () => {
+  const reqs = shellRequests();
+  assertEqual(reqs.length, APP_SHELL.length);
+  assert(reqs.every(r => r.cache === 'reload'), 'every shell file is fetched with cache: reload');
+});
+test('sw: refreshing an app file checks with the server instead of the browser\'s own cache', async () => {
+  const realFetch = window.fetch; let seen = null;
+  const url = location.origin + '/sw-refresh-test-' + Date.now() + '.js';
+  try {
+    window.fetch = async (req, init) => { seen = init; return new Response('x', { status: 200 }); };
+    await fromAppCache(new Request(url));
+    assertEqual(seen && seen.cache, 'no-cache');
+  } finally {
+    window.fetch = realFetch;
+    await new Promise(r => setTimeout(r, 50));
+    await (await caches.open(CACHE_NAME)).delete(url);
+  }
+});

@@ -37,6 +37,19 @@ test('app: shows a content error when data.js fails to load', async () => {
   assertIncludes(f.contentDocument.querySelector('.content-error').textContent, 'data.js');
   f.remove();
 });
+test('app: a new version taking over reloads the page once, but not on the very first visit', () => {
+  const fakeSW = () => { const sw = new EventTarget(); return sw; };
+  let reloads = 0;
+  const updating = fakeSW(); updating.controller = {};
+  reloadOnUpdate(updating, () => reloads++);
+  updating.dispatchEvent(new Event('controllerchange'));
+  updating.dispatchEvent(new Event('controllerchange'));
+  assertEqual(reloads, 1, 'reloads once when a newer version takes over');
+  const first = fakeSW(); first.controller = null;
+  reloadOnUpdate(first, () => reloads++);
+  first.dispatchEvent(new Event('controllerchange'));
+  assertEqual(reloads, 1, 'no reload when the site is installing for the first time');
+});
 test('app: pad2', () => { assertEqual(pad2(1), '01'); assertEqual(pad2(10), '10'); });
 test('app: dayWords falls back and accepts a single string', () => {
   assertEqual(dayWords({ words: ['Light', 'Walk'] }), ['Light', 'Walk']);

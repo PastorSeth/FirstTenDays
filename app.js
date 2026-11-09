@@ -258,6 +258,20 @@ function contentReady() {
   }
 }
 
+/* When a newer version of the site takes over, reload once so it shows
+   now instead of on the next visit. (Answers are saved as they're typed,
+   so nothing is lost.) Not on the very first visit, when there was no
+   older version to replace. */
+function reloadOnUpdate(sw, reload) {
+  if (!sw.controller) return;
+  let reloaded = false;
+  sw.addEventListener('controllerchange', () => {
+    if (reloaded) return;
+    reloaded = true;
+    reload();
+  });
+}
+
 function bootApp() {
   // Say so plainly instead of leaving a blank page.
   if (!contentReady()) {
@@ -273,6 +287,7 @@ function bootApp() {
   maybeShowNamePrompt();
 
   if ('serviceWorker' in navigator) {
+    reloadOnUpdate(navigator.serviceWorker, () => location.reload());
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('service-worker.js').catch(() => {
         /* offline support just won't be available; site still works online */
