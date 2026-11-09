@@ -183,3 +183,20 @@ test('motion: the red pencil draws its line when the typewriter finishes', async
   f.remove();
   assert(drawing.length > 0, 'the pencil line animates instead of popping in');
 });
+test('motion: a "middle" effect waits until it scrolls up to the middle of the screen', async () => {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  window.scrollTo(0, 0);
+  const root = document.createElement('div');
+  root.innerHTML = `<div style="height:${Math.round(innerHeight * 0.7)}px"></div><div class="term" data-fx="middle" style="height:60px">LUST</div><div style="height:${innerHeight * 2}px"></div>`;
+  document.body.prepend(root);
+  const term = root.querySelector('.term');
+  Motion.init(); Motion.scan(root);
+  await wait(250);
+  const early = term.classList.contains('is-revealed');
+  window.scrollTo(0, Math.round(innerHeight * 0.3));   // its top is now about 40% down the screen
+  await wait(250);
+  const later = term.classList.contains('is-revealed');
+  Motion.clear(); root.remove(); window.scrollTo(0, 0);
+  assert(!early, 'still unfilled while it sits in the bottom half');
+  assert(later, 'fills once it passes the middle');
+});

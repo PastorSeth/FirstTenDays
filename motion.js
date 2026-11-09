@@ -69,6 +69,7 @@ const Motion = (() => {
   const onScreen = new Set();
   let viewObserver = null;
   let revealObserver = null;
+  let middleObserver = null;
 
   let allowed = false;
   let listening = false;
@@ -160,6 +161,22 @@ const Motion = (() => {
   function watchReveal(el) {
     if (!allowed || !('IntersectionObserver' in window)) {
       el.classList.add('is-revealed');
+      return;
+    }
+    // data-fx="middle" waits until the top of the effect scrolls up past the
+    // middle of the screen (the bottom half is left out of what's watched).
+    if (el.dataset.fx === 'middle') {
+      if (!middleObserver) {
+        middleObserver = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-revealed');
+              middleObserver.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: '0px 0px -50% 0px' });
+      }
+      middleObserver.observe(el);
       return;
     }
     if (!revealObserver) {
@@ -421,8 +438,10 @@ const Motion = (() => {
   function clear() {
     if (viewObserver) viewObserver.disconnect();
     if (revealObserver) revealObserver.disconnect();
+    if (middleObserver) middleObserver.disconnect();
     viewObserver = null;
     revealObserver = null;
+    middleObserver = null;
     drifting.clear();
     scrubbing.clear();
     sliding.clear();

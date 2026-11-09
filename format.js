@@ -272,7 +272,7 @@ const BLOCKS = {
     const { intro, parts } = sections(lines);
     const terms = parts.map(p => {
       const word = typeset(p.title);
-      return `<div class="term" data-fx><p class="term-word"><span class="term-outline">${word}</span>` +
+      return `<div class="term" data-fx="middle"><p class="term-word"><span class="term-outline">${word}</span>` +
         `<span class="term-mask" aria-hidden="true"><span class="term-solid">${word}</span></span></p>` +
         `<div class="term-body">${formatStudy(p.lines.join('\n'))}</div></div>`;
     }).join('');

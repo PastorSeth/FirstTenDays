@@ -99,7 +99,7 @@ test('format: ::: reveal splits a quote into words for the scroll reveal', () =>
 });
 test('format: ::: terms gives each term a giant filling word', () => {
   const out = formatStudy('::: terms\n+ LUST\nAnything that pulls us away.\n+ FLESH\nOur old self.\n:::');
-  assertEqual((out.match(/<div class="term" data-fx>/g) || []).length, 2);
+  assertEqual((out.match(/<div class="term" data-fx="middle">/g) || []).length, 2);
   assertIncludes(out, '<p class="term-word"><span class="term-outline">LUST</span><span class="term-mask" aria-hidden="true"><span class="term-solid">LUST</span></span></p>');
   assertIncludes(out, '<div class="term-body"><p>Our old self.</p></div>');
 });
