@@ -140,3 +140,29 @@ test('motion: opening a day slides each word row in from its own side', async ()
   assert(outlinedLeft >= width, `the outlined row starts past the right edge (its left end was at ${outlinedLeft}px)`);
   assert(redRight <= 0, `the red row starts past the left edge (its right end was at ${redRight}px)`);
 });
+test('motion: study effects play when they come into view, and the quote reveal follows the scroll', async () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div class="fx-stack" data-fx style="height:40px">GOD</div><blockquote class="fx-reveal" data-scrub style="height:40px">Q</blockquote>';
+  document.body.prepend(root);
+  Motion.init(); Motion.scan(root);
+  assert(root.querySelector('[data-scrub]').style.getPropertyValue('--r') !== '', 'quote reveal got --r');
+  await new Promise(r => setTimeout(r, 200));
+  assert(root.querySelector('[data-fx]').classList.contains('is-revealed'), 'effect started');
+  Motion.clear(); root.remove();
+});
+test('motion: readAmount is how much of a block has passed three-quarters down the screen', () => {
+  assertClose(Motion.readAmount(900, 400, 800), 0);       // still below the line
+  assertClose(Motion.readAmount(400, 400, 800), 0.5);     // half of it has passed
+  assertClose(Motion.readAmount(-100, 400, 800), 1);      // all of it has
+});
+test('motion: a typewriter hears how far it has been read', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<figure data-typewriter style="height:200px;margin:0">Q</figure>';
+  document.body.prepend(root);
+  const el = root.firstChild;
+  let heard = null;
+  el.__read = (r, top, vh, height) => { heard = [r, top, vh, height]; };
+  Motion.init(); Motion.scan(root);
+  assert(heard && heard[2] === window.innerHeight && heard[3] === 200, `heard ${JSON.stringify(heard)}`);
+  Motion.clear(); root.remove();
+});

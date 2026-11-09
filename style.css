@@ -583,6 +583,9 @@ a { color: inherit; }
   resize: vertical;
 }
 
+/* For questions that ask for a longer answer, like writing out your story. */
+.reflection textarea.is-large { min-height: 340px; }
+
 .reflection textarea:focus {
   outline: none;
   border-color: var(--vermilion);
@@ -808,6 +811,742 @@ html:not(.motion-on) .celebrate--play {
   font-stretch: 75%;
   font-weight: 900;
   text-decoration: none;
+}
+
+/* ---------- Day page: sections, hints, and the 1-10 slider ---------- */
+
+/* The study gets its own heavy rule and label, like the Read box, so the
+   page reads READ → (MAPS) → BIBLE STUDY → questions. */
+.study-label {
+  margin-top: 34px;
+  padding-top: 12px;
+  border-top: 3px solid var(--ink);
+  color: var(--vermilion-text);
+}
+
+.reflection .prompt-question {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.hint-btn {
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 16px;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vermilion-text);
+  font: 700 14px var(--font);
+  cursor: pointer;
+}
+
+.hint {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 74, 28, 0.1);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.scale { margin-top: 10px; }
+
+.scale input[type="range"] {
+  display: block;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--vermilion);
+}
+
+.scale-ends {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ink-60);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scale-value {
+  color: var(--ink);
+  font-size: 30px;
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* ---------- Study effects (the ::: marks in data.js) ----------
+   Every effect shows its finished state when there's no motion (Reduce
+   Motion, or before motion.js runs). Under .motion-on it plays once it
+   scrolls into view (.is-revealed). Only transform and opacity animate. */
+
+.study-ul--sub {
+  margin: .35em 0 .2em;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+
+.study .study-ul--sub li { margin-bottom: .2em; }
+
+.study-ul--sub li::marker { color: var(--ink-30); }
+
+/* A Bible verse, set apart. */
+.scripture {
+  margin: 22px 0 26px;
+  padding: 2px 0 2px 18px;
+  border-left: 4px solid var(--vermilion);
+}
+
+.study .scripture p {
+  margin: 0;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.scripture strong {
+  color: var(--vermilion-text);
+  font-size: .7em;
+  font-style: normal;
+  vertical-align: .35em;
+}
+
+.scripture cite,
+.fx-reveal cite {
+  display: block;
+  margin-top: 10px;
+  color: var(--vermilion-text);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.fx-reveal cite::before { content: '— '; }
+
+/* An embedded video, 16:9. */
+.video-embed {
+  position: relative;
+  margin: 18px 0 24px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--ink);
+}
+
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Day 1 — two contexts, one at a time. */
+.fx-swap { margin: 22px 0 26px; }
+
+.swap-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(10, 10, 20, 0.07);
+}
+
+.swap-tab {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-60);
+  font: 700 15px var(--font);
+  cursor: pointer;
+}
+
+.swap-tab[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Both panels share one grid cell, so the box is as tall as the longer
+   one and swapping never makes the page jump. */
+.swap-panels {
+  display: grid;
+  margin-top: 12px;
+}
+
+.swap-panel {
+  grid-area: 1 / 1;
+  padding: 18px 18px 2px;
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper-raised);
+  opacity: 0;
+  transform: translateX(28px);
+  pointer-events: none;
+  transition: opacity 260ms var(--ease-out), transform 380ms var(--ease-out);
+}
+
+.swap-panel[data-panel="1"] {
+  border-color: var(--vermilion);
+  transform: translateX(-28px);
+}
+
+.swap-panel.is-on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Day 2 — a dark panel that fills with light. */
+.fx-light {
+  position: relative;
+  margin: 26px 0 30px;
+  padding: 28px 22px 6px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--ink);
+}
+
+.light-glow {
+  position: absolute;
+  left: -30%;
+  bottom: -70%;
+  width: 160%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 74, 28, 0.55) 0%, rgba(255, 150, 70, 0.22) 38%, rgba(255, 74, 28, 0) 66%);
+}
+
+.light-body { position: relative; }
+
+.study .fx-light p {
+  margin: 0 0 1.3em;
+  color: rgba(244, 241, 234, 0.78);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.fx-light strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--paper);
+  font-size: 23px;
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1.1;
+  text-shadow: 0 0 22px rgba(255, 74, 28, 0.65);
+}
+
+.motion-on .fx-light .light-glow {
+  opacity: 0;
+  transform: scale(.35);
+}
+
+.motion-on .fx-light.is-revealed .light-glow {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1800ms var(--ease-out), transform 2600ms var(--ease-out);
+}
+
+.motion-on .fx-light .light-body p {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.motion-on .fx-light.is-revealed .light-body p {
+  opacity: 1;
+  transform: none;
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+}
+
+.motion-on .fx-light.is-revealed .light-body p:nth-child(2) { transition-delay: 600ms; }
+.motion-on .fx-light.is-revealed .light-body p:nth-child(3) { transition-delay: 1200ms; }
+.motion-on .fx-light.is-revealed .light-body p:nth-child(n+4) { transition-delay: 1800ms; }
+
+/* Day 3 — a quote that lights up word by word as you read down it.
+   --r (from motion.js) is how much of the quote has passed the reading
+   line; each word fades in just as the line reaches it. */
+.fx-reveal { margin: 24px 0 28px; }
+
+.study .fx-reveal p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.motion-on .fx-reveal .w {
+  opacity: clamp(.14, calc(1 + (var(--r, 1) * var(--n) - var(--i)) / 4), 1);
+}
+
+/* Day 3 — a quote typed onto a sheet of paper as it's read. app.js tips
+   the page and types the letters (only transform moves); the rest of the
+   quote is laid out but invisible, so the page never changes height. */
+.fx-typewriter {
+  margin: 26px 0 30px;
+  perspective: 900px;
+}
+
+.tw-page {
+  position: relative;
+  padding: 24px 18px 18px 34px;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(10, 10, 20, 0.06) 31px 32px),
+    #FFFDF7;
+  box-shadow: 0 1px 0 rgba(10, 10, 20, 0.08), 0 22px 40px -18px rgba(10, 10, 20, 0.35);
+  transform-origin: 50% 100%;
+}
+
+/* The red margin line down the left of the page. */
+.tw-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 18px;
+  width: 1.5px;
+  background: rgba(255, 74, 28, 0.35);
+}
+
+.study .tw-text {
+  margin: 0;
+  color: var(--ink);
+  font: 400 17px/32px 'Courier Prime', 'Courier New', Courier, monospace;
+}
+
+.tw-untyped { visibility: hidden; }
+
+/* A block cursor, like the carriage of a typewriter. */
+.tw-caret {
+  display: inline-block;
+  width: .55em;
+  height: 1.05em;
+  margin-right: -.55em;
+  background: var(--vermilion);
+  opacity: .85;
+  vertical-align: -.2em;
+}
+
+.is-done .tw-caret { visibility: hidden; }
+
+/* The red-pencil line under the key phrase, drawn word by word once the
+   quote is all typed. Each stroke runs one letter past its word, to bridge
+   the space to the next. */
+.pw { position: relative; }
+
+.pw::after {
+  content: '';
+  position: absolute;
+  right: -1ch;
+  bottom: -3px;
+  left: 0;
+  height: 3px;
+  background: #D23A18;
+  transform: scaleX(0) rotate(-.6deg);
+  transform-origin: left center;
+}
+
+.pw:first-child::after { left: -2px; border-radius: 3px 0 0 3px; }
+.pw:last-child::after { right: -2px; border-radius: 0 3px 3px 0; }
+
+.is-done .pw::after { transform: scaleX(1) rotate(-.6deg); }
+
+.motion-on .is-done .pw::after {
+  transition: transform 140ms linear;
+  transition-delay: calc(var(--i) * 140ms + 600ms);
+}
+
+/* The signature: a picture with a white background, so it's multiplied
+   onto the paper to leave just the ink. */
+.tw-signature {
+  display: block;
+  width: min(170px, 50%);
+  height: auto;
+  margin: 12px 0 0 auto;
+  mix-blend-mode: multiply;
+  transform: rotate(-3deg);
+}
+
+.study .tw-name {
+  margin: 12px 0 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 600;
+  text-align: right;
+}
+
+.motion-on .fx-typewriter:not(.is-done) .tw-signature,
+.motion-on .fx-typewriter:not(.is-done) .tw-name { opacity: 0; }
+
+.motion-on .fx-typewriter.is-done .tw-signature,
+.motion-on .fx-typewriter.is-done .tw-name { transition: opacity 800ms var(--ease-out) 200ms; }
+
+/* Day 4 — key words that fill with color, one at a time. */
+.fx-terms { margin: 24px 0 28px; }
+
+.term + .term { margin-top: 28px; }
+
+.study .term-word {
+  position: relative;
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: clamp(72px, 24vw, 128px);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: .9;
+}
+
+.term-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+/* The filled copy sits in a mask: the mask slides right while the word
+   inside slides left by the same amount, so the color wipes across. */
+.term-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.term-solid {
+  display: block;
+  color: var(--vermilion);
+}
+
+.motion-on .term .term-mask { transform: translateX(-101%); }
+.motion-on .term .term-solid { transform: translateX(101%); }
+
+.motion-on .term.is-revealed .term-mask,
+.motion-on .term.is-revealed .term-solid {
+  transform: none;
+  transition: transform 1100ms var(--ease-inout) 150ms;
+}
+
+/* Day 6 — a highlighter sweeping across the verse, word by word. */
+.hl {
+  background: none;
+  color: inherit;
+}
+
+.hl-w {
+  position: relative;
+  z-index: 0;
+}
+
+.hl-w::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: .12em;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(255, 74, 28, 0.3);
+  transform-origin: left center;
+}
+
+/* Each word's box ends where the next begins (the space is inside the
+   word), so the stroke has no darker seams where boxes would overlap. */
+.hl-w:first-child::before { left: -.08em; border-radius: .1em 0 0 .1em; }
+.hl-w:last-child::before { right: -.08em; border-radius: 0 .1em .1em 0; }
+
+.motion-on .hl .hl-w::before { transform: scaleX(0); }
+
+.motion-on .hl.is-revealed .hl-w::before {
+  transform: none;
+  /* About a second and a half for the whole verse, however long it is. */
+  transition: transform min(220ms, calc(1500ms / var(--n))) linear;
+  transition-delay: calc(var(--i) * min(220ms, calc(1500ms / var(--n))) + 200ms);
+}
+
+/* Day 7 — a sentence that types itself out. */
+.study .fx-type {
+  margin: 22px 0 26px;
+  color: var(--ink);
+  font-size: clamp(30px, 9vw, 44px);
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.fx-type strong { color: var(--vermilion); }
+
+.fx-type .type-chars::after {
+  content: '';
+  display: inline-block;
+  width: .08em;
+  height: .85em;
+  margin-left: .06em;
+  background: var(--vermilion);
+  vertical-align: -.06em;
+}
+
+.motion-on .fx-type .ch { opacity: 0; }
+
+.motion-on .fx-type.is-revealed .ch {
+  animation: type-in 1ms linear both;
+  animation-delay: calc(var(--i) * 55ms + 250ms);
+}
+
+.motion-on .fx-type.is-revealed .type-chars::after {
+  animation: caret 900ms steps(1) 8;
+}
+
+@keyframes type-in { to { opacity: 1; } }
+
+@keyframes caret { 50% { opacity: 0; } }
+
+/* Day 8 — the Shield of the Trinity. Tap a person to pick out their lines. */
+.fx-trinity {
+  margin: 8px 0 28px;
+  padding: 14px 10px 12px;
+  border: 1.5px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper-raised);
+}
+
+.fx-trinity svg {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.tri-link {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  transition: opacity 250ms var(--ease-out);
+}
+
+.tri-link.is { stroke: var(--vermilion); }
+
+.tri-label {
+  fill: var(--ink-60);
+  font: 700 11px var(--font);
+  letter-spacing: .1em;
+  text-anchor: middle;
+  dominant-baseline: central;
+  text-transform: uppercase;
+  paint-order: stroke;
+  stroke: var(--paper-raised);
+  stroke-width: 6px;
+  transition: opacity 250ms var(--ease-out);
+}
+
+.tri-node,
+.tri-god { transition: opacity 250ms var(--ease-out); }
+
+.tri-node,
+.tri-god { cursor: pointer; }
+
+.tri-node:focus,
+.tri-god:focus { outline: none; }
+
+.tri-node:focus-visible circle { stroke: var(--vermilion); stroke-width: 4; }
+.tri-god:focus-visible circle { stroke: var(--ink); stroke-width: 4; }
+
+.tri-node circle { fill: var(--ink); }
+.tri-god circle { fill: var(--vermilion); }
+
+.tri-node text,
+.tri-god text {
+  fill: var(--paper);
+  font: 900 16px var(--font);
+  font-stretch: 75%;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.tri-god text { font-size: 19px; }
+
+.fx-trinity[data-focus="father"] .tri-link:not(.with-father),
+.fx-trinity[data-focus="father"] .tri-label:not(.with-father),
+.fx-trinity[data-focus="father"] .tri-node:not([data-person="father"]),
+.fx-trinity[data-focus="son"] .tri-link:not(.with-son),
+.fx-trinity[data-focus="son"] .tri-label:not(.with-son),
+.fx-trinity[data-focus="son"] .tri-node:not([data-person="son"]),
+.fx-trinity[data-focus="spirit"] .tri-link:not(.with-spirit),
+.fx-trinity[data-focus="spirit"] .tri-label:not(.with-spirit),
+.fx-trinity[data-focus="spirit"] .tri-node:not([data-person="spirit"]) { opacity: .18; }
+
+.study .tri-caption {
+  min-height: 2.9em;
+  margin: 8px 6px 0;
+  color: var(--ink-60);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.motion-on .fx-trinity:not(.is-revealed) svg > * { opacity: 0; }
+
+.motion-on .fx-trinity.is-revealed .tri-node { animation: fade-in 500ms var(--ease-out) backwards; }
+.motion-on .fx-trinity.is-revealed .tri-node[data-person="son"] { animation-delay: 250ms; }
+.motion-on .fx-trinity.is-revealed .tri-node[data-person="spirit"] { animation-delay: 500ms; }
+.motion-on .fx-trinity.is-revealed .tri-god { animation: fade-in 500ms var(--ease-out) 850ms backwards; }
+.motion-on .fx-trinity.is-revealed .tri-link,
+.motion-on .fx-trinity.is-revealed .tri-label { animation: fade-in 600ms var(--ease-out) 1200ms backwards; }
+
+@keyframes fade-in { from { opacity: 0; } }
+
+/* Day 9 — big words stamped down one line at a time. */
+.fx-stack { margin: 22px 0 28px; }
+
+.study .stack-line {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(60px, 20vw, 110px);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: .88;
+  transform-origin: 0 60%;
+}
+
+.stack-line strong { color: var(--vermilion); }
+
+.motion-on .fx-stack .stack-line { opacity: 0; }
+
+.motion-on .fx-stack.is-revealed .stack-line {
+  animation: stamp 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 280ms + 100ms);
+}
+
+@keyframes stamp {
+  from { opacity: 0; transform: scale(1.45); }
+  55% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+
+/* A soft sign-off at the end of a study: a short rule, the greeting in
+   quiet italic, then the line itself a little larger. Both fade up gently. */
+.fx-closing {
+  position: relative;
+  margin: 34px 0 8px;
+  padding-top: 18px;
+}
+
+.fx-closing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--vermilion);
+}
+
+.study .fx-closing p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.study .fx-closing p:first-child:not(:last-child) {
+  margin-bottom: 2px;
+  color: var(--ink-60);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.motion-on .fx-closing p {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.motion-on .fx-closing.is-revealed p {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1000ms var(--ease-out), transform 1000ms var(--ease-out);
+}
+
+.motion-on .fx-closing.is-revealed p:nth-child(2) { transition-delay: 500ms; }
+
+/* Church vocab: a word you can tap for its meaning. */
+.vocab {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline dotted var(--vermilion);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.vocab-sheet {
+  position: fixed;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 12px;
+  z-index: 60;
+  max-width: 616px;
+  margin: 0 auto;
+  padding: 18px 20px 20px;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 18px 40px rgba(10, 10, 20, 0.3);
+  visibility: hidden;
+  transform: translateY(calc(100% + 40px));
+  transition: transform 320ms var(--ease-out), visibility 0s linear 320ms;
+}
+
+.vocab-sheet.is-open {
+  visibility: visible;
+  transform: none;
+  transition: transform 320ms var(--ease-out);
+}
+
+.vocab-sheet .label { color: var(--vermilion); }
+
+.vocab-term {
+  margin: 6px 0 4px;
+  font-size: 28px;
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.vocab-def {
+  margin: 0 0 16px;
+  color: rgba(244, 241, 234, 0.85);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.vocab-close {
+  background: var(--vermilion);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swap-panel,
+  .vocab-sheet,
+  .vocab-sheet.is-open { transition: none; }
 }
 
 /* ---------- Other pages: shared pieces ---------- */

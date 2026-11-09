@@ -1,43 +1,68 @@
 test('data: ten days in order', () => { assertEqual(DAYS.map(d => d.day), [1,2,3,4,5,6,7,8,9,10]); });
 test('data: video and flow fields are gone', () => {
-  DAYS.forEach(d => ['videoId','videoId2','flow','intro'].forEach(k => assert(!(k in d), `day ${d.day} still has ${k}`)));
+  DAYS.forEach(d => ['videoId','videoId2','flow','intro','reflectionQuestion'].forEach(k => assert(!(k in d), `day ${d.day} still has ${k}`)));
 });
 test('data: book name and home words', () => {
   assertEqual(BOOK_NAME, '1 John');
   assertEqual(HOME_WORDS, ['Light', 'Love']);
 });
-test('data: Day 1 content', () => {
+test('data: Day 1 teaches first, then asks the three context questions with hints', () => {
   const d1 = DAYS[0];
   assertEqual(d1.words, ['Context', 'Is key']);
-  assert(d1.reading.startsWith("If you haven't done today's reading yet, hit the brakes!"));
+  assert(!('reading' in d1), 'Day 1 uses the standard Read box');
+  assertIncludes(d1.study, 'hit the brakes');
   assertIncludes(d1.study, '> CONTEXT IS KEY.');
-  assertIncludes(d1.study, '[The Bible Project](https://bibleproject.com/videos/1-3-john/)');
-  assertIncludes(d1.study, 'overview video for 1-3 John');
+  assertIncludes(d1.study, '::: swap');
+  assertIncludes(d1.study, '::: video l3QkE6nKylM');
+  assert(!d1.reflectFirst, 'study comes first');
+  assertEqual(d1.reflectTitle, 'Context');
   assertEqual(d1.reflections.map(r => r.id), ['author', 'audience', 'purpose']);
-  assertEqual(d1.reflectionQuestion, null);
+  d1.reflections.forEach(r => assert(r.hint, `${r.id} has a hint`));
   assertEqual(d1.speaker, 'Seth Peacock');
 });
-test('data: Day 1 study formats into the expected blocks', () => {
-  const html = formatStudy(DAYS[0].study);
-  const count = re => (html.match(re) || []).length;
-  assertEqual(count(/<h2 class="study-h">/g), 2);
-  assertEqual(count(/<blockquote/g), 1);
-  assertEqual(count(/<ul class="study-ul">/g), 1);
-  assertEqual(count(/<ol class="study-ol">/g), 1);
-  assertEqual(count(/<li>/g), 5);
+test('data: Day 2 teaches first, then MAPS with its own questions', () => {
+  const d2 = DAYS[1];
+  assertEqual(d2.words, ['Word', 'Of God']);
+  assertIncludes(d2.study, '::: light');
+  assertIncludes(d2.study, '::: scripture Romans 6:1-2');
+  assert(!d2.reflectFirst, 'study comes first');
+  assertEqual(d2.reflectTitle, 'MAPS');
+  assertEqual(d2.reflections.map(r => r.id), ['meditate', 'apply', 'pray', 'share']);
+  d2.reflections.forEach(r => assert(r.question, `${r.id} has a Day 2 question`));
 });
-test('data: Days 2-10 have empty studies, MAPS prompts, and fall back for words and reading', () => {
-  DAYS.slice(1).forEach(d => {
-    assertEqual(d.study, '', `day ${d.day} study`);
+test('data: Days 3-10 read, then MAPS, then the study, then application questions', () => {
+  DAYS.slice(2).forEach(d => {
+    assert(d.reflectFirst, `day ${d.day} puts MAPS first`);
+    assertEqual(d.reflectTitle, 'MAPS', `day ${d.day}`);
     assert(d.reflections === MAPS_PROMPTS, `day ${d.day} reflections`);
-    assert(!('words' in d) && !('reading' in d), `day ${d.day} fallback`);
+    assert(d.questions.length > 0, `day ${d.day} questions`);
+    assertEqual(new Set(d.questions.map(q => q.id)).size, d.questions.length, `day ${d.day} question ids are unique`);
   });
 });
-test('data: Days 3-10 reflection question points at the reading', () => {
-  DAYS.slice(2).forEach(d => assertEqual(d.reflectionQuestion.prompt,
-    "Now that you've read today's study, what's one specific way you'll put this into practice this week?"));
-  assertEqual(DAYS[1].reflectionQuestion, null);
+test('data: each written lesson has its own effect', () => {
+  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: type', 8: '::: trinity', 9: '::: stack' };
+  Object.keys(effects).forEach(day => {
+    const d = DAYS[day - 1];
+    assertIncludes(d.study, effects[day], `day ${day}`);
+    assertEqual(d.words.length, 2, `day ${day} header words`);
+  });
+  assertEqual(DAYS[8].questions[0].type, 'scale');
+  assertEqual(DAYS[4].study, '');
+  assertEqual(DAYS[9].study, '');
+});
+test('data: notes to self stay off the site, and every effect is spelled right', () => {
+  DAYS.forEach(d => {
+    ['gimmick', 'visual effect', 'Header Text', '???'].forEach(note =>
+      assert(!d.study.toLowerCase().includes(note.toLowerCase()), `day ${d.day} has "${note}"`));
+    assert(!formatStudy(d.study).includes('<p>:::'), `day ${d.day} has an effect that didn't render`);
+  });
 });
 test('data: MAPS prompt ids unchanged (saved answers depend on them)', () => {
   assertEqual(MAPS_PROMPTS.map(p => p.id), ['meditate', 'apply', 'pray', 'share']);
+});
+test('data: Day 7 gives the story question a large box', () => {
+  assertEqual(DAYS[6].questions[0].size, 'large');
+});
+test('data: Day 9 ends with a soft "Dear friend, God answers prayer."', () => {
+  assert(DAYS[8].study.trim().endsWith('::: closing\nDear friend,\nGod answers prayer.\n:::'), 'closing block at the end');
 });
