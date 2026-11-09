@@ -1538,6 +1538,62 @@ html:not(.motion-on) .celebrate--play {
   transition-delay: calc(var(--i) * min(220ms, calc(1500ms / var(--n))) + 200ms);
 }
 
+/* Then a red pen goes over the verse: circles, underlines, squiggles and
+   double underlines, each starting where the one before stopped (app.js
+   sets --delay, and --dur for the lines). */
+/* A little more room between the lines, for the marks under them. */
+.study .has-pen {
+  position: relative;
+  line-height: 1.2;
+}
+
+.pen-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pen-line {
+  position: absolute;
+  height: 3px;
+  border-radius: 3px;
+  background: #D23A18;
+  transform: rotate(-.6deg);
+  transform-origin: left center;
+}
+
+.pen-circle,
+.pen-double,
+.pen-wave {
+  position: absolute;
+  overflow: visible;
+}
+
+.pen-layer path {
+  fill: none;
+  stroke: #D23A18;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pen-double path { stroke-width: 4; }
+
+.motion-on .hl ~ .pen-layer .pen-line { transform: scaleX(0) rotate(-.6deg); }
+.motion-on .hl ~ .pen-layer path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+.motion-on .hl.is-revealed ~ .pen-layer .pen-line {
+  transform: rotate(-.6deg);
+  transition: transform var(--dur) linear var(--delay);
+}
+
+.motion-on .hl.is-revealed ~ .pen-layer path { stroke-dashoffset: 0; }
+.motion-on .hl.is-revealed ~ .pen-layer .pen-circle path { transition: stroke-dashoffset 650ms cubic-bezier(.5, 0, .3, 1) var(--delay); }
+.motion-on .hl.is-revealed ~ .pen-layer .pen-wave path { transition: stroke-dashoffset var(--dur) linear var(--delay); }
+.motion-on .hl.is-revealed ~ .pen-layer .pen-double path { transition: stroke-dashoffset 360ms cubic-bezier(.4, 0, .3, 1) var(--delay); }
+.motion-on .hl.is-revealed ~ .pen-layer .pen-double path + path { transition-delay: calc(var(--delay) + 380ms); }
+
 /* Day 7 — a sentence that types itself out. */
 .study .fx-type {
   margin: 22px 0 26px;

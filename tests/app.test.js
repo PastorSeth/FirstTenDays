@@ -368,3 +368,21 @@ test('app: the together cards line up as they scroll into place', () => {
     assertEqual(fx.style.getPropertyValue('--t'), '1.000');
   });
 });
+test('app: pen marks are drawn over a highlighted verse once the highlighter is done', () => {
+  withDay5({ study: '## Verse 6: ==[circle]No one[/circle] [underline]who lives[/underline] [squiggle]keeps on[/squiggle] [double]sinning[/double]==' }, v => {
+    const hl = v.querySelector('.hl');
+    const layer = hl.parentElement.querySelector('.pen-layer');
+    assert(layer, 'pen layer beside the highlight');
+    assertEqual(layer.getAttribute('aria-hidden'), 'true');
+    const kinds = [...new Set([...layer.children].map(c => c.getAttribute('class')))];
+    assertEqual(kinds, ['pen-circle', 'pen-line', 'pen-wave', 'pen-double']);
+    // (The test page has no stylesheet, so this reads where the circle is placed.)
+    const base = hl.parentElement.getBoundingClientRect();
+    const cs = layer.querySelector('.pen-circle').style;
+    const [left, width] = [parseFloat(cs.left), parseFloat(cs.width)];
+    const words = [...hl.querySelectorAll('.pen-t[data-pen="0"]')].map(w => w.getBoundingClientRect());
+    assert(left < words[0].left - base.left && left + width > words[1].right - base.left, 'the circle goes around "No one"');
+    // 7 words share the highlighter's 1500ms, after its 200ms start, then a 250ms pause.
+    assertEqual(layer.querySelector('.pen-circle').style.getPropertyValue('--delay'), '1950ms');
+  });
+});

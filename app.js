@@ -601,12 +601,134 @@ function setUpTypewriter(tw) {
   };
 }
 
+/* Red pen marks over a highlighted verse (Day 6): circles, underlines,
+   squiggles and double underlines, drawn once the highlighter has swept
+   across. They sit in a layer over the heading, placed over the words
+   format.js marked, and are placed again if the words reflow. */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const PEN_CIRCLE = 'M10,52 C4,22 40,6 74,8 C104,10 118,30 112,54 C106,80 66,92 38,86 C12,80 2,58 14,34 C22,20 36,14 52,12';
+const PEN_DOUBLE = ['M2,6 C28,2 70,9 98,4', 'M5,15 C34,11 66,17 95,12'];
+
+function penSvg(cls, viewBox, paths, box, scale) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', cls);
+  svg.setAttribute('viewBox', viewBox);
+  if (scale) svg.setAttribute('preserveAspectRatio', 'none');
+  Object.assign(svg.style, { left: box.left + 'px', top: box.top + 'px', width: box.width + 'px', height: box.height + 'px' });
+  svg.innerHTML = paths.map(d => `<path pathLength="1" d="${d}"/>`).join('');
+  return svg;
+}
+
+function setUpPen(hl) {
+  const box = hl.parentElement;
+  const kinds = hl.dataset.pen.split(' ');
+  const n = hl.querySelectorAll('.hl-w').length;
+  // The highlighter takes min(220ms, 1500ms / n) a word after a 200ms start
+  // (style.css); the pen waits a beat after that.
+  const penStart = Math.round(200 + n * Math.min(220, 1500 / n) + 250);
+  // Circles first, then the rest in reading order.
+  const order = kinds.map((k, i) => i).sort((a, b) =>
+    ((kinds[a] === 'circle') === (kinds[b] === 'circle') ? a - b : kinds[a] === 'circle' ? -1 : 1));
+  const layer = document.createElement('span');
+  layer.className = 'pen-layer';
+  layer.setAttribute('aria-hidden', 'true');
+  box.classList.add('has-pen');
+  box.appendChild(layer);
+
+  // One box per line that a mark's words sit on, relative to the heading.
+  function lines(i, base) {
+    const out = [];
+    hl.querySelectorAll(`.pen-t[data-pen="${i}"]`).forEach(word => {
+      [...word.getClientRects()].filter(r => r.width > 0).forEach(r => {
+        const top = r.top - base.top;
+        const line = out.find(l => Math.abs(l.top - top) < 6);
+        if (line) {
+          line.left = Math.min(line.left, r.left - base.left);
+          line.right = Math.max(line.right, r.right - base.left);
+          line.bottom = Math.max(line.bottom, r.bottom - base.top);
+        } else {
+          out.push({ left: r.left - base.left, right: r.right - base.left, top, bottom: r.bottom - base.top });
+        }
+      });
+    });
+    return out;
+  }
+
+  let drawn = '';
+  function draw() {
+    const base = box.getBoundingClientRect();
+    const all = kinds.map((k, i) => lines(i, base));
+    const shape = JSON.stringify(all.map(ls => ls.map(l => [l.left, l.top, l.right].map(Math.round))));
+    if (shape === drawn) return;
+    drawn = shape;
+    layer.textContent = '';
+    let t = penStart;
+    const put = (el, delay) => { el.style.setProperty('--delay', delay + 'ms'); layer.appendChild(el); };
+    // Whether another mark sits right up against this line on the left or right.
+    const crowded = (i, l, side) => all.some((ls, j) => j !== i && ls.some(o => Math.abs(o.top - l.top) < 6 &&
+      (side < 0 ? Math.abs(l.left - o.right) < 16 : Math.abs(o.left - l.right) < 16)));
+
+    order.forEach(i => {
+      const ls = all[i];
+      if (!ls.length) return;
+      const kind = kinds[i];
+      if (kind === 'circle') {
+        const b = ls[0];
+        put(penSvg('pen-circle', '0 0 120 92', [PEN_CIRCLE],
+          { left: b.left - 8, top: b.top - 4, width: b.right - b.left + 16, height: b.bottom - b.top + 8 }, true), t);
+        t += 700;
+      } else if (kind === 'double') {
+        // Runs past the ends of the words, unless that would hit another
+        // mark or the edge where the phrase wraps.
+        ls.forEach((b, li) => {
+          const overL = li === 0 && !crowded(i, b, -1) ? 10 : 2;
+          const overR = li === ls.length - 1 && !crowded(i, b, 1) ? 10 : 2;
+          put(penSvg('pen-double', '0 0 100 20', PEN_DOUBLE,
+            { left: b.left - overL, top: b.bottom - 6, width: b.right - b.left + overL + overR, height: 16 }, true), t);
+          t += 760;
+        });
+      } else if (kind === 'squiggle') {
+        ls.forEach(b => {
+          const width = Math.round(b.right - b.left + 4);
+          const waves = Math.max(2, Math.round(width / 6));
+          const dx = width / waves;
+          let d = 'M0,5';
+          for (let w = 0; w < waves; w++) d += ` Q${((w + 0.5) * dx).toFixed(1)},${w % 2 ? 11.4 : -1.4} ${((w + 1) * dx).toFixed(1)},5`;
+          const dur = Math.max(320, Math.round(width * 3));
+          const svg = penSvg('pen-wave', `0 0 ${width} 10`, [d], { left: b.left - 2, top: b.bottom - 3, width, height: 10 });
+          svg.style.setProperty('--dur', dur + 'ms');
+          put(svg, t);
+          t += dur;
+        });
+      } else {
+        ls.forEach(b => {
+          const width = b.right - b.left;
+          const dur = Math.max(160, Math.round(width * 2.2));
+          const line = document.createElement('span');
+          line.className = 'pen-line';
+          Object.assign(line.style, { left: b.left + 'px', top: (b.bottom - 2) + 'px', width: width + 'px' });
+          line.style.setProperty('--dur', dur + 'ms');
+          put(line, t);
+          t += dur;
+        });
+      }
+    });
+  }
+
+  draw();
+  // Placed again if the words move: a new font, a turned phone. Marks
+  // placed after the pen has been through appear already drawn.
+  if ('ResizeObserver' in window) new ResizeObserver(draw).observe(box);
+  if (document.fonts) document.fonts.ready.then(draw);
+}
+
 /* The taps that make a study's effects work: swap tabs, hint buttons,
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
   view.querySelectorAll('.fx-typewriter').forEach(setUpTypewriter);
   view.querySelectorAll('.hold-card').forEach(setUpHold);
   view.querySelectorAll('.fx-together').forEach(setUpTogether);
+  view.querySelectorAll('.hl[data-pen]').forEach(setUpPen);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

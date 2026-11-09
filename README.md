@@ -49,6 +49,7 @@ Each day in `data.js` has a `study` field. Write the study between its two backt
 | `**words**` | Bold, anywhere in a line |
 | `_words_` | Italic, anywhere in a line |
 | `==words==` | A highlighter stroke that sweeps across the words as they scroll into view |
+| `[circle]…[/circle]`, `[underline]…[/underline]`, `[squiggle]…[/squiggle]`, `[double]…[/double]` (inside `==…==`) | Red pen marks drawn over the highlighted words once the highlighter finishes: a circle, an underline, a wavy squiggle, or a thick double underline (Day 6) |
 | `{{word\|what it means}}` | A "church vocab" word students can tap to see what it means |
 | `[label](https://...)` | A link (opens in a new tab) |
 | `[label](#/resources)` | A link to a page inside the app |

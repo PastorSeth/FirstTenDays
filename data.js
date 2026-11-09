@@ -21,6 +21,9 @@
      **words**               bold, anywhere in a line
      _words_                 italic, anywhere in a line
      ==words==               a highlighter sweep across the words
+                             (inside it, [circle]…[/circle], [underline]…[/underline],
+                             [squiggle]…[/squiggle] and [double]…[/double] add red pen
+                             marks once the highlighter is done)
      {{word|meaning}}        a word students can tap for its meaning
      [label](https://...)    a link (opens in a new tab)
      [label](#/resources)    a link to a page inside the app
@@ -317,14 +320,14 @@ So what do I do when I don't feel like it? _I make sure my actions reflect what 
     reflections: MAPS_PROMPTS,
     study: `
 When I was reading through this passage today, I underlined a few statements that I thought were very important. Maybe you had some you underlined too! Either way, grab your pen, highlighter, or pencil and follow along with me here. You may just want to mark them up in your Bible too!
-## Verse 4: =="Sin is lawlessness"==
+## Verse 4: =="Sin is [circle]lawlessness[/circle]"==
 John is reminding us, just as he did on Day 2 of our study, that sin is a big deal! We can't miss that!
 You may have already noticed this, but just in case — watch how John builds on this idea of sin.
-## Verse 6: =="No one who lives in him keeps on sinning. No one who continues to sin has either seen him or known him"==
+## Verse 6: =="[circle]No one[/circle] [underline]who lives in him[/underline] [squiggle]keeps on sinning.[/squiggle] No one who continues to sin has either seen him or known him"==
 Listen, this is not saying that we are perfect. But when you became a Christian, something changed in you. You now have the Holy Spirit inside of you, helping you as you strive toward Jesus. Because, remember, our Christian walk is a journey out of the darkness and into the light.
-## Verse 7: =="Do not let anyone lead you astray"==
+## Verse 7: =="Do not let [double]anyone[/double] lead you astray"==
 As you strive to walk into the light of Jesus, there are going to be people in your life that try to lead you astray. Some will have malicious intentions. Others might actually have good intentions, but they just don't understand what it means to be a Christian and live for Jesus. Even with good intentions, they still might be leading you astray. Because when life gets hard, there are so many counterfeit teachers out there that want you to reject the Gospel for something else. No matter what that thing is, don't let it lead you astray.
-## Verse 13: =="Do not be surprised… if the world hates you"==
+## Verse 13: =="[underline]Do not be surprised[/underline]… if the world [circle]hates[/circle] you"==
 This is the big culmination of the passage we are reading today. Some of your non-Christian friends will be confused by the way Jesus has changed your life. Others will be frustrated. The reality is that your relationship with some of these friends is going to change. Many of your old friends will become your mission field. But also, like we talked about on Day 3, God is going to give you a new community of friends. That's one of the awesome things about being a part of the church! You have a new community of people who you can draw closer to as you draw closer to the Lord.
 `,
     questions: [

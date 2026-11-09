@@ -63,12 +63,40 @@ const LINK_MARK = /\[([^\]\n]+)\]\(([^)\s]+)\)/g;
 const SAFE_LINK = /^(https?:\/\/|#\/)/i;
 
 /* A highlighter stroke that sweeps across word by word, so it can wrap
-   onto a second line and still fill in order. */
+   onto a second line and still fill in order.
+
+   Inside it, [circle]…[/circle], [underline]…[/underline],
+   [squiggle]…[/squiggle] and [double]…[/double] mark words for a red pen
+   to go over once the highlighter is done (app.js draws them). The marked
+   words get a .pen-t span saying which mark they belong to. */
+const PEN_TAG = /\[(\/?)(circle|underline|squiggle|double)\]/g;
+
 function highlight(inner) {
-  const words = inner.split(' ');
-  const spans = words.map((word, i) =>
-    `<span class="hl-w" style="--i:${i}">${word}${i < words.length - 1 ? ' ' : ''}</span>`);
-  return `<mark class="hl" data-fx style="--n:${words.length}">${spans.join('')}</mark>`;
+  const kinds = [];
+  const words = [[]];
+  let pen = -1;
+  let last = 0;
+  const add = text => text.split(' ').forEach((piece, i) => {
+    if (i) words.push([]);
+    if (piece) words[words.length - 1].push({ text: piece, pen });
+  });
+
+  PEN_TAG.lastIndex = 0;
+  let tag;
+  while ((tag = PEN_TAG.exec(inner)) !== null) {
+    add(inner.slice(last, tag.index));
+    last = tag.index + tag[0].length;
+    if (tag[1]) pen = -1;
+    else { kinds.push(tag[2]); pen = kinds.length - 1; }
+  }
+  add(inner.slice(last));
+
+  const spans = words.map((pieces, i) => {
+    const word = pieces.map(p => (p.pen < 0 ? p.text : `<span class="pen-t" data-pen="${p.pen}">${p.text}</span>`)).join('');
+    return `<span class="hl-w" style="--i:${i}">${word}${i < words.length - 1 ? ' ' : ''}</span>`;
+  });
+  const pens = kinds.length ? ` data-pen="${kinds.join(' ')}"` : '';
+  return `<mark class="hl" data-fx${pens} style="--n:${words.length}">${spans.join('')}</mark>`;
 }
 
 /* Runs on text that's already escaped, so everything it adds is markup

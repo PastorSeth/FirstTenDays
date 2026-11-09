@@ -68,6 +68,22 @@ test('format: ==highlight== wraps each word for the marker sweep', () => {
   assertIncludes(out, '<span class="hl-w" style="--i:2">lawlessness”</span>');
   assertEqual(formatInline('a ==b'), 'a ==b');
 });
+test('format: pen marks inside a ==highlight== wrap just the words they mark', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatInline('=="[circle]No one[/circle] [underline]who lives in[/underline] [squiggle]keeps on.[/squiggle] [double]any[/double]"==');
+  const hl = box.querySelector('.hl');
+  assertEqual(hl.dataset.pen, 'circle underline squiggle double');
+  assertEqual(hl.textContent, '“No one who lives in keeps on. any”');
+  assertEqual(hl.querySelectorAll('.hl-w').length, 8);
+  assertEqual(hl.style.getPropertyValue('--n'), '8');
+  const marked = k => [...hl.querySelectorAll(`.pen-t[data-pen="${k}"]`)].map(s => s.textContent);
+  assertEqual(marked(0), ['No', 'one']);
+  assertEqual(marked(1), ['who', 'lives', 'in']);
+  assertEqual(marked(2), ['keeps', 'on.']);
+  assertEqual(marked(3), ['any']);
+  assertEqual(hl.querySelector('.hl-w').textContent, '“No ');
+  assert(!formatInline('==plain words==').includes('data-pen'), 'no pen marks, no data-pen');
+});
 test('format: {{term|definition}} becomes a tappable church-vocab word', () => {
   assertEqual(formatInline('are {{mutually exclusive|You can only pick one.}} here'),
     'are <button type="button" class="vocab" data-def="You can only pick one.">mutually exclusive</button> here');

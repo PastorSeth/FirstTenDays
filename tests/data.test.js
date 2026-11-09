@@ -87,3 +87,10 @@ test('data: Day 3 brings its five "Even…" lines together under one heading', (
   assertIncludes(s, '**Small groups** filled with fellow believers are so powerful!');
   assert(!s.includes('\n-- '), 'no sub-bullets left');
 });
+test('data: Day 6 marks up its verses in red pen', () => {
+  const s = DAYS.find(d => d.day === 6).study;
+  assertIncludes(s, '=="Sin is [circle]lawlessness[/circle]"==');
+  assertIncludes(s, '=="[circle]No one[/circle] [underline]who lives in him[/underline] [squiggle]keeps on sinning.[/squiggle] No one');
+  assertIncludes(s, '=="Do not let [double]anyone[/double] lead you astray"==');
+  assertIncludes(s, '=="[underline]Do not be surprised[/underline]… if the world [circle]hates[/circle] you"==');
+});
