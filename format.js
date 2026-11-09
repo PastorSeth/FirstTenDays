@@ -244,6 +244,27 @@ const BLOCKS = {
       `<p class="sr-only">${escapeHtml(full)}</p>${sign}</div></figure>`;
   },
 
+  // A card with two sides that flips over when tapped: "+ Title" starts
+  // each side (the first two are used). Text after "flip" is shown in big
+  // type on both sides.
+  flip(lines, phrase) {
+    const { intro, parts } = sections(lines);
+    if (parts.length < 2) return formatStudy(lines.join('\n'));
+    const big = phrase ? `<p class="flip-phrase">${typeset(phrase)}</p>` : '';
+    const turn = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>';
+    const second = typeset(parts[1].title);
+    const face = (part, side, hint, hidden) =>
+      `<div class="flip-face flip-${side}"${hidden ? ' aria-hidden="true"' : ''}>${big}` +
+      `<div class="flip-body"><span class="flip-label">${typeset(part.title)}</span>${formatStudy(part.lines.join('\n'))}</div>` +
+      `<p class="flip-hint">${turn}${hint}</p></div>`;
+    return `${formatStudy(intro.join('\n'))}<div class="fx-flip" role="button" tabindex="0" aria-pressed="false">` +
+      `<div class="flip-inner">` +
+      face(parts[0], 'front', `Tap to see ${second.charAt(0).toLowerCase()}${second.slice(1)}`, false) +
+      face(parts[1], 'back', 'Tap to flip back', true) +
+      `</div></div>`;
+  },
+
   // Two or more tabbed panels, one showing at a time: "+ Title" starts each.
   swap(lines) {
     const { intro, parts } = sections(lines);

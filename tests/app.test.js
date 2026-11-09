@@ -325,3 +325,15 @@ test('app: the typewriter starts typing from the first letter when the page land
     assertEqual(tw.querySelector('.tw-typed').textContent, '');
   });
 });
+test('app: tapping the flip card turns it over and back', () => {
+  withDay5({ study: '::: flip\n+ Mine\nOld\n+ Theirs\nNew\n:::' }, v => {
+    const card = v.querySelector('.fx-flip');
+    const [front, back] = card.querySelectorAll('.flip-face');
+    card.querySelector('.flip-body p').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    assert(card.classList.contains('is-flipped'), 'flipped');
+    assertEqual([card.getAttribute('aria-pressed'), front.getAttribute('aria-hidden'), back.hasAttribute('aria-hidden')], ['true', 'true', false]);
+    card.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    assert(!card.classList.contains('is-flipped'), 'flipped back with Enter');
+    assertEqual([front.hasAttribute('aria-hidden'), back.getAttribute('aria-hidden')], [false, 'true']);
+  });
+});

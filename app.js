@@ -548,6 +548,17 @@ function wireStudyEffects(view) {
     view.appendChild(sheet);
   }
 
+  // Turns the flip card over; screen readers hear only the side showing.
+  function flip(card) {
+    const over = !card.classList.contains('is-flipped');
+    card.classList.toggle('is-flipped', over);
+    card.setAttribute('aria-pressed', String(over));
+    card.querySelectorAll('.flip-face').forEach((face, i) => {
+      if ((i === 1) === over) face.removeAttribute('aria-hidden');
+      else face.setAttribute('aria-hidden', 'true');
+    });
+  }
+
   function swapTo(tab) {
     const box = tab.closest('.fx-swap');
     box.querySelectorAll('.swap-tab').forEach(t => t.setAttribute('aria-pressed', String(t === tab)));
@@ -590,6 +601,7 @@ function wireStudyEffects(view) {
     else if ((el = target.closest('.vocab')) && sheet) define(el);
     else if (target.closest('.vocab-close') && sheet) sheet.classList.remove('is-open');
     else if ((el = target.closest('.tri-node, .tri-god'))) focusPerson(el);
+    else if ((el = target.closest('.fx-flip'))) flip(el);
   });
 
   view.addEventListener('keydown', (e) => {
@@ -597,6 +609,10 @@ function wireStudyEffects(view) {
     if (node && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       focusPerson(node);
+    }
+    if (e.target.classList && e.target.classList.contains('fx-flip') && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      flip(e.target);
     }
     if (e.key === 'Escape' && sheet) sheet.classList.remove('is-open');
   });

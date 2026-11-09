@@ -59,7 +59,8 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 
 | Write | You get | Used on |
 |---|---|---|
-| `::: swap` … `:::` with a `+ Title` line starting each part | Tabs that switch between two (or more) boxes, one showing at a time | Day 1 |
+| `::: swap` … `:::` with a `+ Title` line starting each part | Tabs that switch between two (or more) boxes, one showing at a time | Not used right now |
+| `::: flip "Ate, and left no crumbs."` … `:::` with a `+ Title` line starting each side | A card students tap to flip over in 3D: the first side is dark, the second red. The words after `flip` show in big type on both sides | Day 1 |
 | `::: scripture 1 John 1:5-6` … `:::` | A Bible verse set apart, with its reference underneath | Day 2 |
 | `::: light` … `:::` | A dark panel that fills with light as its lines arrive | Day 2 |
 | `::: reveal C.S. Lewis` … `:::` | A long quote that lights up word by word as you scroll down it | Not used right now |

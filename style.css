@@ -1006,6 +1006,101 @@ html:not(.motion-on) .celebrate--play {
   pointer-events: auto;
 }
 
+/* Day 1 — a card with two sides that flips over when tapped. Both sides
+   share one grid cell, so the card is as tall as the longer side. */
+.fx-flip {
+  margin: 24px 0 28px;
+  border-radius: 16px;
+  perspective: 1100px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fx-flip:focus { outline: none; }
+
+.fx-flip:focus-visible {
+  outline: 3px solid var(--vermilion);
+  outline-offset: 3px;
+}
+
+.flip-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 700ms var(--ease-out);
+}
+
+.fx-flip.is-flipped .flip-inner { transform: rotateY(180deg); }
+
+.flip-face {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px 18px;
+  border-radius: 16px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-front {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.flip-back {
+  background: var(--vermilion);
+  color: var(--ink);
+  transform: rotateY(180deg);
+}
+
+.study .flip-phrase {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(30px, 9vw, 40px);
+  font-stretch: 75%;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.flip-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.flip-front .flip-label { color: var(--vermilion); }
+
+/* The study's own paragraph style would paint the card's text dark. */
+.study .flip-body p {
+  margin: 0 0 .6em;
+  color: inherit;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.study .flip-body p:last-child { margin-bottom: 0; }
+
+.study .flip-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: auto 0 0;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  opacity: .75;
+}
+
+.flip-hint svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
 /* Day 2 — a dark panel that fills with light. */
 .fx-light {
   position: relative;
@@ -1545,6 +1640,7 @@ html:not(.motion-on) .celebrate--play {
 
 @media (prefers-reduced-motion: reduce) {
   .swap-panel,
+  .flip-inner,
   .vocab-sheet,
   .vocab-sheet.is-open { transition: none; }
 }

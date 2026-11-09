@@ -26,8 +26,8 @@
      [label](#/resources)    a link to a page inside the app
 
    EFFECTS: a line like "::: stack" starts one and a line of just
-   ":::" ends it — swap, scripture, light, reveal, typewriter, terms,
-   type, stack and closing. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
+   ":::" ends it — flip, swap, scripture, light, reveal, typewriter,
+   terms, type, stack and closing. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
    README.md ("Effects") shows what each one does, and Days 1-9
    below have an example of every one.
 
@@ -135,7 +135,7 @@ The Bible was written a long, long time ago. Sometimes things the original audie
 Why? Because
 > CONTEXT IS KEY.
 Let me show you what I mean. Not too long ago I walked up to a few students talking with one another, when one girl said, "she completely ate, and left no crumbs." Well, I had to stop the conversation right there… See, back when I was in middle school, those were the words of a bully! These students had to fill ME in on some context:
-::: swap
+::: flip "Ate, and left no crumbs."
 + My context
 Okay, I'll admit it... I am a certified unc. I was born in the 1900s. And back in the stone ages when I was in middle school, "ate and left no crumbs" would be like calling someone a fatty! I thought this student was being mean!
 + Students' context

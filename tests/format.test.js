@@ -155,3 +155,20 @@ test('format: ::: closing sets a soft sign-off apart', () => {
   assertEqual(formatStudy('::: closing\nDear friend,\nGod answers prayer.\n:::'),
     '<div class="fx-closing" data-fx><p>Dear friend,</p><p>God answers prayer.</p></div>');
 });
+test('format: ::: flip makes a two-sided card, with the phrase on both sides', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: flip "Ate, and left no crumbs."\n+ My context\nOld meaning\n+ Students\' context\nNew meaning\n:::');
+  const card = box.querySelector('.fx-flip');
+  assertEqual([card.getAttribute('role'), card.getAttribute('tabindex'), card.getAttribute('aria-pressed')], ['button', '0', 'false']);
+  const [front, back] = card.querySelectorAll('.flip-face');
+  assert(front.classList.contains('flip-front') && back.classList.contains('flip-back'), 'front and back');
+  assertEqual([...card.querySelectorAll('.flip-phrase')].map(p => p.textContent), ['“Ate, and left no crumbs.”', '“Ate, and left no crumbs.”']);
+  assertEqual([front.querySelector('.flip-label').textContent, back.querySelector('.flip-label').textContent], ['My context', 'Students’ context']);
+  assertEqual(front.querySelector('.flip-body p').textContent, 'Old meaning');
+  assertEqual(back.getAttribute('aria-hidden'), 'true');
+  assertIncludes(front.querySelector('.flip-hint').textContent, 'Tap to see students’ context');
+  assertIncludes(back.querySelector('.flip-hint').textContent, 'Tap to flip back');
+});
+test('format: ::: flip with fewer than two sides is just the text', () => {
+  assertEqual(formatStudy('::: flip\n+ Only one\nText\n:::'), '<p>+ Only one</p><p>Text</p>');
+});

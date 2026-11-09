@@ -12,7 +12,7 @@ test('data: Day 1 teaches first, then asks the three context questions with hint
   assert(!('reading' in d1), 'Day 1 uses the standard Read box');
   assertIncludes(d1.study, 'hit the brakes');
   assertIncludes(d1.study, '> CONTEXT IS KEY.');
-  assertIncludes(d1.study, '::: swap');
+  assertIncludes(d1.study, '::: flip "Ate, and left no crumbs."');
   assertIncludes(d1.study, '::: video l3QkE6nKylM');
   assert(!d1.reflectFirst, 'study comes first');
   assertEqual(d1.reflectTitle, 'Context');
