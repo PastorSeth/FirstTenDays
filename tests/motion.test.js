@@ -166,3 +166,20 @@ test('motion: a typewriter hears how far it has been read', () => {
   assert(heard && heard[2] === window.innerHeight && heard[3] === 200, `heard ${JSON.stringify(heard)}`);
   Motion.clear(); root.remove();
 });
+test('motion: the red pencil draws its line when the typewriter finishes', async () => {
+  const f = document.createElement('iframe'); f.src = 'word-rows.html';
+  f.style.cssText = 'width:375px;height:812px;border:0';
+  document.body.prepend(f);
+  await new Promise(r => { f.onload = r; });
+  const win = f.contentWindow, doc = f.contentDocument;
+  await new Promise(r => setTimeout(r, 300));
+  win.location.hash = '#/day/3';
+  await new Promise(r => setTimeout(r, 900));
+  const tw = doc.querySelector('.view:not(.view--leaving) .fx-typewriter');
+  tw.__read(0.5, -300, 812, 1200);    // partway, past the underlined words
+  tw.__read(1, -1200, 812, 1200);     // the last letter types
+  const drawing = doc.getAnimations().filter(a => a.effect && a.effect.pseudoElement === '::after' &&
+    a.effect.target.classList.contains('pw'));
+  f.remove();
+  assert(drawing.length > 0, 'the pencil line animates instead of popping in');
+});

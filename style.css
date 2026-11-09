@@ -1163,8 +1163,8 @@ html:not(.motion-on) .celebrate--play {
 .is-done .pw::after { transform: scaleX(1) rotate(-.6deg); }
 
 .motion-on .is-done .pw::after {
-  transition: transform 140ms linear;
-  transition-delay: calc(var(--i) * 140ms + 600ms);
+  transition: transform 220ms linear;
+  transition-delay: calc(var(--i) * 220ms + 700ms);
 }
 
 /* The signature: a picture with a white background, so it's multiplied

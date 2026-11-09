@@ -511,8 +511,12 @@ function setUpTypewriter(tw) {
   function show(k) {
     if (k === shown) return;
     shown = k;
+    const done = k === full.length;
     text.innerHTML = typewriterHtml(full, start, end, k);
-    tw.classList.toggle('is-done', k === full.length);
+    // The words were just redrawn; let them take their un-underlined look
+    // first, so the red pencil draws its line instead of popping in.
+    if (done && !tw.classList.contains('is-done')) void text.offsetWidth;
+    tw.classList.toggle('is-done', done);
   }
 
   tw.__read = (r, top, vh, height) => {
