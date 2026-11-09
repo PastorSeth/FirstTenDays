@@ -62,7 +62,8 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: swap` … `:::` with a `+ Title` line starting each part | Tabs that switch between two (or more) boxes, one showing at a time | Not used right now |
 | `::: flip "Ate, and left no crumbs."` … `:::` with a `+ Title` line starting each side | A card students tap to flip over in 3D: the first side is dark, the second red. The words after `flip` show in big type on both sides | Day 1 |
 | `::: scripture 1 John 1:5-6` … `:::` | A Bible verse set apart, with its reference underneath | Day 2 |
-| `::: light` … `:::` | A dark panel that fills with light as its lines arrive | Day 2 |
+| `::: light` … `:::` | A dark panel that fills with light as its lines arrive | Not used right now |
+| `::: hold Embrace the light!` … `:::`, one card per line, written `the start \| the hidden part` | A dark card per line. Students press and hold the light: the ring fills, the glow spreads, and the part after `\|` is drawn in. Let go early and it fades; hold about two seconds and it stays lit. The words after `hold` are added in orange to every answer | Day 2 |
 | `::: reveal C.S. Lewis` … `:::` | A long quote that lights up word by word as you scroll down it | Not used right now |
 | `::: typewriter C.S. Lewis \| images/cs-lewis-signature.webp` … `:::` | A quote on a typed page that tips up flat, then types out as you scroll. Mark a phrase with `==…==` for a red-pencil underline once it's typed. The part after `\|` is an optional signature picture from the site's `images` folder; leave it out to sign with the name in text | Day 3 |
 | `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words, each followed by what it means. Each word fills with color once it scrolls up to the middle of the screen | Day 4 |

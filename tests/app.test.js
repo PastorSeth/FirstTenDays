@@ -337,3 +337,25 @@ test('app: tapping the flip card turns it over and back', () => {
     assertEqual([front.hasAttribute('aria-hidden'), back.getAttribute('aria-hidden')], [false, 'true']);
   });
 });
+test('app: holding the light reveals the answer, and letting go early lets it fade', async () => {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const day = DAYS.find(x => x.day === 5);
+  const saved = day.study;
+  day.study = '::: hold Embrace the light!\nOne | First.\nTwo | Second.\n:::';
+  const v = document.createElement('div');
+  document.body.prepend(v);
+  try {
+    renderDay(v, 5);
+    const [a, b] = v.querySelectorAll('.hold-card');
+    const press = (card, type) => card.querySelector('.hold-btn').dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 1 }));
+    press(a, 'pointerdown'); await wait(500); press(a, 'pointerup');
+    const partway = Number(a.style.getPropertyValue('--h'));
+    await wait(1200);
+    assert(partway > 0.1 && partway < 0.6, `partway after a short hold (${partway})`);
+    assertEqual(Number(a.style.getPropertyValue('--h')), 0, 'faded back after letting go');
+    assert(!a.classList.contains('is-on'));
+    press(b, 'pointerdown'); await wait(2400); press(b, 'pointerup'); await wait(200);
+    assert(b.classList.contains('is-on'), 'lit after a full hold');
+    assert(!b.querySelector('.hold-answer').hasAttribute('aria-hidden'), 'screen readers hear the answer once it is revealed');
+  } finally { day.study = saved; v.remove(); }
+});

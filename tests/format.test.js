@@ -172,3 +172,17 @@ test('format: ::: flip makes a two-sided card, with the phrase on both sides', (
 test('format: ::: flip with fewer than two sides is just the text', () => {
   assertEqual(formatStudy('::: flip\n+ Only one\nText\n:::'), '<p>+ Only one</p><p>Text</p>');
 });
+test('format: ::: hold makes a card per line, with the answer hidden until it is held', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: hold Embrace the light!\nSometimes this is scary | But God is good.\nOnly an answer\n:::');
+  const cards = box.querySelectorAll('.fx-hold .hold-card');
+  assertEqual(cards.length, 2);
+  assertEqual(cards[0].querySelector('.hold-lead').textContent, 'Sometimes this is scary');
+  const answer = cards[0].querySelector('.hold-answer');
+  assertEqual(answer.getAttribute('aria-hidden'), 'true');
+  assertEqual(answer.textContent, 'But God is good. Embrace the light!');
+  assertEqual(answer.querySelector('.hold-refrain').textContent, 'Embrace the light!');
+  assertEqual(cards[0].querySelector('button.hold-btn .hold-label').textContent, 'Press and hold');
+  assert(!cards[1].querySelector('.hold-lead'), 'a line without | is all answer');
+  assertEqual(cards[1].querySelector('.hold-answer').textContent, 'Only an answer Embrace the light!');
+});

@@ -244,6 +244,24 @@ const BLOCKS = {
       `<p class="sr-only">${escapeHtml(full)}</p>${sign}</div></figure>`;
   },
 
+  // One dark card per line. The part after " | " stays hidden until the
+  // student presses and holds the light; words after "hold" are added in
+  // orange to every answer.
+  hold(lines, refrain) {
+    const ring = '<span class="hold-ring" aria-hidden="true"><svg viewBox="0 0 58 58"><circle class="hold-track" cx="29" cy="29" r="25"/>' +
+      '<circle class="hold-fill" cx="29" cy="29" r="25"/></svg><span class="hold-core"></span></span>';
+    const tail = refrain ? ` <span class="hold-refrain">${typeset(refrain)}</span>` : '';
+    const cards = lines.map(line => {
+      const cut = line.indexOf(' | ');
+      const lead = cut < 0 ? '' : line.slice(0, cut).trim();
+      const answer = cut < 0 ? line : line.slice(cut + 3).trim();
+      return `<div class="hold-card">${lead ? `<p class="hold-lead">${formatInline(lead)}</p>` : ''}` +
+        `<p class="hold-answer" aria-hidden="true">${formatInline(answer)}${tail}</p>` +
+        `<button type="button" class="hold-btn">${ring}<span class="hold-label">Press and hold</span></button></div>`;
+    }).join('');
+    return `<div class="fx-hold">${cards}</div>`;
+  },
+
   // A card with two sides that flips over when tapped: "+ Title" starts
   // each side (the first two are used). Text after "flip" is shown in big
   // type on both sides.

@@ -496,6 +496,63 @@ function playCelebration(el) {
   if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
 }
 
+/* A hold-the-light card. While the button is held the light builds (about
+   two seconds to full): the ring fills, the glow spreads, and the answer is
+   drawn in. Let go early and it drains back; once full, it stays lit. All
+   of it follows --h on the card, from 0 to 1. */
+const HOLD_FILL_MS = 2000;
+const HOLD_DRAIN_MS = 900;
+
+function setUpHold(card) {
+  const btn = card.querySelector('.hold-btn');
+  const fill = card.querySelector('.hold-fill');
+  const answer = card.querySelector('.hold-answer');
+  let h = 0, holding = false, done = false, frame = 0, last = 0;
+
+  function render() {
+    card.style.setProperty('--h', h.toFixed(3));
+    fill.style.strokeDashoffset = (157 * (1 - h)).toFixed(1);
+    card.classList.toggle('is-bright', h >= 0.5);
+  }
+
+  function step(t) {
+    const dt = Math.min(64, t - last);
+    last = t;
+    h = holding ? Math.min(1, h + dt / HOLD_FILL_MS) : Math.max(0, h - dt / HOLD_DRAIN_MS);
+    render();
+    if (h >= 1) {
+      done = true;
+      holding = false;
+      frame = 0;
+      card.classList.add('is-on');
+      answer.removeAttribute('aria-hidden');
+      return;
+    }
+    frame = (holding || h > 0) ? requestAnimationFrame(step) : 0;
+  }
+
+  function run() {
+    if (!frame) { last = performance.now(); frame = requestAnimationFrame(step); }
+  }
+  function press(e) {
+    if (e) e.preventDefault();
+    if (done) return;
+    holding = true;
+    run();
+  }
+  function release() {
+    holding = false;
+    if (!done) run();
+  }
+
+  btn.addEventListener('pointerdown', press);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(type => btn.addEventListener(type, release));
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  // On a keyboard, holding Enter or Space works the same way.
+  btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') press(e); });
+  btn.addEventListener('keyup', release);
+}
+
 /* A typewriter quote. The page tips up flat as it scrolls in, then the
    quote types out as it's read; motion.js calls __read with how much has
    passed the reading line, where it is, and how tall it is. Until then
@@ -537,6 +594,7 @@ function setUpTypewriter(tw) {
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
   view.querySelectorAll('.fx-typewriter').forEach(setUpTypewriter);
+  view.querySelectorAll('.hold-card').forEach(setUpHold);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

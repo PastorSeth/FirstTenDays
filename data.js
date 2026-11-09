@@ -26,7 +26,7 @@
      [label](#/resources)    a link to a page inside the app
 
    EFFECTS: a line like "::: stack" starts one and a line of just
-   ":::" ends it — flip, swap, scripture, light, reveal, typewriter,
+   ":::" ends it — flip, swap, scripture, hold, light, reveal, typewriter,
    terms, type, stack and closing. "::: video YOUTUBE-ID" and
    "::: trinity" stand on one line. README.md ("Effects") shows what
    each one does and which day uses it.
@@ -189,10 +189,10 @@ In today's reading, John came at it from a different angle. Check out how he bui
 **5** This is the message we have heard from him and declare to you: God is light; in him there is no darkness at all. **6** If we claim to have fellowship with him and yet walk in the darkness, we lie and do not live out the truth.
 :::
 If you have a pen or a highlighter, that is a verse to mark up! And here is the big takeaway: If you have truly become a Christian, it is because you have tasted the LIGHT of God and come to savor it. So the Christian life is not a list of dos and don'ts, it's a journey of walking further into the light.
-::: light
-Sometimes this is uncomfortable. You might feel exposed and vulnerable before God and your friends — **God is not going to turn his back on you. Embrace the light!**
-Sometimes this is scary. All you have ever known is darkness, and change is really scary! — **But God is good. Embrace the light!**
-Sometimes the darkness tries to tempt us and lure us back in… — **But friend, the light is better than the darkness. Embrace the light!**
+::: hold Embrace the light!
+Sometimes this is uncomfortable. You might feel exposed and vulnerable before God and your friends | God is not going to turn his back on you.
+Sometimes this is scary. All you have ever known is darkness, and change is really scary! | But God is good.
+Sometimes the darkness tries to tempt us and lure us back in… | But friend, the light is better than the darkness.
 :::
 ## So, How Do We Draw Nearer to the Light?
 There are many spiritual disciplines that can help draw us into the light (check out the [Extra Resources](#/resources) tab for that), but today we are going to wrap up with the most foundational one:

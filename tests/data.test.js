@@ -23,7 +23,7 @@ test('data: Day 1 teaches first, then asks the three context questions with hint
 test('data: Day 2 teaches first, then MAPS with its own questions', () => {
   const d2 = DAYS[1];
   assertEqual(d2.words, ['Word', 'Of God']);
-  assertIncludes(d2.study, '::: light');
+  assertIncludes(d2.study, '::: hold Embrace the light!');
   assertIncludes(d2.study, '::: scripture Romans 6:1-2');
   assert(!d2.reflectFirst, 'study comes first');
   assertEqual(d2.reflectTitle, 'MAPS');
