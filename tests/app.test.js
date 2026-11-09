@@ -400,7 +400,10 @@ test('app: the retype button backspaces to where the lines differ, then types th
     renderDay(v, 5);
     const fx = v.querySelector('.fx-retype');
     const chars = () => fx.querySelector('.type-chars').textContent;
-    fx.querySelector('.retype-btn').click();
+    const btn = fx.querySelector('.retype-btn');
+    btn.click();
+    assert(!btn.hidden && btn.classList.contains('is-leaving'), 'the button animates away instead of vanishing');
+    assert(btn.getAnimations().length > 0, 'the button is animating');
     await wait(600);
     const partway = chars();
     assert(partway.length < 'God put Christians here.'.length && partway.startsWith('God put '), `backspacing (${partway})`);

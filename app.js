@@ -736,8 +736,37 @@ function setUpRetype(fx) {
   const btn = fx.querySelector('.retype-btn');
   const next = fx.querySelector('.retype-next').innerHTML;
 
+  // The button pops, shrinks away, and the space it leaves closes up.
+  function dismiss(motion) {
+    if (!motion || !btn.animate) { btn.hidden = true; return; }
+    btn.classList.add('is-leaving');
+    const cs = getComputedStyle(btn);
+    const pop = btn.animate([
+      { transform: 'scale(1)', opacity: 1 },
+      { transform: 'scale(1.08)', opacity: 1, offset: 0.3 },
+      { transform: 'scale(.5)', opacity: 0 }
+    ], { duration: 340, easing: 'ease-in', fill: 'forwards' });
+    let close = null;
+    pop.finished
+      .then(() => {
+        close = btn.animate([
+          { height: cs.height, minHeight: cs.minHeight, marginBottom: cs.marginBottom },
+          { height: '0px', minHeight: '0px', marginBottom: '0px' }
+        ], { duration: 260, easing: 'ease-in-out', fill: 'forwards' });
+        return close.finished;
+      })
+      .catch(() => {})
+      .then(() => {
+        btn.hidden = true;
+        pop.cancel();
+        if (close) close.cancel();
+      });
+  }
+
   btn.addEventListener('click', () => {
-    btn.hidden = true;
+    if (btn.classList.contains('is-leaving')) return;
+    const motion = document.documentElement.classList.contains('motion-on');
+    dismiss(motion);
     typed.setAttribute('tabindex', '-1');
     typed.focus({ preventScroll: true });
 
@@ -754,7 +783,7 @@ function setUpRetype(fx) {
       typed.style.setProperty('--n', newChars.length);
       reader.innerHTML = next;
     };
-    if (!document.documentElement.classList.contains('motion-on')) { finish(); return; }
+    if (!motion) { finish(); return; }
 
     typed.classList.add('is-revealed');
     // Holds its height while it backspaces, so the page doesn't jump.

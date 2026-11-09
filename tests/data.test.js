@@ -41,7 +41,7 @@ test('data: Days 3-10 read, then MAPS, then the study, then application question
 });
 test('data: Day 7 types "That\'s why…" big, then corrects it to YOU', () => {
   const s = DAYS.find(d => d.day === 7).study;
-  assertIncludes(s, "There are all kinds of lies being spoken all around you.\n::: retype");
+  assertIncludes(s, "There are all kinds of lies being spoken all around you.\n::: retype Tap here to fix the mistake\n");
   assertIncludes(s, "\nThat's why God has positioned Christians **all through the world** to be a voice of truth.\nActually… Let me make myself a little more clear.\nThat's why God has positioned **YOU** in this world to be a voice of truth!\n:::");
   assert(!s.includes('So, God has positioned'), 'the old "So," sentence is gone');
 });

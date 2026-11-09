@@ -347,7 +347,7 @@ This is the big culmination of the passage we are reading today. Some of your no
     reflections: MAPS_PROMPTS,
     study: `
 Today's passage builds off of something we talked about yesterday: how there are all of these people out there trying to lead you and everyone else astray. There are all kinds of lies being spoken all around you.
-::: retype Make it clearer
+::: retype Tap here to fix the mistake
 That's why God has positioned Christians **all through the world** to be a voice of truth.
 Actually… Let me make myself a little more clear.
 That's why God has positioned **YOU** in this world to be a voice of truth!
