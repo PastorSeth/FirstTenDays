@@ -41,9 +41,13 @@ function curlQuotes(text, before) {
 
 /* `before` is the character just ahead of this text in the original line,
    so a quote right after a link still curls the right way. */
-function typesetAfter(text, before) {
+function typesetPlain(text, before) {
   const dashed = String(text).replace(/(\d)-(?=\d)/g, '$1–');   // 1:1-4 → 1:1–4
-  return escapeHtml(curlQuotes(dashed, before));
+  return curlQuotes(dashed, before);
+}
+
+function typesetAfter(text, before) {
+  return escapeHtml(typesetPlain(text, before));
 }
 
 /* Plain text made print-ready: en dashes in number ranges, curly quotes,
@@ -187,7 +191,59 @@ function trinityHtml() {
     `</div>`;
 }
 
+/* The red-pencil line: one span per word, so it can follow the phrase
+   from one line onto the next. */
+function pencilWords(phrase) {
+  const words = phrase.split(' ').map((w, i) => `<span class="pw" style="--i:${i}">${escapeHtml(w)}</span>`);
+  return `<span class="pencil">${words.join(' ')}</span>`;
+}
+
+/* A typewriter quote with its first `k` letters typed. The rest is there
+   but invisible, so the page never changes height as it types. `start`
+   and `end` mark the pencil-line phrase (-1 when there isn't one). */
+function typewriterHtml(full, start, end, k) {
+  let typed;
+  if (start < 0 || k <= start) {
+    typed = escapeHtml(full.slice(0, k));
+  } else {
+    typed = escapeHtml(full.slice(0, start));
+    typed += k >= end
+      ? pencilWords(full.slice(start, end))
+      : `<span class="pencil">${escapeHtml(full.slice(start, k))}</span>`;
+    if (k > end) typed += escapeHtml(full.slice(end, k));
+  }
+  return `<span class="tw-typed">${typed}</span><span class="tw-caret" aria-hidden="true"></span>` +
+    `<span class="tw-untyped">${escapeHtml(full.slice(k))}</span>`;
+}
+
+// A signature picture has to be a file on this site, like images/name.webp.
+const SIGNATURE_PICTURE = /^[\w-]+(\/[\w-]+)*\.(webp|png|jpe?g|svg)$/i;
+
 const BLOCKS = {
+  // A quote typed onto a sheet of paper as it's read. "==words==" get a red
+  // pencil line once it's all typed, and "Name | picture" signs it.
+  typewriter(lines, arg) {
+    const [name = '', picture = ''] = arg.split('|').map(s => s.trim());
+    const raw = lines.join(' ');
+    const m = raw.match(/==(.+?)==/);
+    const before = m ? raw.slice(0, m.index) : raw;
+    const phrase = m ? m[1] : '';
+    const after = m ? raw.slice(m.index + m[0].length) : '';
+    const plainBefore = typesetPlain(before, '');
+    const plainPhrase = typesetPlain(phrase, before.slice(-1));
+    const plainAfter = typesetPlain(after, (phrase || before).slice(-1));
+    const full = plainBefore + plainPhrase + plainAfter;
+    const start = m ? plainBefore.length : -1;
+    const end = m ? start + plainPhrase.length : -1;
+    const mark = m ? ` data-mark-start="${start}" data-mark-end="${end}"` : '';
+    const sign = SIGNATURE_PICTURE.test(picture)
+      ? `<img class="tw-signature" src="${escapeHtml(picture)}" alt="${escapeHtml(name)}">`
+      : (name ? `<p class="tw-name">${typeset(name)}</p>` : '');
+    return `<figure class="fx-typewriter is-done" data-typewriter><div class="tw-page">` +
+      `<p class="tw-text" aria-hidden="true" data-text="${escapeHtml(full)}"${mark}>${typewriterHtml(full, start, end, full.length)}</p>` +
+      `<p class="sr-only">${escapeHtml(full)}</p>${sign}</div></figure>`;
+  },
+
   // Two or more tabbed panels, one showing at a time: "+ Title" starts each.
   swap(lines) {
     const { intro, parts } = sections(lines);

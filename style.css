@@ -920,6 +920,110 @@ a { color: inherit; }
   opacity: clamp(.14, calc(1 + (var(--r, 1) * var(--n) - var(--i)) / 4), 1);
 }
 
+/* Day 3 — a quote typed onto a sheet of paper as it's read. app.js tips
+   the page and types the letters (only transform moves); the rest of the
+   quote is laid out but invisible, so the page never changes height. */
+.fx-typewriter {
+  margin: 26px 0 30px;
+  perspective: 900px;
+}
+
+.tw-page {
+  position: relative;
+  padding: 24px 18px 18px 34px;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(10, 10, 20, 0.06) 31px 32px),
+    #FFFDF7;
+  box-shadow: 0 1px 0 rgba(10, 10, 20, 0.08), 0 22px 40px -18px rgba(10, 10, 20, 0.35);
+  transform-origin: 50% 100%;
+}
+
+/* The red margin line down the left of the page. */
+.tw-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 18px;
+  width: 1.5px;
+  background: rgba(255, 74, 28, 0.35);
+}
+
+.study .tw-text {
+  margin: 0;
+  color: var(--ink);
+  font: 400 17px/32px 'Courier Prime', 'Courier New', Courier, monospace;
+}
+
+.tw-untyped { visibility: hidden; }
+
+/* A block cursor, like the carriage of a typewriter. */
+.tw-caret {
+  display: inline-block;
+  width: .55em;
+  height: 1.05em;
+  margin-right: -.55em;
+  background: var(--vermilion);
+  opacity: .85;
+  vertical-align: -.2em;
+}
+
+.is-done .tw-caret { visibility: hidden; }
+
+/* The red-pencil line under the key phrase, drawn word by word once the
+   quote is all typed. Each stroke runs one letter past its word, to bridge
+   the space to the next. */
+.pw { position: relative; }
+
+.pw::after {
+  content: '';
+  position: absolute;
+  right: -1ch;
+  bottom: -3px;
+  left: 0;
+  height: 3px;
+  background: #D23A18;
+  transform: scaleX(0) rotate(-.6deg);
+  transform-origin: left center;
+}
+
+.pw:first-child::after { left: -2px; border-radius: 3px 0 0 3px; }
+.pw:last-child::after { right: -2px; border-radius: 0 3px 3px 0; }
+
+.is-done .pw::after { transform: scaleX(1) rotate(-.6deg); }
+
+.motion-on .is-done .pw::after {
+  transition: transform 140ms linear;
+  transition-delay: calc(var(--i) * 140ms + 600ms);
+}
+
+/* The signature: a picture with a white background, so it's multiplied
+   onto the paper to leave just the ink. */
+.tw-signature {
+  display: block;
+  width: min(170px, 50%);
+  height: auto;
+  margin: 12px 0 0 auto;
+  mix-blend-mode: multiply;
+  transform: rotate(-3deg);
+}
+
+.study .tw-name {
+  margin: 12px 0 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 600;
+  text-align: right;
+}
+
+.motion-on .fx-typewriter:not(.is-done) .tw-signature,
+.motion-on .fx-typewriter:not(.is-done) .tw-name { opacity: 0; }
+
+.motion-on .fx-typewriter.is-done .tw-signature,
+.motion-on .fx-typewriter.is-done .tw-name { transition: opacity 800ms var(--ease-out) 200ms; }
+
 /* Day 4 — key words that fill with color, one at a time. */
 .fx-terms { margin: 24px 0 28px; }
 

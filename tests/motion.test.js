@@ -155,3 +155,14 @@ test('motion: readAmount is how much of a block has passed three-quarters down t
   assertClose(Motion.readAmount(400, 400, 800), 0.5);     // half of it has passed
   assertClose(Motion.readAmount(-100, 400, 800), 1);      // all of it has
 });
+test('motion: a typewriter hears how far it has been read', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<figure data-typewriter style="height:200px;margin:0">Q</figure>';
+  document.body.prepend(root);
+  const el = root.firstChild;
+  let heard = null;
+  el.__read = (r, top, vh, height) => { heard = [r, top, vh, height]; };
+  Motion.init(); Motion.scan(root);
+  assert(heard && heard[2] === window.innerHeight && heard[3] === 200, `heard ${JSON.stringify(heard)}`);
+  Motion.clear(); root.remove();
+});

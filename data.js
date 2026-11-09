@@ -26,8 +26,8 @@
      [label](#/resources)    a link to a page inside the app
 
    EFFECTS: a line like "::: stack" starts one and a line of just
-   ":::" ends it — swap, scripture, light, reveal, terms, type and
-   stack. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
+   ":::" ends it — swap, scripture, light, reveal, typewriter, terms,
+   type and stack. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
    README.md ("Effects") shows what each one does, and Days 1-9
    below have an example of every one.
 
@@ -238,8 +238,8 @@ The Bible is a TREASURE! We don't read it because it's a chore we have to do. I 
     reflections: MAPS_PROMPTS,
     study: `
 So there is this super old dude named C.S. Lewis. He is a famous Christian, but when he first became a Christian he wouldn't even go to church because he thought the music and the people were annoying. But eventually he realized something super important… He was being superficial! He was so focused on the outward projection that he never stopped to look at the heart of these people. Listen to what he wrote years later.
-::: reveal C.S. Lewis
-"When I first became a Christian, about fourteen years ago, I thought that I could do it on my own, by retiring to my room and reading theology [and my Bible], and I wouldn't go to the church . . . I disliked very much their hymns, which I considered to be fifth-rate poems set to sixth-rate music. But as I went on I saw the great merit of it. I came up against different people of quite different outlooks and different education, and then gradually my conceit [my superficial arrogance] just began peeling off. I realized that the hymns (which were still just sixth-rate music) were, nevertheless, being sung with devotion and benefit by an old saint in elastic-side boots in the opposite pew, and then I realized that I'm not even fit to clean those boots [let alone stand beside him and sing praises to our God!]"
+::: typewriter C.S. Lewis | images/cs-lewis-signature.webp
+"When I first became a Christian, about fourteen years ago, I thought that I could do it on my own, by retiring to my room and reading theology [and my Bible], and I wouldn't go to the church . . . I disliked very much their hymns, which I considered to be fifth-rate poems set to sixth-rate music. But as I went on I saw the great merit of it. I came up against different people of quite different outlooks and different education, and then gradually my conceit [my superficial arrogance] just began peeling off. I realized that the hymns (which were still just sixth-rate music) were, nevertheless, being sung with devotion and benefit by an old saint in elastic-side boots in the opposite pew, and then I realized that ==I'm not even fit to clean those boots== [let alone stand beside him and sing praises to our God!]"
 :::
 C.S. Lewis is saying that it may have taken a while, but he eventually understood **THE purpose of the Church**.
 ## Community

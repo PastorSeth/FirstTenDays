@@ -451,9 +451,43 @@ function completeLabel(done) {
   return done ? `${ICONS.check}<span>Day complete</span>` : '<span>Mark day complete</span>';
 }
 
+/* A typewriter quote. The page tips up flat as it scrolls in, then the
+   quote types out as it's read; motion.js calls __read with how much has
+   passed the reading line, where it is, and how tall it is. Until then
+   (or with Reduce Motion) the whole quote is there, signed and underlined. */
+function setUpTypewriter(tw) {
+  const page = tw.querySelector('.tw-page');
+  const text = tw.querySelector('.tw-text');
+  const full = text.dataset.text || '';
+  const start = text.hasAttribute('data-mark-start') ? Number(text.dataset.markStart) : -1;
+  const end = text.hasAttribute('data-mark-end') ? Number(text.dataset.markEnd) : -1;
+  let shown = full.length;
+
+  function show(k) {
+    if (k === shown) return;
+    shown = k;
+    text.innerHTML = typewriterHtml(full, start, end, k);
+    tw.classList.toggle('is-done', k === full.length);
+  }
+
+  tw.__read = (r, top, vh, height) => {
+    // Flat once the top of the page is about 40% of the way down the screen.
+    const tilt = 1 - Math.min(1, Math.max(0, (vh - top) / (vh * 0.6)));
+    page.style.transform = tilt
+      ? `translateY(${(tilt * 40).toFixed(1)}px) rotateX(${(tilt * 32).toFixed(2)}deg) rotate(${(tilt * -5).toFixed(2)}deg)`
+      : '';
+    // Then it types as the page rises past 40% of the way down the screen,
+    // which is where the page lands flat, so it starts from the first letter
+    // and finishes a little before the last line gets there.
+    const typed = Math.min(1, Math.max(0, (vh * 0.4 - top) / height) * 1.3);
+    show(tilt ? 0 : Math.round(typed * full.length));
+  };
+}
+
 /* The taps that make a study's effects work: swap tabs, hint buttons,
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
+  view.querySelectorAll('.fx-typewriter').forEach(setUpTypewriter);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

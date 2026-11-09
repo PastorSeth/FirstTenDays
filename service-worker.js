@@ -6,7 +6,7 @@
    caches get cleared out.
    ========================================================== */
 
-const CACHE_NAME = 'first-10-days-v15';
+const CACHE_NAME = 'first-10-days-v16';
 
 // The web font lives in its own cache, so bumping CACHE_NAME for an app
 // change doesn't throw away the font and make everyone download it again.

@@ -40,7 +40,7 @@ test('data: Days 3-10 read, then MAPS, then the study, then application question
   });
 });
 test('data: each written lesson has its own effect', () => {
-  const effects = { 3: '::: reveal', 4: '::: terms', 6: '==', 7: '::: type', 8: '::: trinity', 9: '::: stack' };
+  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: type', 8: '::: trinity', 9: '::: stack' };
   Object.keys(effects).forEach(day => {
     const d = DAYS[day - 1];
     assertIncludes(d.study, effects[day], `day ${day}`);

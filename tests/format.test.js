@@ -130,3 +130,24 @@ test('format: unknown or unclosed ::: blocks never break the page', () => {
   assertEqual(formatStudy('::: sparkle\nHello'), '<p>::: sparkle</p><p>Hello</p>');
   assertIncludes(formatStudy('::: stack\nGOD'), '<p class="stack-line" style="--i:0">GOD</p>');
 });
+test('format: ::: typewriter keeps the full quote, marks the pencil line, and signs it', () => {
+  const out = formatStudy('::: typewriter C.S. Lewis | images/cs-lewis-signature.webp\n"Not fit to ==clean those boots== at all"\n:::');
+  const box = document.createElement('div');
+  box.innerHTML = out;
+  const tw = box.querySelector('.fx-typewriter[data-typewriter]');
+  assert(tw, 'typewriter block');
+  const text = tw.querySelector('.tw-text');
+  assertEqual(text.dataset.text, '“Not fit to clean those boots at all”');
+  assertEqual(text.dataset.text.slice(+text.dataset.markStart, +text.dataset.markEnd), 'clean those boots');
+  assertEqual(tw.querySelector('.sr-only').textContent, '“Not fit to clean those boots at all”');
+  const sig = tw.querySelector('img.tw-signature');
+  assertEqual([sig.getAttribute('src'), sig.getAttribute('alt')], ['images/cs-lewis-signature.webp', 'C.S. Lewis']);
+});
+test('format: ::: typewriter only uses a signature picture from the site itself', () => {
+  ['javascript:alert(1)', 'https://example.com/x.png', '../secret.png', 'images/x.exe'].forEach(src => {
+    const out = formatStudy(`::: typewriter C.S. Lewis | ${src}\nQuote\n:::`);
+    assert(!out.includes('<img'), src);
+    assertIncludes(out, '<p class="tw-name">C.S. Lewis</p>');
+  });
+  assert(!formatStudy('::: typewriter\nQuote\n:::').includes('tw-name'), 'no name, no signature');
+});

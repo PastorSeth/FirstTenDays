@@ -62,7 +62,8 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: swap` … `:::` with a `+ Title` line starting each part | Tabs that switch between two (or more) boxes, one showing at a time | Day 1 |
 | `::: scripture 1 John 1:5-6` … `:::` | A Bible verse set apart, with its reference underneath | Day 2 |
 | `::: light` … `:::` | A dark panel that fills with light as its lines arrive | Day 2 |
-| `::: reveal C.S. Lewis` … `:::` | A long quote that lights up word by word as you scroll down it | Day 3 |
+| `::: reveal C.S. Lewis` … `:::` | A long quote that lights up word by word as you scroll down it | Not used right now |
+| `::: typewriter C.S. Lewis \| images/cs-lewis-signature.webp` … `:::` | A quote on a typed page that tips up flat, then types out as you scroll. Mark a phrase with `==…==` for a red-pencil underline once it's typed. The part after `\|` is an optional signature picture from the site's `images` folder; leave it out to sign with the name in text | Day 3 |
 | `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words that fill with color, each followed by what it means | Day 4 |
 | `::: type` … `:::` | A sentence that types itself out, letter by letter | Day 7 |
 | `::: stack` … `:::` | Big words stamped down one line at a time | Day 9 |

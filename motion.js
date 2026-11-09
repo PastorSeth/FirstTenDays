@@ -93,7 +93,12 @@ const Motion = (() => {
     if (!g) return;
     if (drifting.has(el)) el.style.setProperty('--p', progress(g.top, g.height, scrollY, vh).toFixed(4));
     if (sliding.has(el)) el.style.setProperty('--k', slideAmount(g.top + g.height / 2 - scrollY, vh).toFixed(4));
-    if (scrubbing.has(el)) el.style.setProperty('--r', readAmount(g.top - scrollY, g.height, vh).toFixed(4));
+    if (scrubbing.has(el)) {
+      const r = readAmount(g.top - scrollY, g.height, vh);
+      el.style.setProperty('--r', r.toFixed(4));
+      // A typewriter quote types along with the reading.
+      if (el.__read) el.__read(r, g.top - scrollY, vh, g.height);
+    }
   }
 
   function updateAll(elements) {
@@ -408,7 +413,7 @@ const Motion = (() => {
     lastTime = performance.now();
     writeVelocity();
     root.querySelectorAll('[data-drift]').forEach(el => register(el, drifting));
-    root.querySelectorAll('[data-scrub]').forEach(el => register(el, scrubbing));
+    root.querySelectorAll('[data-scrub], [data-typewriter]').forEach(el => register(el, scrubbing));
     root.querySelectorAll('[data-slide-in]').forEach(el => register(el, sliding));
     updateAll([...drifting, ...sliding, ...scrubbing]);
   }

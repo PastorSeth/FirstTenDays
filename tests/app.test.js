@@ -271,3 +271,28 @@ test('app: tapping God in the middle of the shield un-fades everything', () => {
     assertEqual(shield.dataset.focus, '', 'Enter on God works too');
   });
 });
+test('app: the typewriter types as it is read, then signs and underlines', () => {
+  withDay5({ study: '::: typewriter C.S. Lewis\nNot fit to ==clean those boots== at all\n:::' }, v => {
+    const tw = v.querySelector('.fx-typewriter');
+    const typed = () => tw.querySelector('.tw-typed').textContent;
+    // Without scrolling (no motion), the whole quote is there, signed and underlined.
+    assertEqual(typed(), 'Not fit to clean those boots at all');
+    assert(tw.classList.contains('is-done'), 'starts finished');
+    assertEqual(tw.querySelectorAll('.pw').length, 3);
+    tw.__read(0, 330, 800, 600);   // flat, but the reading hasn't reached it
+    assertEqual(typed(), '', 'nothing typed yet');
+    assert(!tw.classList.contains('is-done'));
+    tw.__read(0.4, 100, 800, 600);
+    assert(typed().length > 0 && typed().length < 35, `part typed (${typed().length})`);
+    tw.__read(1, -400, 800, 600);
+    assertEqual(typed(), 'Not fit to clean those boots at all');
+    assert(tw.classList.contains('is-done'), 'finished again');
+  });
+});
+test('app: the typewriter starts typing from the first letter when the page lands flat', () => {
+  withDay5({ study: '::: typewriter\nA quote long enough to notice a jump in typing\n:::' }, v => {
+    const tw = v.querySelector('.fx-typewriter');
+    tw.__read(0.4, 0.4 * 800, 800, 1500);   // the moment it lies flat
+    assertEqual(tw.querySelector('.tw-typed').textContent, '');
+  });
+});
