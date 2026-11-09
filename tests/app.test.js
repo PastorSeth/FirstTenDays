@@ -257,3 +257,17 @@ test('app: a question can ask for a large answer box', () => {
     assert(!v.querySelector('textarea[data-field="short"]').classList.contains('is-large'), 'other boxes stay normal');
   });
 });
+test('app: tapping God in the middle of the shield un-fades everything', () => {
+  withDay5({ study: '::: trinity' }, v => {
+    const shield = v.querySelector('.fx-trinity'), god = v.querySelector('.tri-god');
+    assertEqual(god.getAttribute('role'), 'button');
+    v.querySelector('.tri-node[data-person="spirit"]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    assertEqual(shield.dataset.focus, 'spirit');
+    god.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    assertEqual(shield.dataset.focus, '');
+    assertEqual(v.querySelector('.tri-caption').textContent, 'Tap Father, Son, or Holy Spirit.');
+    v.querySelector('.tri-node[data-person="son"]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    god.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    assertEqual(shield.dataset.focus, '', 'Enter on God works too');
+  });
+});

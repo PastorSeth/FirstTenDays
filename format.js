@@ -179,7 +179,7 @@ function trinityHtml() {
   const nodes = PERSONS.map(p =>
     `<g class="tri-node" data-person="${p.id}" data-caption="${personCaption(p)}" role="button" tabindex="0" aria-label="${p.name}">` +
     `<circle cx="${p.x}" cy="${p.y}" r="38"/><text x="${p.x}" y="${p.y}">${p.name === 'Holy Spirit' ? '<tspan x="160" dy="-0.45em">Holy</tspan><tspan x="160" dy="1.05em">Spirit</tspan>' : p.name}</text></g>`).join('');
-  const god = `<g class="tri-god"><circle cx="${GOD.x}" cy="${GOD.y}" r="34"/><text x="${GOD.x}" y="${GOD.y}">God</text></g>`;
+  const god = `<g class="tri-god" role="button" tabindex="0" aria-label="God: show all three"><circle cx="${GOD.x}" cy="${GOD.y}" r="34"/><text x="${GOD.x}" y="${GOD.y}">God</text></g>`;
   return `<div class="fx-trinity" data-fx data-focus="">` +
     `<svg viewBox="0 0 320 300" role="img" aria-label="The Shield of the Trinity">${links}${god}${nodes}</svg>` +
     `<p class="tri-caption" aria-live="polite">Tap Father, Son, or Holy Spirit.</p>` +

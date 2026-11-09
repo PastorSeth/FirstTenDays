@@ -1080,9 +1080,14 @@ a { color: inherit; }
 .tri-node,
 .tri-god { transition: opacity 250ms var(--ease-out); }
 
-.tri-node { cursor: pointer; }
-.tri-node:focus { outline: none; }
+.tri-node,
+.tri-god { cursor: pointer; }
+
+.tri-node:focus,
+.tri-god:focus { outline: none; }
+
 .tri-node:focus-visible circle { stroke: var(--vermilion); stroke-width: 4; }
+.tri-god:focus-visible circle { stroke: var(--ink); stroke-width: 4; }
 
 .tri-node circle { fill: var(--ink); }
 .tri-god circle { fill: var(--vermilion); }

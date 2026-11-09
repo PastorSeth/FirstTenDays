@@ -490,10 +490,11 @@ function wireStudyEffects(view) {
     sheet.querySelector('.vocab-close').focus({ preventScroll: true });
   }
 
-  // Tapping a person again lets go of them.
+  // Tapping a person again, or God in the middle, lets go of them.
   function focusPerson(node) {
     const shield = node.closest('.fx-trinity');
-    const person = shield.dataset.focus === node.dataset.person ? '' : node.dataset.person;
+    const chosen = node.dataset.person || '';
+    const person = shield.dataset.focus === chosen ? '' : chosen;
     shield.dataset.focus = person;
     shield.querySelector('.tri-caption').textContent = person ? node.dataset.caption : 'Tap Father, Son, or Holy Spirit.';
   }
@@ -505,11 +506,11 @@ function wireStudyEffects(view) {
     else if ((el = target.closest('.hint-btn'))) toggleHint(el);
     else if ((el = target.closest('.vocab')) && sheet) define(el);
     else if (target.closest('.vocab-close') && sheet) sheet.classList.remove('is-open');
-    else if ((el = target.closest('.tri-node'))) focusPerson(el);
+    else if ((el = target.closest('.tri-node, .tri-god'))) focusPerson(el);
   });
 
   view.addEventListener('keydown', (e) => {
-    const node = e.target.closest && e.target.closest('.tri-node');
+    const node = e.target.closest && e.target.closest('.tri-node, .tri-god');
     if (node && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       focusPerson(node);
