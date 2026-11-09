@@ -539,7 +539,7 @@ function renderDay(view, dayNum) {
         <div class="hint" id="hint-${r.id}" hidden>${typeset(r.hint)}</div>` : '';
     const input = r.type === 'scale'
       ? scaleInput(r, val)
-      : `<textarea id="r-${r.id}" data-field="${r.id}" placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>`;
+      : `<textarea id="r-${r.id}" data-field="${r.id}"${r.size === 'large' ? ' class="is-large"' : ''} placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>`;
     return `
       <div class="reflection">
         <label for="r-${r.id}">${typeset(r.label)}</label>

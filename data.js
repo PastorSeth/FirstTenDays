@@ -114,8 +114,9 @@ const MAPS_PROMPTS = [
 //                        study (Days 3-10). Leave it out to teach first.
 //   reflectTitle         the heading over the reflection boxes.
 //   questions            the Application Question boxes after the study,
-//                        one box each. Add  type: "scale"  for a 1-10
-//                        slider, with  low  and  high  labels for its ends.
+//                        one box each. Add  size: "large"  for a tall
+//                        box, or  type: "scale"  for a 1-10 slider, with
+//                        low  and  high  labels for its ends.
 // A reflection or question can also have  question  (a bold, day-specific
 // question under the prompt) and  hint  (hidden behind "Need a hint?").
 
@@ -351,7 +352,7 @@ There is a Christian term for this, and you will hear it from time to time: **Te
 God has given you a story. It's yours to treasure. It's yours to preserve and protect. It's yours to leverage as a bright light in a dark world.
 `,
     questions: [
-      { id: "story", label: "Write out your story. Feel free to keep it short, knowing that you could expound on it in the moment if you were sharing it with someone in person. Consider asking your youth leaders if you'd like help thinking through this." }
+      { id: "story", size: "large", label: "Write out your story. Feel free to keep it short, knowing that you could expound on it in the moment if you were sharing it with someone in person. Consider asking your youth leaders if you'd like help thinking through this." }
     ]
   },
   {

@@ -251,3 +251,9 @@ test('app: study effects respond to taps', () => {
     assertIncludes(v.querySelector('.tri-caption').textContent, 'The Son is God.');
   });
 });
+test('app: a question can ask for a large answer box', () => {
+  withDay5({ questions: [{ id: 'story', label: 'Write out your story.', size: 'large' }, { id: 'short', label: 'Quick one?' }] }, v => {
+    assert(v.querySelector('textarea[data-field="story"]').classList.contains('is-large'), 'story box is large');
+    assert(!v.querySelector('textarea[data-field="short"]').classList.contains('is-large'), 'other boxes stay normal');
+  });
+});

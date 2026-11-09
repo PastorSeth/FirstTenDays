@@ -60,3 +60,6 @@ test('data: notes to self stay off the site, and every effect is spelled right',
 test('data: MAPS prompt ids unchanged (saved answers depend on them)', () => {
   assertEqual(MAPS_PROMPTS.map(p => p.id), ['meditate', 'apply', 'pray', 'share']);
 });
+test('data: Day 7 gives the story question a large box', () => {
+  assertEqual(DAYS[6].questions[0].size, 'large');
+});

@@ -583,6 +583,9 @@ a { color: inherit; }
   resize: vertical;
 }
 
+/* For questions that ask for a longer answer, like writing out your story. */
+.reflection textarea.is-large { min-height: 340px; }
+
 .reflection textarea:focus {
   outline: none;
   border-color: var(--vermilion);
