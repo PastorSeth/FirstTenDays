@@ -84,17 +84,17 @@ test('app: readingText default and custom', () => {
   assertEqual(readingText({ passage: 'x', reading: '  Custom.  ' }), 'Custom.');
   assertEqual(readingText({ passage: 'x', reading: '   ' }), 'Open your Bible to x and read it through.');
 });
-test('app: renderDay shows the Day 1 study and the Day 2 placeholder', () => {
+test('app: renderDay shows the Day 1 study and the Day 5 placeholder', () => {
   const v = document.createElement('div');
   renderDay(v, 1);
   assertEqual(v.querySelectorAll('.study .study-h').length, 2);
   assertEqual(v.querySelector('.day-big-num').textContent, '01');
-  assertIncludes(v.querySelector('.read-callout').textContent, 'hit the brakes');
+  assertIncludes(v.querySelector('.read-callout').textContent, 'Open your Bible to 1 John 1:1–4 and read it through.');
   assertEqual(v.querySelectorAll('.word-row').length, 2);
-  renderDay(v, 2);
+  assertEqual(v.querySelector('.reflect .section-h').textContent, 'Context');
+  renderDay(v, 5);
   assertEqual(v.querySelector('.study-placeholder').textContent.trim(), 'Study coming soon.');
-  assertIncludes(v.querySelector('.read-callout').textContent, 'Open your Bible to 1 John 1:5–2:6 and read it through.');
-  assertIncludes(v.querySelector('h1').textContent, 'What’s the Point');
+  assertIncludes(v.querySelector('h1').textContent, 'Why Is Life Still Hard');
 });
 test('app: saved answers from the current version still load', () => {
   withStorage({ 'reflection:1:author': 'An answer I wrote last week' }, () => {
@@ -178,4 +178,76 @@ test('app: a page that fails to draw says so instead of freezing the screen', as
   assert(doc.querySelector('.view .content-error'), 'the new page says what went wrong');
   assertEqual(doc.querySelector('.view .back-link').getAttribute('href'), '#/');
   f.remove();
+});
+/* Renders Day 5 (a placeholder day) with some fields swapped in, then puts it back. */
+function withDay5(fields, fn) {
+  const day = DAYS.find(x => x.day === 5);
+  const saved = Object.assign({}, day);
+  Object.assign(day, fields);
+  const v = document.createElement('div');
+  document.body.appendChild(v);
+  try { renderDay(v, 5); fn(v); } finally {
+    Object.keys(day).forEach(k => delete day[k]);
+    Object.assign(day, saved);
+    v.remove();
+  }
+}
+test('app: MAPS can come before the study, with application questions after', () => {
+  withDay5({ reflectFirst: true, reflectTitle: 'MAPS', study: 'Lesson text',
+    questions: [{ id: 'q1', label: 'First?' }, { id: 'q2', label: 'Second?' }] }, v => {
+    const order = [...v.querySelectorAll('.day-body > *')].map(el => el.className.split(' ')[0]);
+    assertEqual(order.slice(0, 4), ['reflect', 'study-label', 'study', 'reflect']);
+    assertEqual(v.querySelector('.reflect .section-h').textContent, 'MAPS');
+    const questions = v.querySelectorAll('.reflect')[1];
+    assertEqual(questions.querySelector('.section-h').textContent, 'Application Questions');
+    assertEqual([...questions.querySelectorAll('textarea')].map(t => t.dataset.field), ['q1', 'q2']);
+  });
+  withDay5({ questions: [{ id: 'q1', label: 'Only one?' }] }, v => {
+    assertEqual(v.querySelectorAll('.reflect')[1].querySelector('.section-h').textContent, 'Application Question');
+  });
+});
+test('app: a reflection can carry its own question and a hint behind a button', () => {
+  withDay5({ reflections: [{ id: 'author', label: 'Who wrote it?', prompt: 'What do we know?', question: 'Day question', hint: 'Check the first 40 seconds.' }] }, v => {
+    assertEqual(v.querySelector('.prompt-question').textContent, 'Day question');
+    const btn = v.querySelector('.hint-btn'), hint = v.querySelector('.hint');
+    assert(hint.hidden, 'hint starts hidden');
+    btn.click();
+    assert(!hint.hidden && btn.getAttribute('aria-expanded') === 'true', 'hint shown');
+    btn.click();
+    assert(hint.hidden, 'hint hidden again');
+  });
+});
+test('app: a scale question is a 1-10 slider that saves where it is', () => {
+  withStorage({ 'reflection:5:confidence': '7' }, () => {
+    withDay5({ questions: [{ id: 'confidence', type: 'scale', label: 'How confident?', low: 'Not at all', high: 'Totally' }] }, v => {
+      const slider = v.querySelector('input[type="range"][data-field="confidence"]');
+      assertEqual([slider.min, slider.max, slider.value], ['1', '10', '7']);
+      assertEqual(v.querySelector('.scale-value').textContent, '7');
+      slider.value = '3';
+      slider.dispatchEvent(new Event('input', { bubbles: true }));
+      assertEqual(localStorage.getItem('reflection:5:confidence'), '3');
+      assertEqual(v.querySelector('.scale-value').textContent, '3');
+    });
+  });
+});
+test('app: study effects respond to taps', () => {
+  withDay5({ study: '::: swap\n+ Mine\nOld\n+ Theirs\nNew\n:::\nA {{word|its meaning}} here.\n::: trinity' }, v => {
+    const tabs = v.querySelectorAll('.swap-tab'), panels = v.querySelectorAll('.swap-panel');
+    tabs[1].click();
+    assert(panels[1].classList.contains('is-on') && !panels[0].classList.contains('is-on'), 'second panel showing');
+    assertEqual([tabs[0].getAttribute('aria-pressed'), tabs[1].getAttribute('aria-pressed')], ['false', 'true']);
+    assertEqual(panels[0].getAttribute('aria-hidden'), 'true');
+
+    v.querySelector('.vocab').click();
+    const sheet = v.querySelector('.vocab-sheet');
+    assert(sheet.classList.contains('is-open'), 'definition open');
+    assertEqual(sheet.querySelector('.vocab-term').textContent, 'word');
+    assertEqual(sheet.querySelector('.vocab-def').textContent, 'its meaning');
+    sheet.querySelector('.vocab-close').click();
+    assert(!sheet.classList.contains('is-open'), 'definition closed');
+
+    v.querySelector('.tri-node[data-person="son"]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    assertEqual(v.querySelector('.fx-trinity').dataset.focus, 'son');
+    assertIncludes(v.querySelector('.tri-caption').textContent, 'The Son is God.');
+  });
 });

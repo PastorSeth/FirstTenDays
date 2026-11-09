@@ -55,3 +55,78 @@ test('format: indented and CRLF study text still finds marks', () => {
 test('format: link URLs are never typeset', () => {
   assertIncludes(formatInline('[Video](https://example.com/a-1-3-b?q="x")'), 'href="https://example.com/a-1-3-b?q=&quot;x&quot;"');
 });
+test('format: _italic_, but not inside words or link addresses', () => {
+  assertEqual(formatInline('read it _slowly_ now'), 'read it <em>slowly</em> now');
+  assertEqual(formatInline('(AKA your _flesh_)'), '(AKA your <em>flesh</em>)');
+  assertEqual(formatInline('snake_case_name'), 'snake_case_name');
+  assertIncludes(formatInline('[x](https://a.com/b_c_d)'), 'href="https://a.com/b_c_d"');
+});
+test('format: ==highlight== wraps each word for the marker sweep', () => {
+  const out = formatInline('Verse 4: =="Sin is lawlessness"==');
+  assertIncludes(out, '<mark class="hl" data-fx style="--n:3">');
+  assertIncludes(out, '<span class="hl-w" style="--i:0">“Sin </span>');
+  assertIncludes(out, '<span class="hl-w" style="--i:2">lawlessness”</span>');
+  assertEqual(formatInline('a ==b'), 'a ==b');
+});
+test('format: {{term|definition}} becomes a tappable church-vocab word', () => {
+  assertEqual(formatInline('are {{mutually exclusive|You can only pick one.}} here'),
+    'are <button type="button" class="vocab" data-def="You can only pick one.">mutually exclusive</button> here');
+  assertEqual(formatInline('{{no definition}}'), '{{no definition}}');
+});
+test('format: -- lines nest under the bullet above', () => {
+  const out = formatStudy('* Worship\n-- even when\n-- even if\n* Groups');
+  assertEqual(out, '<ul class="study-ul"><li>Worship<ul class="study-ul study-ul--sub"><li>even when</li><li>even if</li></ul></li><li>Groups</li></ul>');
+  assertEqual(formatStudy('-- alone'), '<ul class="study-ul"><li>alone</li></ul>');
+});
+test('format: ::: swap makes tabs with one panel showing', () => {
+  const out = formatStudy('::: swap\n+ My context\nOld meaning\n+ Students\' context\nNew meaning\n:::\nAfter');
+  assertIncludes(out, '<div class="fx-swap" data-fx>');
+  assertIncludes(out, '<button type="button" class="swap-tab" aria-pressed="true" data-panel="0">My context</button>');
+  assertIncludes(out, '<button type="button" class="swap-tab" aria-pressed="false" data-panel="1">Students’ context</button>');
+  assertIncludes(out, '<div class="swap-panel is-on" data-panel="0"><p>Old meaning</p></div>');
+  assertIncludes(out, '<div class="swap-panel" data-panel="1" aria-hidden="true"><p>New meaning</p></div>');
+  assert(out.endsWith('<p>After</p>'), out);
+});
+test('format: ::: scripture shows the verse with its reference', () => {
+  assertEqual(formatStudy('::: scripture Romans 6:1-2\n"Shall we go on sinning?"\n:::'),
+    '<blockquote class="scripture"><p>“Shall we go on sinning?”</p><cite>Romans 6:1–2</cite></blockquote>');
+});
+test('format: ::: reveal splits a quote into words for the scroll reveal', () => {
+  const out = formatStudy('::: reveal C.S. Lewis\n"When I first"\n:::');
+  assertEqual(out, '<blockquote class="fx-reveal" data-scrub style="--n:3"><p>'
+    + '<span class="w" style="--i:0">“When</span> <span class="w" style="--i:1">I</span> <span class="w" style="--i:2">first”</span>'
+    + '</p><cite>C.S. Lewis</cite></blockquote>');
+});
+test('format: ::: terms gives each term a giant filling word', () => {
+  const out = formatStudy('::: terms\n+ LUST\nAnything that pulls us away.\n+ FLESH\nOur old self.\n:::');
+  assertEqual((out.match(/<div class="term" data-fx>/g) || []).length, 2);
+  assertIncludes(out, '<p class="term-word"><span class="term-outline">LUST</span><span class="term-mask" aria-hidden="true"><span class="term-solid">LUST</span></span></p>');
+  assertIncludes(out, '<div class="term-body"><p>Our old self.</p></div>');
+});
+test('format: ::: type wraps each letter, keeps a readable copy', () => {
+  const out = formatStudy('::: type\nGod has **YOU**\n:::');
+  assertIncludes(out, '<p class="fx-type" data-fx style="--n:11">');
+  assertIncludes(out, '<span class="sr-only">God has <strong>YOU</strong></span>');
+  assertIncludes(out, '<span class="ch" style="--i:0">G</span>');
+  assertIncludes(out, '<strong><span class="ch" style="--i:8">Y</span>');
+});
+test('format: ::: stack stamps one line at a time', () => {
+  assertEqual(formatStudy('::: stack\nGOD\n**YOUR**\n:::'),
+    '<div class="fx-stack" data-fx><p class="stack-line" style="--i:0">GOD</p><p class="stack-line" style="--i:1"><strong>YOUR</strong></p></div>');
+});
+test('format: ::: light wraps its lines in the darkness-to-light panel', () => {
+  const out = formatStudy('::: light\nOne\nTwo\n:::');
+  assertEqual(out, '<div class="fx-light" data-fx><div class="light-glow" aria-hidden="true"></div><div class="light-body"><p>One</p><p>Two</p></div></div>');
+});
+test('format: one-line ::: video and ::: trinity', () => {
+  assertEqual(formatStudy('::: video eAvYmE2YYIU'),
+    '<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/eAvYmE2YYIU" title="Video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');
+  assertEqual(formatStudy('::: video not a real id!'), '<p>::: video not a real id!</p>');
+  const shield = formatStudy('::: trinity');
+  assertIncludes(shield, '<div class="fx-trinity" data-fx');
+  ['father', 'son', 'spirit'].forEach(p => assertIncludes(shield, `data-person="${p}"`));
+});
+test('format: unknown or unclosed ::: blocks never break the page', () => {
+  assertEqual(formatStudy('::: sparkle\nHello'), '<p>::: sparkle</p><p>Hello</p>');
+  assertIncludes(formatStudy('::: stack\nGOD'), '<p class="stack-line" style="--i:0">GOD</p>');
+});

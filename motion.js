@@ -47,6 +47,13 @@ const Motion = (() => {
     return clamp((centerY - 0.74 * viewportH) / (0.26 * viewportH), 0, 1);
   }
 
+  /* How much of a block has passed a reading line three-quarters of the
+     way down the screen, so a quote can light up as it's read. */
+  function readAmount(topInView, height, viewportH) {
+    if (height <= 0) return 1;
+    return clamp((0.75 * viewportH - topInView) / height, 0, 1);
+  }
+
   const reducedQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
   function reduced() {
@@ -57,6 +64,7 @@ const Motion = (() => {
 
   const drifting = new Set();
   const sliding = new Set();
+  const scrubbing = new Set();
   const geometry = new Map();   // element -> { top, height } in page coordinates
   const onScreen = new Set();
   let viewObserver = null;
@@ -77,6 +85,7 @@ const Motion = (() => {
   function measureAll() {
     drifting.forEach(measure);
     sliding.forEach(measure);
+    scrubbing.forEach(measure);
   }
 
   function update(el, scrollY, vh) {
@@ -84,6 +93,7 @@ const Motion = (() => {
     if (!g) return;
     if (drifting.has(el)) el.style.setProperty('--p', progress(g.top, g.height, scrollY, vh).toFixed(4));
     if (sliding.has(el)) el.style.setProperty('--k', slideAmount(g.top + g.height / 2 - scrollY, vh).toFixed(4));
+    if (scrubbing.has(el)) el.style.setProperty('--r', readAmount(g.top - scrollY, g.height, vh).toFixed(4));
   }
 
   function updateAll(elements) {
@@ -383,12 +393,12 @@ const Motion = (() => {
     }
     // Text reflows when the web font arrives, which moves everything.
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => { measureAll(); updateAll([...drifting, ...sliding]); });
+      document.fonts.ready.then(() => { measureAll(); updateAll([...drifting, ...sliding, ...scrubbing]); });
     }
   }
 
   function scan(root) {
-    root.querySelectorAll('[data-reveal]').forEach(watchReveal);
+    root.querySelectorAll('[data-reveal], [data-fx]').forEach(watchReveal);
     if (!allowed) return;
     // A new page has just gone up, after a jump to its top (or back to
     // where the list was). Measure scrolling from here, so the jump itself
@@ -398,8 +408,9 @@ const Motion = (() => {
     lastTime = performance.now();
     writeVelocity();
     root.querySelectorAll('[data-drift]').forEach(el => register(el, drifting));
+    root.querySelectorAll('[data-scrub]').forEach(el => register(el, scrubbing));
     root.querySelectorAll('[data-slide-in]').forEach(el => register(el, sliding));
-    updateAll([...drifting, ...sliding]);
+    updateAll([...drifting, ...sliding, ...scrubbing]);
   }
 
   function clear() {
@@ -408,11 +419,12 @@ const Motion = (() => {
     viewObserver = null;
     revealObserver = null;
     drifting.clear();
+    scrubbing.clear();
     sliding.clear();
     geometry.clear();
     onScreen.clear();
   }
 
-  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, reduced, init, scan, clear, entrance, transition, finishActive };
+  const api = { VELOCITY_PX, velocityStep, decay, progress, slideAmount, readAmount, reduced, init, scan, clear, entrance, transition, finishActive };
   return api;
 })();

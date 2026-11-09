@@ -22,7 +22,7 @@ function escapeHtml(value) {
 
 // A quote right after one of these (or at the very start) opens; anywhere
 // else it closes — which is also what turns don't into don’t.
-const OPENING_QUOTE_CONTEXT = /[\s([{—–-]/;
+const OPENING_QUOTE_CONTEXT = /[\s([{—–=-]/;
 
 function curlQuotes(text, before) {
   let out = '';
@@ -52,13 +52,30 @@ function typeset(text) {
   return typesetAfter(text, '');
 }
 
-/* ---------- Inline marks: **bold** and [label](link) ---------- */
+/* ---------- Inline marks: **bold**, _italic_, ==highlight==,
+   {{word|definition}} and [label](link) ---------- */
 
 const LINK_MARK = /\[([^\]\n]+)\]\(([^)\s]+)\)/g;
 const SAFE_LINK = /^(https?:\/\/|#\/)/i;
 
+/* A highlighter stroke that sweeps across word by word, so it can wrap
+   onto a second line and still fill in order. */
+function highlight(inner) {
+  const words = inner.split(' ');
+  const spans = words.map((word, i) =>
+    `<span class="hl-w" style="--i:${i}">${word}${i < words.length - 1 ? ' ' : ''}</span>`);
+  return `<mark class="hl" data-fx style="--n:${words.length}">${spans.join('')}</mark>`;
+}
+
+/* Runs on text that's already escaped, so everything it adds is markup
+   and everything the person typed stays text. */
 function emphasize(html) {
-  return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return html
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^\w])_([^_\n]+?)_(?!\w)/g, '$1<em>$2</em>')
+    .replace(/==(.+?)==/g, (all, inner) => highlight(inner))
+    .replace(/\{\{([^{}|\n]+)\|([^{}\n]+)\}\}/g,
+      '<button type="button" class="vocab" data-def="$2">$1</button>');
 }
 
 function formatInline(text) {
@@ -87,19 +104,177 @@ function formatInline(text) {
   return out;
 }
 
+/* ---------- Effects: ::: blocks ----------
+   A line like "::: stack" starts an effect and a line of just ":::" ends
+   it. "::: video ID" and "::: trinity" stand on one line by themselves.
+   An effect name this file doesn't know shows up as the typed text. */
+
+const BLOCK_OPEN = /^:::\s*([a-z]+)\s*(.*)$/i;
+const BLOCK_CLOSE = /^:::$/;
+const PANEL_MARK = /^\+\s+(.+)$/;
+
+/* Splits lines into the part before the first "+ Title" line and one
+   section per title. */
+function sections(lines) {
+  const intro = [];
+  const parts = [];
+  lines.forEach(line => {
+    const m = line.match(PANEL_MARK);
+    if (m) parts.push({ title: m[1], lines: [] });
+    else (parts.length ? parts[parts.length - 1].lines : intro).push(line);
+  });
+  return { intro, parts };
+}
+
+/* Wraps each visible letter of some formatted HTML in its own span,
+   leaving tags whole and counting an entity like &amp; as one letter. */
+function wrapChars(html) {
+  let out = '';
+  let n = 0;
+  for (let i = 0; i < html.length; i++) {
+    if (html[i] === '<') {
+      const end = html.indexOf('>', i);
+      out += html.slice(i, end + 1);
+      i = end;
+    } else {
+      let ch = html[i];
+      if (ch === '&') {
+        const end = html.indexOf(';', i);
+        ch = html.slice(i, end + 1);
+        i = end;
+      }
+      out += `<span class="ch" style="--i:${n}">${ch}</span>`;
+      n++;
+    }
+  }
+  return { html: out, count: n };
+}
+
+const PERSONS = [
+  { id: 'father', name: 'Father', x: 62, y: 62 },
+  { id: 'son', name: 'Son', x: 258, y: 62 },
+  { id: 'spirit', name: 'Holy Spirit', x: 160, y: 246 }
+];
+const GOD = { x: 160, y: 134 };
+
+function personCaption(p) {
+  const others = PERSONS.filter(o => o !== p).map(o => `the ${o.name}`);
+  return `The ${p.name} is God. The ${p.name} is not ${others[0]}, and not ${others[1]}.`;
+}
+
+/* The Shield of the Trinity: three persons, each fully God, none the
+   same as another. Tapping a person picks out their lines. */
+function trinityHtml() {
+  const line = (a, b, cls, label, lx, ly) =>
+    `<line class="tri-link ${cls}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>` +
+    `<text class="tri-label ${cls}" x="${lx}" y="${ly}">${label}</text>`;
+  const [f, s, h] = PERSONS;
+  const links =
+    line(f, s, 'is-not with-father with-son', 'is not', 160, 56) +
+    line(s, h, 'is-not with-son with-spirit', 'is not', 226, 160) +
+    line(h, f, 'is-not with-spirit with-father', 'is not', 94, 160) +
+    line(f, GOD, 'is with-father', 'is', 108, 104) +
+    line(s, GOD, 'is with-son', 'is', 212, 104) +
+    line(h, GOD, 'is with-spirit', 'is', 172, 196);
+  const nodes = PERSONS.map(p =>
+    `<g class="tri-node" data-person="${p.id}" data-caption="${personCaption(p)}" role="button" tabindex="0" aria-label="${p.name}">` +
+    `<circle cx="${p.x}" cy="${p.y}" r="38"/><text x="${p.x}" y="${p.y}">${p.name === 'Holy Spirit' ? '<tspan x="160" dy="-0.45em">Holy</tspan><tspan x="160" dy="1.05em">Spirit</tspan>' : p.name}</text></g>`).join('');
+  const god = `<g class="tri-god"><circle cx="${GOD.x}" cy="${GOD.y}" r="34"/><text x="${GOD.x}" y="${GOD.y}">God</text></g>`;
+  return `<div class="fx-trinity" data-fx data-focus="">` +
+    `<svg viewBox="0 0 320 300" role="img" aria-label="The Shield of the Trinity">${links}${god}${nodes}</svg>` +
+    `<p class="tri-caption" aria-live="polite">Tap Father, Son, or Holy Spirit.</p>` +
+    `<p class="sr-only">The Father is God, the Son is God, and the Holy Spirit is God. The Father is not the Son, the Son is not the Holy Spirit, and the Holy Spirit is not the Father.</p>` +
+    `</div>`;
+}
+
+const BLOCKS = {
+  // Two or more tabbed panels, one showing at a time: "+ Title" starts each.
+  swap(lines) {
+    const { intro, parts } = sections(lines);
+    if (parts.length < 2) return formatStudy(lines.join('\n'));
+    const tabs = parts.map((p, i) =>
+      `<button type="button" class="swap-tab" aria-pressed="${i === 0}" data-panel="${i}">${typeset(p.title)}</button>`).join('');
+    const panels = parts.map((p, i) =>
+      `<div class="swap-panel${i === 0 ? ' is-on' : ''}" data-panel="${i}"${i === 0 ? '' : ' aria-hidden="true"'}>${formatStudy(p.lines.join('\n'))}</div>`).join('');
+    return `${formatStudy(intro.join('\n'))}<div class="fx-swap" data-fx><div class="swap-tabs">${tabs}</div><div class="swap-panels">${panels}</div></div>`;
+  },
+
+  // A Bible verse, set apart, with its reference underneath.
+  scripture(lines, ref) {
+    return `<blockquote class="scripture"><p>${lines.map(formatInline).join('<br>')}</p>${ref ? `<cite>${typeset(ref)}</cite>` : ''}</blockquote>`;
+  },
+
+  // A long quote that lights up word by word as it's scrolled through.
+  reveal(lines, who) {
+    const words = typeset(lines.join(' ')).split(/\s+/).filter(Boolean);
+    const spans = words.map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`).join(' ');
+    return `<blockquote class="fx-reveal" data-scrub style="--n:${words.length}"><p>${spans}</p>${who ? `<cite>${typeset(who)}</cite>` : ''}</blockquote>`;
+  },
+
+  // Key words broken down one at a time: "+ WORD", then what it means.
+  terms(lines) {
+    const { intro, parts } = sections(lines);
+    const terms = parts.map(p => {
+      const word = typeset(p.title);
+      return `<div class="term" data-fx><p class="term-word"><span class="term-outline">${word}</span>` +
+        `<span class="term-mask" aria-hidden="true"><span class="term-solid">${word}</span></span></p>` +
+        `<div class="term-body">${formatStudy(p.lines.join('\n'))}</div></div>`;
+    }).join('');
+    return `${formatStudy(intro.join('\n'))}<div class="fx-terms">${terms}</div>`;
+  },
+
+  // Each line types itself out, letter by letter.
+  type(lines) {
+    return lines.map(line => {
+      const inner = formatInline(line);
+      const chars = wrapChars(inner);
+      return `<p class="fx-type" data-fx style="--n:${chars.count}"><span class="sr-only">${inner}</span>` +
+        `<span class="type-chars" aria-hidden="true">${chars.html}</span></p>`;
+    }).join('');
+  },
+
+  // Big words stamped down one line at a time.
+  stack(lines) {
+    return `<div class="fx-stack" data-fx>${lines.map((l, i) =>
+      `<p class="stack-line" style="--i:${i}">${formatInline(l)}</p>`).join('')}</div>`;
+  },
+
+  // A dark panel that fills with light as its lines arrive.
+  light(lines) {
+    return `<div class="fx-light" data-fx><div class="light-glow" aria-hidden="true"></div>` +
+      `<div class="light-body">${formatStudy(lines.join('\n'))}</div></div>`;
+  }
+};
+
+const ONE_LINE_BLOCKS = {
+  video(id) {
+    if (!/^[\w-]{11}$/.test(id)) return null;
+    return `<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="Video" loading="lazy" ` +
+      `allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+  },
+  trinity() {
+    return trinityHtml();
+  }
+};
+
 /* ---------- Block marks: a whole day's study ---------- */
 
 const HEADING_MARK = /^#{1,2}\s+(.+)$/;
 const BULLET_MARK = /^[*-]\s+(.+)$/;
+const SUB_BULLET_MARK = /^--\s+(.+)$/;
 const NUMBER_MARK = /^(\d+)\.\s+(.+)$/;
 const QUOTE_MARK = /^>\s+(.+)$/;
 
 function renderGroup(group) {
-  const items = group.items.map(formatInline);
   if (group.kind === 'quote') {
-    return `<blockquote class="pull" data-reveal><p>${items.join('<br>')}</p></blockquote>`;
+    return `<blockquote class="pull" data-reveal><p>${group.items.map(item => formatInline(item.text)).join('<br>')}</p></blockquote>`;
   }
-  const list = items.map(item => `<li>${item}</li>`).join('');
+  const list = group.items.map(item => {
+    const subs = item.subs.length
+      ? `<ul class="study-ul study-ul--sub">${item.subs.map(s => `<li>${formatInline(s)}</li>`).join('')}</ul>`
+      : '';
+    return `<li>${formatInline(item.text)}${subs}</li>`;
+  }).join('');
   if (group.kind === 'ul') return `<ul class="study-ul">${list}</ul>`;
   const start = group.start !== 1 ? ` start="${group.start}"` : '';
   return `<ol class="study-ol"${start}>${list}</ol>`;
@@ -127,25 +302,50 @@ function formatStudy(text) {
     return open;
   }
 
-  text.split(/\r?\n/).forEach(raw => {
-    const line = raw.trim();
-    if (!line) return;
+  const lines = text.split(/\r?\n/).map(raw => raw.trim());
 
-    let m;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue;
+
+    let m = line.match(BLOCK_OPEN);
+    if (m) {
+      const name = m[1].toLowerCase();
+      const arg = m[2].trim();
+      if (Object.prototype.hasOwnProperty.call(ONE_LINE_BLOCKS, name)) {
+        const html = ONE_LINE_BLOCKS[name](arg);
+        if (html) {
+          flush();
+          blocks.push(html);
+          continue;
+        }
+      } else if (Object.prototype.hasOwnProperty.call(BLOCKS, name)) {
+        let end = i + 1;
+        while (end < lines.length && !BLOCK_CLOSE.test(lines[end])) end++;
+        flush();
+        blocks.push(BLOCKS[name](lines.slice(i + 1, end).filter(Boolean), arg));
+        i = end;
+        continue;
+      }
+    }
+
     if ((m = line.match(HEADING_MARK))) {
       flush();
       blocks.push(`<h2 class="study-h">${formatInline(m[1])}</h2>`);
+    } else if ((m = line.match(SUB_BULLET_MARK))) {
+      if (open && open.kind === 'ul' && open.items.length) open.items[open.items.length - 1].subs.push(m[1]);
+      else groupOf('ul').items.push({ text: m[1], subs: [] });
     } else if ((m = line.match(BULLET_MARK))) {
-      groupOf('ul').items.push(m[1]);
+      groupOf('ul').items.push({ text: m[1], subs: [] });
     } else if ((m = line.match(NUMBER_MARK))) {
-      groupOf('ol', Number(m[1])).items.push(m[2]);
+      groupOf('ol', Number(m[1])).items.push({ text: m[2], subs: [] });
     } else if ((m = line.match(QUOTE_MARK))) {
-      groupOf('quote').items.push(m[1]);
+      groupOf('quote').items.push({ text: m[1], subs: [] });
     } else {
       flush();
       blocks.push(`<p>${formatInline(line)}</p>`);
     }
-  });
+  }
 
   flush();
   return blocks.join('');

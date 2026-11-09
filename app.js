@@ -451,28 +451,128 @@ function completeLabel(done) {
   return done ? `${ICONS.check}<span>Day complete</span>` : '<span>Mark day complete</span>';
 }
 
+/* The taps that make a study's effects work: swap tabs, hint buttons,
+   church-vocab words, and the Trinity shield. */
+function wireStudyEffects(view) {
+  let sheet = null;
+  if (view.querySelector('.vocab')) {
+    sheet = document.createElement('div');
+    sheet.className = 'vocab-sheet';
+    sheet.setAttribute('role', 'dialog');
+    sheet.setAttribute('aria-label', 'Church vocab');
+    sheet.innerHTML = '<div class="label">Church vocab</div><p class="vocab-term"></p><p class="vocab-def"></p>' +
+      '<button type="button" class="vocab-close btn-pill">Got it</button>';
+    view.appendChild(sheet);
+  }
+
+  function swapTo(tab) {
+    const box = tab.closest('.fx-swap');
+    box.querySelectorAll('.swap-tab').forEach(t => t.setAttribute('aria-pressed', String(t === tab)));
+    box.querySelectorAll('.swap-panel').forEach(panel => {
+      const on = panel.dataset.panel === tab.dataset.panel;
+      panel.classList.toggle('is-on', on);
+      if (on) panel.removeAttribute('aria-hidden');
+      else panel.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  function toggleHint(button) {
+    const hint = view.querySelector(`#${button.getAttribute('aria-controls')}`);
+    const show = button.getAttribute('aria-expanded') !== 'true';
+    button.setAttribute('aria-expanded', String(show));
+    if (hint) hint.hidden = !show;
+  }
+
+  function define(word) {
+    sheet.querySelector('.vocab-term').textContent = word.textContent;
+    sheet.querySelector('.vocab-def').textContent = word.dataset.def;
+    sheet.classList.add('is-open');
+    sheet.querySelector('.vocab-close').focus({ preventScroll: true });
+  }
+
+  // Tapping a person again lets go of them.
+  function focusPerson(node) {
+    const shield = node.closest('.fx-trinity');
+    const person = shield.dataset.focus === node.dataset.person ? '' : node.dataset.person;
+    shield.dataset.focus = person;
+    shield.querySelector('.tri-caption').textContent = person ? node.dataset.caption : 'Tap Father, Son, or Holy Spirit.';
+  }
+
+  view.addEventListener('click', (e) => {
+    const target = e.target;
+    let el;
+    if ((el = target.closest('.swap-tab'))) swapTo(el);
+    else if ((el = target.closest('.hint-btn'))) toggleHint(el);
+    else if ((el = target.closest('.vocab')) && sheet) define(el);
+    else if (target.closest('.vocab-close') && sheet) sheet.classList.remove('is-open');
+    else if ((el = target.closest('.tri-node'))) focusPerson(el);
+  });
+
+  view.addEventListener('keydown', (e) => {
+    const node = e.target.closest && e.target.closest('.tri-node');
+    if (node && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      focusPerson(node);
+    }
+    if (e.key === 'Escape' && sheet) sheet.classList.remove('is-open');
+  });
+}
+
 function renderDay(view, dayNum) {
   const d = DAYS.find(x => x.day === dayNum);
   if (!d) { renderHome(view); return; }
 
+  // A 1-10 slider for "on a scale from one to ten" questions.
+  function scaleInput(r, val) {
+    const value = /^(10|[1-9])$/.test(val) ? val : '5';
+    return `
+        <div class="scale">
+          <input type="range" id="r-${r.id}" data-field="${r.id}" min="1" max="10" step="1" value="${value}">
+          <div class="scale-ends"><span>${typeset(r.low || '1')}</span><span class="scale-value" data-value-for="${r.id}">${value}</span><span>${typeset(r.high || '10')}</span></div>
+        </div>`;
+  }
+
   function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);
+    const hint = r.hint ? `
+        <button type="button" class="hint-btn" aria-expanded="false" aria-controls="hint-${r.id}">Need a hint?</button>
+        <div class="hint" id="hint-${r.id}" hidden>${typeset(r.hint)}</div>` : '';
+    const input = r.type === 'scale'
+      ? scaleInput(r, val)
+      : `<textarea id="r-${r.id}" data-field="${r.id}" placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>`;
     return `
       <div class="reflection">
         <label for="r-${r.id}">${typeset(r.label)}</label>
         ${r.prompt ? `<div class="prompt">${typeset(r.prompt)}</div>` : ''}
-        <textarea id="r-${r.id}" data-field="${r.id}" placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>
+        ${r.question ? `<div class="prompt-question">${typeset(r.question)}</div>` : ''}
+        ${hint}
+        ${input}
         <div class="save-status" data-status-for="${r.id}">Saved</div>
       </div>
     `;
   }
 
-  // A day can leave out its reflection boxes; then it has no Reflect section.
-  const reflections = Array.isArray(d.reflections) ? d.reflections : [];
+  function section(cls, title, items) {
+    return items.length ? `<section class="${cls}">
+        <h2 class="section-h t-condensed">${typeset(title)}</h2>
+        ${items.map(reflectionCard).join('')}
+      </section>` : '';
+  }
 
-  const study = typeof d.study === 'string' && d.study.trim()
+  // A day can leave out its reflection boxes or its questions; then that
+  // section isn't there at all.
+  const reflections = Array.isArray(d.reflections) ? d.reflections : [];
+  const questions = Array.isArray(d.questions) ? d.questions : [];
+  const reflectHtml = section('reflect', d.reflectTitle || 'Reflect', reflections);
+  const questionHtml = section('reflect reflect--questions',
+    questions.length > 1 ? 'Application Questions' : 'Application Question', questions);
+
+  const study = `<div class="study-label label">Bible Study</div>` + (typeof d.study === 'string' && d.study.trim()
     ? `<div class="study">${formatStudy(d.study)}</div>`
-    : '<div class="study-placeholder">Study coming soon.</div>';
+    : '<div class="study-placeholder">Study coming soon.</div>');
+
+  // Days 3-10 put MAPS first; Days 1 and 2 teach before they ask.
+  const body = d.reflectFirst ? reflectHtml + study + questionHtml : study + reflectHtml + questionHtml;
 
   const complete = isDayComplete(dayNum);
   const prev = DAYS.find(x => x.day === dayNum - 1);
@@ -494,12 +594,7 @@ function renderDay(view, dayNum) {
       ${formatStudy(readingText(d))}
     </section>
     <div class="day-body" data-rise>
-      ${study}
-      ${reflections.length ? `<section class="reflect">
-        <h2 class="section-h t-condensed">Reflect</h2>
-        ${reflections.map(reflectionCard).join('')}
-      </section>` : ''}
-      ${d.reflectionQuestion ? `<section class="reflect reflect--question">${reflectionCard(d.reflectionQuestion)}</section>` : ''}
+      ${body}
       <button class="complete-btn btn-pill ${complete ? 'is-complete' : ''}" id="complete-btn">${completeLabel(complete)}</button>
       <nav class="day-nav" aria-label="Other days">
         ${prev ? `<a data-dir="prev" href="#/day/${prev.day}">${ICONS.arrowLeft}<span>Day ${prev.day}</span></a>` : '<span></span>'}
@@ -508,12 +603,16 @@ function renderDay(view, dayNum) {
     </div>
   `;
 
-  // Wire up auto-saving textareas
-  view.querySelectorAll('textarea[data-field]').forEach(ta => {
+  wireStudyEffects(view);
+
+  // Wire up auto-saving answers (text boxes and sliders)
+  view.querySelectorAll('[data-field]').forEach(ta => {
     let saveTimer;
     ta.addEventListener('input', () => {
       const field = ta.getAttribute('data-field');
       saveReflection(dayNum, field, ta.value);
+      const shown = view.querySelector(`.scale-value[data-value-for="${field}"]`);
+      if (shown) shown.textContent = ta.value;
       const status = view.querySelector(`.save-status[data-status-for="${field}"]`);
       if (status) {
         status.classList.add('show');

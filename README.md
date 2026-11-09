@@ -15,41 +15,77 @@ A 10-day Bible study, installable as an app on any phone (a "PWA").
 
 ## Day page structure
 
-Every day page follows the same order:
+Every day page starts the same way: "Day N of 10" and the passage, the giant sliding words with the big day number in front, the day's topic, and the **Read** box ("Open your Bible to [passage] and read it through", or the day's own `reading`). After that:
 
-1. **Header** — "Day N of 10" and the passage, the giant sliding words with the big day number in front, and the day's topic.
-2. **Read** — the reading prompt (the day's own, or "Open your Bible to [passage] and read it through").
-3. **Study** — the day's study text, or "Study coming soon." until you write it.
-4. **Reflect** — the MAPS questions (Day 1 has its own "who wrote it / who was it for / why" questions instead, since it's the intro day).
-5. **Reflection question** — each day's own extra question, when it has one.
-6. **Mark day complete**, then links to the previous and next day.
+- **Days 1 and 2 teach first.** The **Bible Study** comes next, then the reflection boxes. Day 1's boxes are its three Context questions, each with a "Need a hint?" button. Day 2's are MAPS, with a Day 2 question under each step.
+- **Days 3-10 ask first.** **MAPS** comes right after the Read box, then the **Bible Study**, then the day's **Application Questions** — one box per question.
 
-The Reflection Question is deliberately a separate, per-day question (not shared across days): each day's `reflectionQuestion` in `data.js` is its own block, so it can point at that day's study. Also intentional: the `speaker` field on each day is stored in `data.js` for your own reference but is NOT shown anywhere on the live page — that's by design, not an oversight.
+Every day ends with **Mark day complete** and links to the previous and next day.
+
+In `data.js`, a day's layout comes from a few fields:
+
+| Field | What it does |
+|---|---|
+| `reflectFirst: true` | Puts the reflection boxes before the study (Days 3-10) |
+| `reflectTitle` | The heading over the reflection boxes ("MAPS", "Context") |
+| `reflections` | The reflection boxes. `MAPS_PROMPTS` is the standard four |
+| `questions` | The Application Question boxes after the study |
+
+Each reflection or question has an `id` (answers are saved under it, so don't change it once students have started), a `label` (the question itself), and optionally a `prompt` (grey text under it), a `question` (a bold, day-specific question under the prompt), and a `hint` (hidden behind a "Need a hint?" button). Add `type: "scale"` for a 1-10 slider instead of a text box, with `low` and `high` for the words at each end.
+
+The `speaker` field on each day is stored in `data.js` for your own reference but is NOT shown anywhere on the live page — that's by design, not an oversight.
 
 ## Writing a day's study
 
-Each day in `data.js` has a `study` field. Write the study between its two backtick marks ( `` ` `` ). It can run as many lines as you like: each line of text becomes its own paragraph (blank lines are optional), and a few simple marks at the start of a line add formatting.
+Each day in `data.js` has a `study` field. Write the study between its two backtick marks ( `` ` `` ). It can run as many lines as you like: each line of text becomes its own paragraph (blank lines are optional), and a few simple marks add formatting.
 
 | Write | You get |
 |---|---|
 | `## Heading` | A section heading |
 | `* item` or `- item` | A bullet point |
+| `-- item` | A smaller bullet tucked under the bullet above it |
 | `1. item` | A numbered list |
 | `> Text` | A big poster-size pull quote that slides in as you reach it. Keep its words short: one longer than about ten letters won't fit across a phone and breaks onto the next line |
 | `**words**` | Bold, anywhere in a line |
+| `_words_` | Italic, anywhere in a line |
+| `==words==` | A highlighter stroke that sweeps across the words as they scroll into view |
+| `{{word\|what it means}}` | A "church vocab" word students can tap to see what it means |
 | `[label](https://...)` | A link (opens in a new tab) |
 | `[label](#/resources)` | A link to a page inside the app |
+
+### Effects
+
+An effect starts with a line like `::: stack` and ends with a line of just `:::`. Each written day uses a different one, so the lessons don't all look alike.
+
+| Write | You get | Used on |
+|---|---|---|
+| `::: swap` … `:::` with a `+ Title` line starting each part | Tabs that switch between two (or more) boxes, one showing at a time | Day 1 |
+| `::: scripture 1 John 1:5-6` … `:::` | A Bible verse set apart, with its reference underneath | Day 2 |
+| `::: light` … `:::` | A dark panel that fills with light as its lines arrive | Day 2 |
+| `::: reveal C.S. Lewis` … `:::` | A long quote that lights up word by word as you scroll down it | Day 3 |
+| `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words that fill with color, each followed by what it means | Day 4 |
+| `::: type` … `:::` | A sentence that types itself out, letter by letter | Day 7 |
+| `::: stack` … `:::` | Big words stamped down one line at a time | Day 9 |
+| `::: video` and a YouTube ID, on one line | An embedded video (the ID is the part after `v=` in a YouTube link) | Days 1 and 8 |
+| `::: trinity`, on one line | The Shield of the Trinity — tap Father, Son, or Holy Spirit | Day 8 |
+
+An effect name that's misspelled just shows up as the typed text, so it's easy to spot. With Reduce Motion turned on, every effect simply shows its finished state.
 
 For example:
 
 ```js
 study: `
 ## Making Sense of It
-If you finished those first four verses and your brain feels a bit like a can of mashed refried beans, you are completely normal.
 Why? Because
 > CONTEXT IS KEY.
-* Today: That is a high compliment!
-* Back in my teenage years: It meant someone devoured all the snacks.
+::: swap
++ My context
+Back then, it was an insult.
++ Students' context
+Now, it's a compliment!
+:::
+* Worshipping together is so meaningful!
+-- even when the music isn't my style
 Head over to [The Bible Project](https://bibleproject.com/videos/1-3-john/) and watch their overview video.
 `,
 ```
