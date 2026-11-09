@@ -66,3 +66,18 @@ test('data: Day 7 gives the story question a large box', () => {
 test('data: Day 9 ends with a soft "Dear friend, God answers prayer."', () => {
   assert(DAYS[8].study.trim().endsWith('::: closing\nDear friend,\nGod answers prayer.\n:::'), 'closing block at the end');
 });
+test('data: Day 4 says what I do before "I remind myself… JESUS. IS. BETTER."', () => {
+  const s = DAYS[3].study;
+  const ask = s.indexOf("So what do I do when I don't feel like it?");
+  const act = s.indexOf('_I make sure my actions reflect what I KNOW about Jesus, not what I FEEL in my flesh._');
+  const remind = s.indexOf('I remind myself…');
+  const better = s.indexOf('> JESUS. IS. BETTER.');
+  assert(ask >= 0 && ask < act && act < remind && remind < better, `order ${[ask, act, remind, better]}`);
+  assert(s.trim().endsWith('> JESUS. IS. BETTER.'), 'the study ends on JESUS. IS. BETTER.');
+});
+test('data: Day 8 shows the Trinity shield right after the underlining instruction', () => {
+  const lines = DAYS[7].study.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const read = lines.findIndex(l => l.startsWith('Go back and read 1 John 4:13-14.'));
+  assertEqual(lines[read + 1], '::: trinity');
+  assertEqual(lines.filter(l => l === '::: trinity').length, 1);
+});

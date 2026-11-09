@@ -282,9 +282,8 @@ You need to understand that, even as a Christian — as a new creation in Christ
 ## Conclusion
 Sometimes we will fail. There will be days where, by the power of the Holy Spirit working in you, you will realize that you have gone off course. When those days come, you have to get back on track. But, really, the goal is to stay on track and not go off course. To do this, we have to constantly remind ourselves that JESUS IS BETTER!
 Many times, your biggest temptation as a Christian will be to lay off the gas and just coast spiritually. In fact, you may have already experienced that temptation since starting this Bible study. What you will quickly find is that, when you allow yourself to coast spiritually, your eyes WILL quickly drift off of Jesus Christ and onto something else.
-So what do I do when I don't feel like it? I remind myself…
+So what do I do when I don't feel like it? _I make sure my actions reflect what I KNOW about Jesus, not what I FEEL in my flesh._ I remind myself…
 > JESUS. IS. BETTER.
-_I make sure my actions reflect what I KNOW about Jesus, not what I FEEL in my flesh._
 `,
     questions: [
       { id: "temptations", label: "What are some things that tempt you to stray away from Jesus?" },
@@ -367,12 +366,12 @@ God has given you a story. It's yours to treasure. It's yours to preserve and pr
     study: `
 My goodness, there was tons of good stuff in our reading today! There are so many different ways we could approach this passage. But today, I want to hone in and focus on two specific verses that highlight a thread woven through the whole Bible.
 Go back and read 1 John 4:13-14. As you read, underline the three persons of God as they appear: Father, Son, Holy Spirit.
+::: trinity
 Actually… Let me stop here and acknowledge something:
 You may have grown up in church your whole life and you know all of the crazy words we throw around. But if you have not been involved in the church very long, you might be a bit overwhelmed by all of the Christian words you have never heard. (By the way, don't feel ashamed by that! Most of them are not important. And even if they are, there's no pop quiz, I promise.) Here is the deal though: no matter how smart or dumb you feel, today we are all on the same playing field. Because all of us — even your Bible study leaders and pastors — we're all a bit perplexed by this subject.
 In fact, just to give you a little behind-the-scenes look at this Bible study, I have spent literally days praying, studying, and meditating on how to articulate this subject in 200 words or less and am hopelessly lost… So I am going to cheat. Do you want to watch a movie instead? I can't hear you, so I'm going to assume that's a yes!
 ## The Holy Trinity
 ::: video eAvYmE2YYIU
-::: trinity
 Listen... If you're still a bit lost, that's okay! This concept of the Trinity takes a lifetime to unpack. But here is why we are talking about this: the triune Godhead, as he has revealed himself in your Bible, is worthy of worship. And my prayer is that as you think about God in all of His confusing, awesome, impossible-to-fully-understand bigness — I pray that it would bring you to worship him more!
 The reason we study the Trinity is not to sound smart, and it's not really to share with our unchurched friends either (believe me, your testimony and the Gospel will be much more effective tools for evangelism).
 We study, ponder, and meditate on the Trinity as an act of worship. Because the more we comprehend just how incomprehensible He is, the more we stand in awe of God!
