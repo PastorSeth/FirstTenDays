@@ -27,9 +27,9 @@
 
    EFFECTS: a line like "::: stack" starts one and a line of just
    ":::" ends it — flip, swap, scripture, light, reveal, typewriter,
-   terms, type, stack and closing. "::: video YOUTUBE-ID" and "::: trinity" stand on one line.
-   README.md ("Effects") shows what each one does, and Days 1-9
-   below have an example of every one.
+   terms, type, stack and closing. "::: video YOUTUBE-ID" and
+   "::: trinity" stand on one line. README.md ("Effects") shows what
+   each one does and which day uses it.
 
    Two things to avoid inside the backticks: another backtick ( ` ),
    and a dollar sign right before a curly brace ( ${ ). Either one
