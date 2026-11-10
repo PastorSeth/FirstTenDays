@@ -87,6 +87,15 @@ test('data: Day 8 shows the Trinity shield right after the underlining instructi
   assertEqual(lines[read + 1], '::: trinity');
   assertEqual(lines.filter(l => l === '::: trinity').length, 1);
 });
+test('data: Day 3 asks four application questions, from favorite band to the friend who skips church', () => {
+  const q = DAYS[2].questions;
+  assertEqual(q.map(x => x.id), ['band', 'worship', 'boots', 'friend']);
+  assert(q[0].label.startsWith("What's your favorite band? Be honest though!"), 'band');
+  assert(q[1].label.includes('what is uniquely special about the music that is sung at your church?'), 'worship');
+  assert(q[2].label.includes('an old saint in elastic-side boots (I imagine Lewis was sporting much trendier leather boots)'), 'boots');
+  assert(q[3].label.includes('Using what John says in verses 9–11 about loving your brothers and sisters'), 'friend');
+  assert(!q.some(x => x.id === 'love'), 'the old question is gone');
+});
 test('data: Day 3 brings its five "Even…" lines together under one heading', () => {
   const s = DAYS[2].study;
   assertIncludes(s, '::: together We are united in worship and study');

@@ -261,7 +261,10 @@ Even when we don't have the same interests and hobbies
 Our love for CHRIST is what brings us all together, and the unity that we get to experience in His Church is like nothing else in this world.
 `,
     questions: [
-      { id: "love", label: "In your opinion, what do you think is the difference between the way you have shown love to people in the past and the way Christ has called you to love people as a Christian?" }
+      { id: "band", label: "What's your favorite band? Be honest though! Don't just write what you think your small group leader would want to hear." },
+      { id: "worship", label: "Obviously the worship team at your church is nothing like your favorite band... So, what's the difference? Even if it's not your style, what is uniquely special about the music that is sung at your church?" },
+      { id: "boots", label: "It took him a while, but C.S. Lewis eventually noticed something special about a fellow church member: an old saint in elastic-side boots (I imagine Lewis was sporting much trendier leather boots), singing “sixth-rate” hymns... But singing them with real devotion! Who is that person at your church whose faith you can't help noticing? Do you feel like your faith could ever have that kind of impact?" },
+      { id: "friend", label: "Imagine a friend tells you, “I love Jesus, I just don’t need church.” Using what John says in verses 9–11 about loving your brothers and sisters, how would you respond, kindly? And be honest: have you ever caught yourself thinking the same thing?" }
     ]
   },
   {
