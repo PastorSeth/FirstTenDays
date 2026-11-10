@@ -30,7 +30,7 @@
 
    EFFECTS: a line like "::: stack" starts one and a line of just
    ":::" ends it — flip, swap, scripture, hold, light, reveal, typewriter,
-   terms, together, type, retype, stack and closing. "::: video YOUTUBE-ID" and
+   terms, together, type, retype, stack, echo and closing. "::: video YOUTUBE-ID" and
    "::: trinity" stand on one line. README.md ("Effects") shows what
    each one does and which day uses it.
 
@@ -399,16 +399,19 @@ And the craziest part is that _this_ incomprehensible God we are studying today 
     reflections: MAPS_PROMPTS,
     study: `
 Dear friend,
-> GOD. ANSWERS. PRAYER.
+::: echo
+GOD
+ANSWERS
+PRAYER
+:::
 (You know what… Let's do it again in case you weren't paying enough attention the first time.)
-::: stack
+::: echo Again!
 GOD
 ANSWERS
 PRAYER
 :::
 I really could do this all day. In fact, let's do it one more time, and maybe even make it a little more personal.
-Dear friend,
-::: stack
+::: echo One more time | Dear friend,
 GOD
 ANSWERS
 **YOUR**

@@ -210,3 +210,13 @@ test('motion: a together block hears the scroll too', () => {
   Motion.clear(); root.remove();
   assert(heard, 'scan passed the scroll position to the together block');
 });
+test('motion: an echo hears the scroll too', () => {
+  const root = document.createElement('div');
+  root.innerHTML = '<div data-echo-scrub style="height:120px">Q</div>';
+  document.body.prepend(root);
+  let heard = false;
+  root.firstChild.__read = () => { heard = true; };
+  Motion.init(); Motion.scan(root);
+  Motion.clear(); root.remove();
+  assert(heard, 'scan passed the scroll position to the echo');
+});

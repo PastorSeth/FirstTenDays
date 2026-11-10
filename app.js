@@ -816,6 +816,75 @@ function setUpRetype(fx) {
   });
 }
 
+/* Day 9's echoes (::: echo). The first gathers in as it rises up the
+   screen: motion.js passes where it is, and each line's --lt runs from 0
+   to 1, a little behind the line above, finishing 40% of the way down.
+   The others wait behind their button: it pops away, the space eases open
+   while anything in it fades in, and then the words gather in (style.css,
+   from .is-on). With Reduce Motion the words are simply there. */
+const ECHO_OPEN_MS = 550;
+
+function setUpEcho(fx) {
+  const motion = () => document.documentElement.classList.contains('motion-on');
+
+  if (fx.hasAttribute('data-echo-scrub')) {
+    const lines = [...fx.querySelectorAll('.echo-ln')];
+    const read = (top, vh) => {
+      const t = Math.min(1, Math.max(0, (vh * 0.95 - top) / (vh * 0.55)));
+      lines.forEach((ln, i) => ln.style.setProperty('--lt', Math.min(1, Math.max(0, t * 1.5 - i * 0.25)).toFixed(3)));
+    };
+    fx.__read = (r, top, vh) => read(top, vh);
+    if (motion()) read(fx.getBoundingClientRect().top, window.innerHeight);
+    return;
+  }
+
+  const btn = fx.querySelector('.echo-btn');
+  const reveal = fx.querySelector('.echo-reveal');
+  if (!btn || !reveal) return;
+
+  function startWords() {
+    reveal.setAttribute('tabindex', '-1');
+    reveal.focus({ preventScroll: true });
+    void fx.offsetWidth;
+    fx.classList.add('is-on');
+  }
+
+  btn.addEventListener('click', () => {
+    if (btn.hidden || btn.classList.contains('is-leaving')) return;
+    if (!motion() || !btn.animate) {
+      btn.hidden = true;
+      reveal.hidden = false;
+      startWords();
+      return;
+    }
+
+    btn.classList.add('is-leaving');
+    const pop = btn.animate([
+      { transform: 'scale(1)', opacity: 1 },
+      { transform: 'scale(1.1)', opacity: 1, offset: 0.3 },
+      { transform: 'scale(.5)', opacity: 0 }
+    ], { duration: 300, easing: 'ease-in', fill: 'forwards' });
+
+    // The button's own space closes as the new space opens, so the page
+    // below moves once, smoothly.
+    const open = () => {
+      const cs = getComputedStyle(btn);
+      const from = btn.offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+      btn.hidden = true;
+      reveal.hidden = false;
+      const to = reveal.offsetHeight;
+      reveal.style.overflow = 'hidden';
+      const grow = reveal.animate([
+        { height: from + 'px', opacity: 0 },
+        { height: to + 'px', opacity: 1 }
+      ], { duration: ECHO_OPEN_MS, easing: 'cubic-bezier(.4, 0, .2, 1)' });
+      const done = () => { reveal.style.overflow = ''; startWords(); };
+      grow.finished.then(done, done);
+    };
+    pop.finished.then(open, open);
+  });
+}
+
 /* The taps that make a study's effects work: swap tabs, hint buttons,
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
@@ -824,6 +893,7 @@ function wireStudyEffects(view) {
   view.querySelectorAll('.fx-together').forEach(setUpTogether);
   view.querySelectorAll('.hl[data-pen]').forEach(setUpPen);
   view.querySelectorAll('.fx-retype').forEach(setUpRetype);
+  view.querySelectorAll('.fx-echo').forEach(setUpEcho);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

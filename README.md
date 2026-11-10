@@ -71,7 +71,8 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: terms` … `:::` with a `+ WORD` line starting each word | Giant key words, each followed by what it means. Each word fills with color once it scrolls up to the middle of the screen | Day 4 |
 | `::: type` … `:::` | A sentence that types itself out, letter by letter | Not used right now |
 | `::: retype Tap here to fix the mistake` … `:::` | Three lines: a sentence typed out big, a normal line under it, then a correction. The button (labelled with the words after `retype`) backspaces the big sentence to where the two differ and types the correction in its place | Day 7 |
-| `::: stack` … `:::` | Big words stamped down one line at a time | Day 9 |
+| `::: stack` … `:::` | Big words stamped down one line at a time | Not used right now |
+| `::: echo` … `:::` | Big words said again and again, one word per line. The first `::: echo` gathers in as you scroll (faint outlines drift in and settle into the words). Each one after it waits behind a button labelled with the words after `echo`, like `::: echo Again!`; add `\| Dear friend,` after the label for a line said first. Tapped, the words gather in and leave echoes behind them: one black the second time, orange after that. A word in `**bold**` is orange, with an extra echo and a pen underline | Day 9 |
 | `::: closing` … `:::` | A soft sign-off to end a study: the first line as a quiet greeting, the next a little larger, both fading up gently | Day 9 |
 | `::: video` and a YouTube ID, on one line | An embedded video (the ID is the part after `v=` in a YouTube link) | Days 1 and 8 |
 | `::: trinity`, on one line | The Shield of the Trinity — tap Father, Son, or Holy Spirit | Day 8 |

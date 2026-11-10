@@ -224,3 +224,33 @@ test('format: ::: together puts a heading over cards that come together', () => 
   assertEqual(fx.querySelector('.together-head').textContent, 'We are united');
   assertEqual([...fx.querySelectorAll('.together-card')].map(c => c.textContent), ['Even when the music isn’t my style', 'Even if I don’t like singing']);
 });
+test('format: ::: echo gathers the words; after the first, a button brings them in with echoes', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: echo\nGOD\nPRAYER\n:::\nText\n::: echo Again!\nGOD\nPRAYER\n:::\n::: echo One more time | Dear friend,\nGOD\n**YOUR**\n:::');
+  const [a, b, c] = box.querySelectorAll('.fx-echo');
+  const solids = fx => [...fx.querySelectorAll('.echo-ln')].map(l => l.querySelector('.echo-solid').textContent);
+  const echoes = fx => [...fx.querySelectorAll('.echo-ln')].map(l => l.querySelectorAll('.echo-ghost').length);
+  // The first gathers in as it scrolls: no button, no echoes.
+  assert(a.hasAttribute('data-echo-scrub'), 'first one follows the scroll');
+  assert(!a.querySelector('button'), 'no button the first time');
+  assertEqual(solids(a), ['GOD', 'PRAYER']);
+  assertEqual(a.querySelectorAll('.echo-ln:first-child .echo-gather').length, 3);
+  assertEqual(echoes(a), [0, 0]);
+  // The second waits behind its button, and leaves one black echo.
+  assertEqual(b.querySelector('button.echo-btn').textContent.trim(), 'Again!');
+  assertEqual(b.querySelector('button.echo-btn').getAttribute('type'), 'button');
+  assert(b.querySelector('.echo-reveal').hidden, 'words wait for the tap');
+  assert(!b.hasAttribute('data-echo-scrub'));
+  assertEqual(echoes(b), [1, 1]);
+  assert(!b.classList.contains('fx-echo--orange'), 'black echoes the second time');
+  // The third is orange, says its line first, and makes the bold word stand out.
+  assert(c.classList.contains('fx-echo--orange'), 'orange the third time');
+  assertEqual(c.querySelector('.echo-btn').textContent.trim(), 'One more time');
+  assertEqual(c.querySelector('.echo-reveal .echo-intro').textContent, 'Dear friend,');
+  assertEqual(solids(c), ['GOD', 'YOUR']);
+  assertEqual(echoes(c), [1, 2]);
+  assertEqual(c.querySelector('strong.echo-key').textContent, 'YOUR');
+  assert(c.querySelector('.echo-key .echo-underline'), 'the bold word is underlined');
+  assert([...c.querySelectorAll('.echo-ghost, .echo-gather')].every(g => g.getAttribute('aria-hidden') === 'true'), 'screen readers hear each word once');
+  assertEqual(c.style.getPropertyValue('--n'), '2');
+});

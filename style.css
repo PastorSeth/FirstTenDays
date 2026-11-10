@@ -1770,6 +1770,143 @@ html:not(.motion-on) .celebrate--play {
   to { opacity: 1; transform: none; }
 }
 
+/* Day 9 — GOD ANSWERS PRAYER, again and again (::: echo). Each line
+   stacks its gathering outlines, its echoes and the solid word in one
+   grid cell. The first gathers in as it scrolls (--lt, from app.js); the
+   others gather in when their button is tapped (.is-on), then their
+   echoes slide out: black the second time, orange after that, with two
+   echoes and a pen underline for the bold word. */
+.fx-echo { margin: 18px 0 26px; }
+
+.study .echo-ln {
+  display: grid;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(60px, 20vw, 110px);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: .88;
+}
+
+.echo-ln > span { grid-area: 1 / 1; }
+
+/* The solid words sit in front of their outlines (which move, and moving
+   would otherwise lift them above the words). */
+.echo-solid { position: relative; z-index: 1; }
+
+.fx-echo strong { color: var(--vermilion); }
+
+.echo-gather,
+.echo-ghost {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+.fx-echo--orange .echo-gather,
+.fx-echo--orange .echo-ghost { -webkit-text-stroke-color: var(--vermilion); }
+
+.echo-gather { opacity: 0; }
+
+.echo-ghost {
+  opacity: .5;
+  transform: translate(calc(var(--k) * 11px), calc(var(--k) * -7px));
+}
+
+.fx-echo--orange .echo-ghost { opacity: .8; }
+
+/* The first time: outlines drift in from the side and settle into the
+   words as the scroll brings them up. */
+.echo-first .echo-gather {
+  opacity: calc((1 - var(--lt, 1)) * .75);
+  transform: translate(calc((1 - var(--lt, 1)) * var(--g) * 26px), calc((1 - var(--lt, 1)) * var(--g) * -12px));
+}
+
+.echo-first .echo-solid { opacity: calc(var(--lt, 1) * var(--lt, 1)); }
+
+/* The button, and the words it brings in. */
+.fx-echo .echo-btn {
+  display: flex;
+  width: fit-content;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 24px 0 18px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.echo-icon { width: 22px; height: 22px; }
+.fx-echo .echo-btn[hidden] { display: none; }
+.fx-echo .echo-btn.is-leaving { pointer-events: none; overflow: hidden; }
+
+/* Its own block, so its spacing measures the same while it opens as after. */
+.echo-reveal { display: flow-root; }
+.echo-reveal[hidden] { display: none; }
+.echo-reveal:focus { outline: none; }
+.study .echo-intro { margin: 0 0 .9em; }
+
+.motion-on .fx-echo:not(.echo-first):not(.is-on) .echo-solid { opacity: 0; }
+.motion-on .fx-echo:not(.echo-first):not(.is-on) .echo-ghost { opacity: 0; transform: none; }
+
+.motion-on .fx-echo.is-on .echo-gather {
+  animation: echo-gather 950ms cubic-bezier(.2, .7, .3, 1) both;
+  animation-delay: calc(var(--i) * 220ms + 100ms);
+}
+
+.motion-on .fx-echo.is-on .echo-solid {
+  animation: echo-solid 950ms cubic-bezier(.55, 0, .75, .2) both;
+  animation-delay: calc(var(--i) * 220ms + 100ms);
+}
+
+.motion-on .fx-echo.is-on .echo-ghost {
+  transition: transform 700ms var(--ease-out), opacity 300ms linear;
+  transition-delay: calc(var(--i) * 220ms + 1150ms + var(--k) * 140ms);
+}
+
+@keyframes echo-gather {
+  from { opacity: 0; transform: translate(calc(var(--g) * 26px), calc(var(--g) * -12px)); }
+  25% { opacity: .75; }
+  to { opacity: 0; transform: none; }
+}
+
+@keyframes echo-solid {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* The pen underline under the bold word, once everything has landed. */
+.echo-key {
+  position: relative;
+  display: inline-block;
+}
+
+.echo-underline {
+  position: absolute;
+  left: -6%;
+  bottom: -.12em;
+  width: 112%;
+  height: .22em;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* No non-scaling stroke here: with it, the drawn length stops short when
+   the line is stretched wider than its 100-unit drawing. */
+.echo-underline path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.motion-on .fx-echo .echo-underline path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+.motion-on .fx-echo.is-on .echo-underline path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 380ms cubic-bezier(.4, 0, .3, 1) calc(var(--n) * 220ms + 1800ms);
+}
+
+.motion-on .fx-echo.is-on .echo-underline path + path { transition-delay: calc(var(--n) * 220ms + 2200ms); }
+
 /* A soft sign-off at the end of a study: a short rule, the greeting in
    quiet italic, then the line itself a little larger. Both fade up gently. */
 .fx-closing {

@@ -247,6 +247,13 @@ function typewriterHtml(full, start, end, k) {
 // A signature picture has to be a file on this site, like images/name.webp.
 const SIGNATURE_PICTURE = /^[\w-]+(\/[\w-]+)*\.(webp|png|jpe?g|svg)$/i;
 
+// The "again" arrow on an echo's button, and the pen underline under a
+// bold echo word (two quick strokes, drawn left to right).
+const ECHO_ICON = '<svg class="echo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+const ECHO_UNDERLINE = '<svg class="echo-underline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+  '<path pathLength="1" d="M2,6 C28,2 70,9 98,4"/><path pathLength="1" d="M5,15 C34,11 66,17 95,12"/></svg>';
+
 const BLOCKS = {
   // A quote typed onto a sheet of paper as it's read. "==words==" get a red
   // pencil line once it's all typed, and "Name | picture" signs it.
@@ -376,6 +383,34 @@ const BLOCKS = {
       `<template class="retype-next">${formatInline(next)}</template></div>`;
   },
 
+  /* Big words said again and again (Day 9's GOD ANSWERS PRAYER). The first
+     ::: echo gathers in as it scrolls up the screen. Each one after it
+     waits behind a button labelled with the words after "::: echo"
+     (anything after a "|" is a line said first, like "Dear friend,"),
+     gathers in when it's tapped, and leaves echoes behind its words: one
+     black echo the second time, orange ones after that, and for a word in
+     **bold** an extra echo and a pen underline. app.js runs it. */
+  echo(lines, header, nth = 0) {
+    const [label, intro] = String(header || '').split('|').map(s => s.trim());
+    const orange = nth >= 2;
+    const rows = lines.map((line, i) => {
+      const key = line.match(/^\*\*(.+)\*\*$/);
+      const plain = typeset(key ? key[1] : line);
+      const count = nth === 0 ? 0 : (key && orange ? 2 : 1);
+      const gather = [3, 2, 1].map(g => `<span class="echo-gather" style="--g:${g}" aria-hidden="true">${plain}</span>`).join('');
+      const echoes = Array.from({ length: count }, (_, j) =>
+        `<span class="echo-ghost" style="--k:${count - j}" aria-hidden="true">${plain}</span>`).join('');
+      const solid = key ? `<strong class="echo-key">${plain}${orange ? ECHO_UNDERLINE : ''}</strong>` : formatInline(line);
+      return `<p class="echo-ln" style="--i:${i}">${gather}${echoes}<span class="echo-solid">${solid}</span></p>`;
+    }).join('');
+    const words = `<div class="echo-words">${rows}</div>`;
+    const cls = `fx-echo${orange ? ' fx-echo--orange' : ''}`;
+    if (nth === 0) return `<div class="${cls} echo-first" data-echo-scrub style="--n:${lines.length}">${words}</div>`;
+    return `<div class="${cls}" style="--n:${lines.length}">` +
+      `<button type="button" class="echo-btn btn-pill btn-pill--accent">${ECHO_ICON}${typeset(label || 'Again!')}</button>` +
+      `<div class="echo-reveal" hidden>${intro ? `<p class="echo-intro">${formatInline(intro)}</p>` : ''}${words}</div></div>`;
+  },
+
   // A soft sign-off at the end of a study, set apart and a little larger.
   closing(lines) {
     return `<div class="fx-closing" data-fx>${lines.map(l => `<p>${formatInline(l)}</p>`).join('')}</div>`;
@@ -435,6 +470,7 @@ function formatStudy(text) {
   if (typeof text !== 'string') return '';
 
   const blocks = [];
+  const seen = {};   // how many of each effect so far (::: echo changes each time)
   let open = null;   // the bullet list, numbered list, or quote being built
 
   function flush() {
@@ -471,7 +507,9 @@ function formatStudy(text) {
         let end = i + 1;
         while (end < lines.length && !BLOCK_CLOSE.test(lines[end])) end++;
         flush();
-        blocks.push(BLOCKS[name](lines.slice(i + 1, end).filter(Boolean), arg));
+        const nth = seen[name] || 0;
+        seen[name] = nth + 1;
+        blocks.push(BLOCKS[name](lines.slice(i + 1, end).filter(Boolean), arg, nth));
         i = end;
         continue;
       }

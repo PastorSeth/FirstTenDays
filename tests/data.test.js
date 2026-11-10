@@ -46,7 +46,7 @@ test('data: Day 7 types "That\'s why…" big, then corrects it to YOU', () => {
   assert(!s.includes('So, God has positioned'), 'the old "So," sentence is gone');
 });
 test('data: each written lesson has its own effect', () => {
-  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: retype', 8: '::: trinity', 9: '::: stack' };
+  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: retype', 8: '::: trinity', 9: '::: echo' };
   Object.keys(effects).forEach(day => {
     const d = DAYS[day - 1];
     assertIncludes(d.study, effects[day], `day ${day}`);
@@ -99,4 +99,12 @@ test('data: Day 6 marks up its verses in red pen', () => {
   assertIncludes(s, '=="[circle]No one[/circle] [underline]who lives in him[/underline] [squiggle]keeps on sinning.[/squiggle] No one');
   assertIncludes(s, '=="Do not let [double]anyone[/double] lead you astray"==');
   assertIncludes(s, '=="[underline]Do not be surprised[/underline]… if the world [circle]hates[/circle] you"==');
+});
+test('data: Day 9 says GOD ANSWERS PRAYER three times, each one an echo', () => {
+  const s = DAYS.find(d => d.day === 9).study;
+  assertIncludes(s, "Dear friend,\n::: echo\nGOD\nANSWERS\nPRAYER\n:::\n(You know what");
+  assertIncludes(s, "::: echo Again!\nGOD\nANSWERS\nPRAYER\n:::\nI really could do this all day.");
+  assertIncludes(s, "::: echo One more time | Dear friend,\nGOD\nANSWERS\n**YOUR**\nPRAYERS\n:::\nDo you believe it?");
+  assert(!s.includes('> GOD. ANSWERS. PRAYER.'), 'the old pull quote is gone');
+  assert(!s.includes('::: stack'), 'the old stamped stacks are gone');
 });

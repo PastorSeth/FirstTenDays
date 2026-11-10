@@ -442,3 +442,55 @@ test('app: without motion, the retype button swaps the correction straight in', 
     });
   } finally { if (hadMotion) html.classList.add('motion-on'); }
 });
+test('app: the first echo gathers as it rises up the screen', () => {
+  withDay5({ study: '::: echo\nGOD\nANSWERS\nPRAYER\n:::' }, v => {
+    const fx = v.querySelector('.fx-echo');
+    const lt = () => [...fx.querySelectorAll('.echo-ln')].map(l => l.style.getPropertyValue('--lt'));
+    fx.__read(0, 800 * 0.95, 800, 300);   // just up from the bottom of the screen
+    assertEqual(lt(), ['0.000', '0.000', '0.000']);
+    fx.__read(0, 800 * 0.4, 800, 300);    // 40% of the way down: all gathered
+    assertEqual(lt(), ['1.000', '1.000', '1.000']);
+    fx.__read(0, 800 * 0.7, 800, 300);    // partway, each line a little behind the one above
+    const [g, a, p] = lt().map(Number);
+    assert(g > a && a > p && p >= 0, `staggered (${lt()})`);
+  });
+});
+test('app: an echo button pops away, the words open in, then they gather', async () => {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const html = document.documentElement;
+  const hadMotion = html.classList.contains('motion-on');
+  html.classList.add('motion-on');
+  const day = DAYS.find(x => x.day === 5);
+  const saved = day.study;
+  day.study = '::: echo\nGOD\n:::\n::: echo Again!\nGOD\nANSWERS\n:::';
+  const v = document.createElement('div');
+  document.body.prepend(v);
+  try {
+    renderDay(v, 5);
+    const fx = v.querySelectorAll('.fx-echo')[1];
+    const btn = fx.querySelector('.echo-btn');
+    const reveal = fx.querySelector('.echo-reveal');
+    btn.click();
+    assert(btn.classList.contains('is-leaving') && !btn.hidden, 'the button animates away');
+    assert(reveal.hidden && !fx.classList.contains('is-on'), 'the words wait for the button to go');
+    await wait(1300);
+    assert(btn.hidden, 'the button is gone');
+    assert(!reveal.hidden, 'the words are there');
+    assert(fx.classList.contains('is-on'), 'the words gather in');
+    assertEqual(document.activeElement, reveal, 'focus moves to the words');
+  } finally { day.study = saved; v.remove(); if (!hadMotion) html.classList.remove('motion-on'); }
+});
+test('app: without motion, an echo button shows the words straight away', () => {
+  const html = document.documentElement;
+  const hadMotion = html.classList.contains('motion-on');
+  html.classList.remove('motion-on');
+  try {
+    withDay5({ study: '::: echo\nGOD\n:::\n::: echo Again!\nGOD\n:::' }, v => {
+      const fx = v.querySelectorAll('.fx-echo')[1];
+      fx.querySelector('.echo-btn').click();
+      assert(fx.querySelector('.echo-btn').hidden);
+      assert(!fx.querySelector('.echo-reveal').hidden);
+      assert(fx.classList.contains('is-on'));
+    });
+  } finally { if (hadMotion) html.classList.add('motion-on'); }
+});
