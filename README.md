@@ -2,6 +2,8 @@
 
 A 10-day Bible study, installable as an app on any phone (a "PWA").
 
+**Live at [firstten.faith](https://firstten.faith)**, hosted on Cloudflare, which publishes whatever is on the `main` branch of this repository. Cloudflare sends `firstten.faith/index.html` on to `firstten.faith/`; the app is set up for that (it starts at the top address, and its offline copy saves pages without the redirect).
+
 ## What's in this folder
 
 - `data.js` — **this is the file you'll edit.** Every day's topic, passage, reading prompt, study text, and giant words live here in plain English. See the notes at the top of the file.

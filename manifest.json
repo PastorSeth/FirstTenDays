@@ -2,7 +2,7 @@
   "name": "First 10 Days — A Bible Study",
   "short_name": "First 10 Days",
   "description": "A 10-day Bible study walking through 1 John.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F4F1EA",

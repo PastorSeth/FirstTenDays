@@ -6,7 +6,7 @@
    caches get cleared out.
    ========================================================== */
 
-const CACHE_NAME = 'first-10-days-v34';
+const CACHE_NAME = 'first-10-days-v35';
 
 // The web font lives in its own cache, so bumping CACHE_NAME for an app
 // change doesn't throw away the font and make everyone download it again.
@@ -55,6 +55,32 @@ function shellRequests() {
   return APP_SHELL.map(path => new Request(path, { cache: 'reload' }));
 }
 
+/* Some hosts send one address on to another: Cloudflare (firstten.faith)
+   sends /index.html to /. A browser won't open a page from a saved copy
+   that remembers the redirect, so the installed app wouldn't start. Every
+   copy is saved plain instead: the same page, without the redirect. */
+function cleanResponse(response) {
+  if (!response || !response.redirected) return Promise.resolve(response);
+  return response.blob().then(body => new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers
+  }));
+}
+
+function saveCopy(cache, request, response) {
+  return cleanResponse(response).then(clean => cache.put(request, clean));
+}
+
+/* A new version saves its own copy of every app file. */
+function precache(cacheName = CACHE_NAME) {
+  return caches.open(cacheName).then(cache => Promise.all(shellRequests().map(request =>
+    fetch(request).then((response) => {
+      if (!response || !response.ok) throw new Error(`Couldn't save ${request.url}`);
+      return saveCopy(cache, request, response);
+    }))));
+}
+
 /* The app's own files: answer from the cache straight away, and refresh
    the cached copy from the network in the background (checking with the
    site, not the browser's own copy). */
@@ -64,7 +90,7 @@ function fromAppCache(request) {
       .then((response) => {
         if (response && response.status === 200) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          caches.open(CACHE_NAME).then(cache => saveCopy(cache, request, copy)).catch(() => {});
         }
         return response;
       })
@@ -96,9 +122,7 @@ function cacheFirst(request) {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(shellRequests()))
-  );
+  event.waitUntil(precache());
   self.skipWaiting();
 });
 

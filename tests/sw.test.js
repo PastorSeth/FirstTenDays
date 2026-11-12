@@ -66,3 +66,52 @@ test('sw: refreshing an app file checks with the server instead of the browser\'
     await (await caches.open(CACHE_NAME)).delete(url);
   }
 });
+// What Cloudflare (firstten.faith) sends for /index.html: a redirect to /.
+const redirectedPage = body => ({
+  redirected: true, ok: true, status: 200, statusText: 'OK',
+  headers: new Headers({ 'content-type': 'text/html' }),
+  blob: async () => new Blob([body]),
+  clone() { return this; }
+});
+test('sw: a page that came by way of a redirect is kept as a plain copy', async () => {
+  const clean = await cleanResponse(redirectedPage('<p>hi</p>'));
+  assert(!clean.redirected, 'no longer marked as redirected');
+  assertEqual(clean.status, 200);
+  assertEqual(clean.headers.get('content-type'), 'text/html');
+  assertEqual(await clean.text(), '<p>hi</p>');
+  const plain = new Response('x');
+  assertEqual(await cleanResponse(plain), plain, 'a normal response is kept as it is');
+});
+test('sw: installing saves plain copies, even of files the host redirects', async () => {
+  const realFetch = window.fetch;
+  const name = 'sw-install-test-' + Date.now();
+  try {
+    window.fetch = async () => redirectedPage('file');
+    await precache(name);
+    const saved = await (await caches.open(name)).match(shellRequests()[1]);
+    assert(saved && !saved.redirected, 'index.html saved without the redirect');
+    assertEqual(await saved.text(), 'file');
+  } finally {
+    window.fetch = realFetch;
+    await caches.delete(name);
+  }
+});
+test('sw: refreshing a file the host redirects saves a plain copy', async () => {
+  const realFetch = window.fetch;
+  const url = location.origin + '/sw-redirect-test-' + Date.now() + '.html';
+  try {
+    window.fetch = async () => redirectedPage('page');
+    await fromAppCache(new Request(url));
+    await new Promise(r => setTimeout(r, 150));
+    const saved = await (await caches.open(CACHE_NAME)).match(url);
+    assert(saved && !saved.redirected, 'saved without the redirect');
+    assertEqual(await saved.text(), 'page');
+  } finally {
+    window.fetch = realFetch;
+    await (await caches.open(CACHE_NAME)).delete(url);
+  }
+});
+test('sw: the installed app opens at the top of the site, which every host serves as is', async () => {
+  const manifest = await (await fetch('../manifest.json', { cache: 'no-store' })).json();
+  assertEqual(manifest.start_url, './');
+});
