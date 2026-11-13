@@ -277,3 +277,13 @@ test('format: ::: bridge pins the Gospel bridge drawing over four parts, each wi
   assertEqual([...art.querySelectorAll('text')].map(t => t.textContent), ['GOD', 'Perfect', 'Just', 'Holy', 'MAN', 'SIN', 'JESUS', 'RESPONSE', 'in faith']);
   assert(art.querySelector('[data-who] path.head'), 'the person, with a solid head');
 });
+test('format: the head of the person is drawn by hand, its ends not quite meeting', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: bridge\n+ GOD\nA\n+ MAN\nB\n+ JESUS\nC\n+ RESPONSE\nD\n:::');
+  const nums = box.querySelector('.bridge-art path.head').getAttribute('d').match(/-?\d+(\.\d+)?/g).map(Number);
+  const [x0, y0] = nums.slice(0, 2);
+  const [x1, y1] = nums.slice(-2);
+  const fromMiddle = (x, y) => Math.hypot(x - 55, y - 86);
+  assert(fromMiddle(x0, y0) - fromMiddle(x1, y1) > 0.8, 'the pen ends a little inside where it started');
+  assert(Math.hypot(x1 - x0, y1 - y0) < 6, 'but close to it');
+});

@@ -2076,6 +2076,7 @@ html:not(.motion-on) .celebrate--play {
 .bridge-art .rays path,
 .bridge-art path.pit { stroke-width: 1.6; }
 .bridge-art path.head { fill: var(--paper); }
+.bridge-art [data-who] path { stroke-width: 1.6; }   /* the person: a thinner pen */
 
 .bridge-art text {
   font-family: 'Biro Script', 'Segoe Print', 'Bradley Hand', cursive;
