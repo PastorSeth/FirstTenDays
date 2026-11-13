@@ -138,8 +138,8 @@ test('data: Day 5 asks what tempts you (tap the bubbles), why Jesus is better, h
   assertIncludes(q[0].label, 'What are the things that tempt you to turn from Jesus?');
   assertEqual(q[0].options, ['Comfort/laziness', 'Relationships/dating', 'Fitting in', 'Distractions (TikTok, Insta, video games, etc.)', 'Doubts', 'Lust']);
   assertEqual(q[0].other, 'Other');
-  assertEqual(q[1].label, 'How is Jesus better than those things that tempt you?');
+  assertEqual(q[1].label, 'How is Jesus better than those things that tempt you? What does He give you that they can\'t?');
   assertEqual(q[2].type, 'scale');
-  assertEqual(q[2].label, 'How confident do you feel to be able to share this Gospel message to others?');
+  assertEqual(q[2].label, 'Remember, this Gospel isn\'t just for you. How confident do you feel to share this Gospel message to others?');
   assertEqual(q[3].label, 'What can you do this week to grow in your confidence of knowing the Gospel?');
 });

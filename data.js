@@ -351,8 +351,8 @@ Putting your faith in Jesus means repenting of your sins and making Jesus the Lo
     questions: [
       { id: "tempt", type: "choices", prompt: "Tap all that apply.", label: "In the passage, John talked about how some people turned away from the Gospel for false teaching — teaching that distorted the truth and traded Jesus for something else. What are the things that tempt you to turn from Jesus?",
         options: ["Comfort/laziness", "Relationships/dating", "Fitting in", "Distractions (TikTok, Insta, video games, etc.)", "Doubts", "Lust"], other: "Other" },
-      { id: "better", label: "How is Jesus better than those things that tempt you?" },
-      { id: "confidence", type: "scale", low: "Not at all", high: "Totally", label: "How confident do you feel to be able to share this Gospel message to others?" },
+      { id: "better", label: "How is Jesus better than those things that tempt you? What does He give you that they can't?" },
+      { id: "confidence", type: "scale", low: "Not at all", high: "Totally", label: "Remember, this Gospel isn't just for you. How confident do you feel to share this Gospel message to others?" },
       { id: "grow", label: "What can you do this week to grow in your confidence of knowing the Gospel?" }
     ]
   },
