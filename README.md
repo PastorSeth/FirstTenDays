@@ -34,7 +34,7 @@ In `data.js`, a day's layout comes from a few fields:
 | `reflections` | The reflection boxes. `MAPS_PROMPTS` is the standard four |
 | `questions` | The Application Question boxes after the study |
 
-Each reflection or question has an `id` (answers are saved under it, so don't change it once students have started), a `label` (the question itself), and optionally a `prompt` (grey text under it), a `question` (a bold, day-specific question under the prompt), and a `hint` (hidden behind a "Need a hint?" button). Add `size: "large"` for a tall text box (Day 7's "Write out your story"), or `type: "scale"` for a 1-10 slider instead of a text box, with `low` and `high` for the words at each end.
+Each reflection or question has an `id` (answers are saved under it, so don't change it once students have started), a `label` (the question itself), and optionally a `prompt` (grey text under it), a `question` (a bold, day-specific question under the prompt), and a `hint` (hidden behind a "Need a hint?" button). Add `size: "large"` for a tall text box (Day 7's "Write out your story"), or `type: "scale"` for a 1-10 slider instead of a text box, with `low` and `high` for the words at each end. Or use `type: "choices"` for a loose cluster of bubbles to tap, as many as apply, listed in `options: [...]`; add `other: "Other"` for a bubble that opens a fill-in box (Day 5). Picks are saved as plain text, like "Doubts; Other: my phone". Anything in brackets in an option, like "Distractions (TikTok, Insta…)", shows small on a second line.
 
 The `speaker` field on each day is stored in `data.js` for your own reference but is NOT shown anywhere on the live page — that's by design, not an oversight.
 

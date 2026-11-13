@@ -580,6 +580,76 @@ a { color: inherit; }
   line-height: 1.45;
 }
 
+/* A choices question: bubbles to tap, in a loose cluster rather than a
+   list. Each sits at its own slight tilt and height (app.js sets --tilt
+   and --lift); a picked bubble fills orange and straightens up. */
+.bubbles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 8px;
+  margin: 16px 0 6px;
+  padding: 6px 0;
+}
+
+.bubble {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transform: translateY(var(--lift, 0)) rotate(var(--tilt, 0));
+  transition: transform 260ms cubic-bezier(.3, 1.5, .5, 1), background-color 160ms, border-color 160ms;
+}
+
+.bubble[aria-pressed="true"] {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  transform: translateY(var(--lift, 0)) scale(1.06);
+}
+
+.bubble small {
+  display: block;
+  margin-top: 1px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: .75;
+}
+
+.bubble--other { border-style: dashed; }
+.bubble--other[aria-pressed="true"] { border-style: solid; }
+
+.bubble:focus-visible {
+  outline: 3px solid var(--vermilion-text);
+  outline-offset: 3px;
+}
+
+/* 16px keeps iPhones from zooming in when the box gets focus. */
+.reflection .bubble-other {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 400 16px/1.4 var(--font);
+}
+
+.reflection .bubble-other[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble { transition: background-color 160ms, border-color 160ms; }
+}
+
 /* 16px keeps iPhones from zooming in when a box gets focus. */
 .reflection textarea {
   display: block;

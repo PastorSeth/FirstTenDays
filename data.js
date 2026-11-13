@@ -120,6 +120,9 @@ const MAPS_PROMPTS = [
 //                        one box each. Add  size: "large"  for a tall
 //                        box, or  type: "scale"  for a 1-10 slider, with
 //                        low  and  high  labels for its ends.
+//                        Or  type: "choices"  for bubbles to tap (as many
+//                        as apply), listed in  options: [...]; add  other:
+//                        "Other"  for one that opens a fill-in box (Day 5).
 // A reflection or question can also have  question  (a bold, day-specific
 // question under the prompt) and  hint  (hidden behind "Need a hint?").
 
@@ -346,7 +349,11 @@ Putting your faith in Jesus means repenting of your sins and making Jesus the Lo
 :::
 `,
     questions: [
-      { id: "reflection", label: "Now that you've read today's study, what's one specific way you'll put this into practice this week?" }
+      { id: "tempt", type: "choices", prompt: "Tap all that apply.", label: "In the passage, John talked about how some people turned away from the Gospel for false teaching — teaching that distorted the truth and traded Jesus for something else. What are the things that tempt you to turn from Jesus?",
+        options: ["Comfort/laziness", "Relationships/dating", "Fitting in", "Distractions (TikTok, Insta, video games, etc.)", "Doubts", "Lust"], other: "Other" },
+      { id: "better", label: "How is Jesus better than those things that tempt you?" },
+      { id: "confidence", type: "scale", low: "Not at all", high: "Totally", label: "How confident do you feel to be able to share this Gospel message to others?" },
+      { id: "grow", label: "What can you do this week to grow in your confidence of knowing the Gospel?" }
     ]
   },
   {

@@ -1043,17 +1043,44 @@ function renderDay(view, dayNum) {
         </div>`;
   }
 
+  // Bubbles to tap, as many as apply, in a loose cluster; "Other" opens a
+  // box to fill in. Saved as plain text, like "Doubts; Other: my phone".
+  const BUBBLE_TILT = [-2.5, 1.8, -1.2, 2.6, -2, 1.1, -0.8, 2.2];
+  const BUBBLE_LIFT = [3, -4, 2, -2, 5, -3, 1, -5];
+  function choicesInput(r, val) {
+    const parts = String(val || '').split('; ');
+    const other = parts.find(p => p.startsWith(`${r.other}: `));
+    const look = i => `--tilt:${BUBBLE_TILT[i % 8]}deg;--lift:${BUBBLE_LIFT[i % 8]}px`;
+    // "Distractions (TikTok, Insta, …)": the part in brackets goes small on
+    // a second line, so a long option stays bubble-sized.
+    const words = o => {
+      const m = o.match(/^(.+?)\s*\((.+)\)$/);
+      return m ? `${typeset(m[1])}<small>${typeset(m[2])}</small>` : typeset(o);
+    };
+    const bubbles = (r.options || []).map((o, i) =>
+      `<button type="button" class="bubble" aria-pressed="${parts.includes(o)}" data-choice="${escapeHtml(o)}" style="${look(i)}">${words(o)}</button>`).join('');
+    const otherBubble = r.other
+      ? `<button type="button" class="bubble bubble--other" aria-pressed="${!!other}" aria-expanded="${!!other}" aria-controls="r-${r.id}-other" style="${look((r.options || []).length)}">${typeset(r.other)}</button>`
+      : '';
+    const otherBox = r.other
+      ? `<input type="text" class="bubble-other" id="r-${r.id}-other" aria-label="${escapeHtml(r.other)}" placeholder="Fill in the blank&hellip;" value="${escapeHtml(other ? other.slice(r.other.length + 2) : '')}"${other ? '' : ' hidden'}>`
+      : '';
+    return `<div class="bubbles" role="group" aria-labelledby="l-${r.id}" data-choices="${r.id}">${bubbles}${otherBubble}</div>${otherBox}`;
+  }
+
   function reflectionCard(r) {
     const val = loadReflection(dayNum, r.id);
     const hint = r.hint ? `
         <button type="button" class="hint-btn" aria-expanded="false" aria-controls="hint-${r.id}">Need a hint?</button>
         <div class="hint" id="hint-${r.id}" hidden>${typeset(r.hint)}</div>` : '';
-    const input = r.type === 'scale'
-      ? scaleInput(r, val)
+    const input = r.type === 'scale' ? scaleInput(r, val)
+      : r.type === 'choices' ? choicesInput(r, val)
       : `<textarea id="r-${r.id}" data-field="${r.id}"${r.size === 'large' ? ' class="is-large"' : ''} placeholder="Write your answer here&hellip;">${escapeHtml(val)}</textarea>`;
+    // A choices question's label names its group of bubbles instead of one box.
+    const labelFor = r.type === 'choices' ? `id="l-${r.id}"` : `for="r-${r.id}"`;
     return `
       <div class="reflection">
-        <label for="r-${r.id}">${typeset(r.label)}</label>
+        <label ${labelFor}>${typeset(r.label)}</label>
         ${r.prompt ? `<div class="prompt">${typeset(r.prompt)}</div>` : ''}
         ${r.question ? `<div class="prompt-question">${typeset(r.question)}</div>` : ''}
         ${hint}
@@ -1133,6 +1160,39 @@ function renderDay(view, dayNum) {
         saveTimer = setTimeout(() => status.classList.remove('show'), 1200);
       }
     });
+  });
+
+  // Bubble questions: tapping picks or lets go; Other opens its box.
+  view.querySelectorAll('[data-choices]').forEach(group => {
+    const field = group.dataset.choices;
+    const q = [...reflections, ...questions].find(x => x.id === field) || {};
+    const box = view.querySelector(`#r-${field}-other`);
+    const status = view.querySelector(`.save-status[data-status-for="${field}"]`);
+    let saveTimer;
+    const save = () => {
+      const picked = [...group.querySelectorAll('.bubble[data-choice][aria-pressed="true"]')].map(b => b.dataset.choice);
+      const otherBubble = group.querySelector('.bubble--other');
+      if (otherBubble && otherBubble.getAttribute('aria-pressed') === 'true') picked.push(`${q.other}: ${box.value.trim()}`);
+      saveReflection(dayNum, field, picked.join('; '));
+      if (status) {
+        status.classList.add('show');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => status.classList.remove('show'), 1200);
+      }
+    };
+    group.addEventListener('click', e => {
+      const bubble = e.target.closest('.bubble');
+      if (!bubble) return;
+      const on = bubble.getAttribute('aria-pressed') !== 'true';
+      bubble.setAttribute('aria-pressed', String(on));
+      if (bubble.classList.contains('bubble--other')) {
+        bubble.setAttribute('aria-expanded', String(on));
+        box.hidden = !on;
+        if (on) box.focus({ preventScroll: true });
+      }
+      save();
+    });
+    if (box) box.addEventListener('input', save);
   });
 
   // currentTarget, not target: a tap can land on the check icon inside the button.

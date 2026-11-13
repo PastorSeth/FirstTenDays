@@ -131,3 +131,15 @@ test('data: Day 9 says GOD ANSWERS PRAYER three times, each one an echo', () => 
   assert(!s.includes('> GOD. ANSWERS. PRAYER.'), 'the old pull quote is gone');
   assert(!s.includes('::: stack'), 'the old stamped stacks are gone');
 });
+test('data: Day 5 asks what tempts you (tap the bubbles), why Jesus is better, how confident you feel, and how you will grow', () => {
+  const q = DAYS.find(x => x.day === 5).questions;
+  assertEqual(q.map(x => x.id), ['tempt', 'better', 'confidence', 'grow']);
+  assertEqual(q[0].type, 'choices');
+  assertIncludes(q[0].label, 'What are the things that tempt you to turn from Jesus?');
+  assertEqual(q[0].options, ['Comfort/laziness', 'Relationships/dating', 'Fitting in', 'Distractions (TikTok, Insta, video games, etc.)', 'Doubts', 'Lust']);
+  assertEqual(q[0].other, 'Other');
+  assertEqual(q[1].label, 'How is Jesus better than those things that tempt you?');
+  assertEqual(q[2].type, 'scale');
+  assertEqual(q[2].label, 'How confident do you feel to be able to share this Gospel message to others?');
+  assertEqual(q[3].label, 'What can you do this week to grow in your confidence of knowing the Gospel?');
+});

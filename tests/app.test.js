@@ -534,3 +534,45 @@ test('app: without motion, the bridge drawing is simply complete', () => {
     });
   } finally { if (hadMotion) html.classList.add('motion-on'); }
 });
+const TEMPT = { id: 'tempt', type: 'choices', label: 'What tempts you?', options: ['Comfort', 'Doubts, fears', 'Lust'], other: 'Other' };
+test('app: a choices question is a cluster of bubbles to tap, and saves what is picked', () => {
+  withStorage({ 'reflection:5:tempt': '' }, () => {
+    withDay5({ questions: [TEMPT] }, v => {
+      const group = v.querySelector('.bubbles[role="group"]');
+      assert(group, 'a group of bubbles');
+      assertEqual(group.getAttribute('aria-labelledby'), group.closest('.reflection').querySelector('label').id, 'the question names the group');
+      const bubbles = [...group.querySelectorAll('button.bubble')];
+      assertEqual(bubbles.map(b => b.textContent), ['Comfort', 'Doubts, fears', 'Lust', 'Other']);
+      assert(bubbles.every(b => b.getAttribute('aria-pressed') === 'false'), 'nothing picked yet');
+      assert(bubbles.some(b => b.style.getPropertyValue('--tilt') !== bubbles[0].style.getPropertyValue('--tilt')), 'they sit at different tilts, as a cluster');
+      bubbles[1].click();
+      bubbles[2].click();
+      assertEqual(bubbles[1].getAttribute('aria-pressed'), 'true');
+      assertEqual(localStorage.getItem('reflection:5:tempt'), 'Doubts, fears; Lust');
+      bubbles[2].click();
+      assertEqual(localStorage.getItem('reflection:5:tempt'), 'Doubts, fears', 'tapping again lets go of it');
+    });
+  });
+});
+test('app: Other opens a box to fill in, and it all comes back next visit', () => {
+  withStorage({ 'reflection:5:tempt': '' }, () => {
+    withDay5({ questions: [TEMPT] }, v => {
+      const other = v.querySelector('.bubble--other');
+      const box = v.querySelector('.bubble-other');
+      assert(box.hidden, 'the box waits for Other');
+      other.click();
+      assert(!box.hidden, 'Other opens the box');
+      assertEqual(other.getAttribute('aria-expanded'), 'true');
+      box.value = 'my phone';
+      box.dispatchEvent(new Event('input', { bubbles: true }));
+      v.querySelector('.bubble').click();
+      assertEqual(localStorage.getItem('reflection:5:tempt'), 'Comfort; Other: my phone');
+    });
+    withDay5({ questions: [TEMPT] }, v => {
+      const pressed = [...v.querySelectorAll('.bubble[aria-pressed="true"]')].map(b => b.textContent);
+      assertEqual(pressed, ['Comfort', 'Other']);
+      assertEqual(v.querySelector('.bubble-other').value, 'my phone');
+      assert(!v.querySelector('.bubble-other').hidden);
+    });
+  });
+});
