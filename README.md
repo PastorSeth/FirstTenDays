@@ -10,6 +10,7 @@ A 10-day Bible study, installable as an app on any phone (a "PWA").
 - `index.html`, `style.css`, `app.js`, `format.js`, `motion.js` — the app itself. You shouldn't need to touch these. (`format.js` turns the study marks below into formatted text; `motion.js` runs the sliding words and page transitions.)
 - `manifest.json` / `service-worker.js` — what makes the site installable and work offline. No need to touch these, except the version bump below.
 - `icons/` — the app icon shown on a phone's home screen.
+- `fonts/` — Biró Script, the handwriting in Day 5's bridge drawing (by Ingo Zimmermann, ingoFonts; used with permission).
 - `resources/` — the MAPS study guide PDF, and a place to drop any other files you link to from `data.js`.
 - `sheet-setup/` — the Google Apps Script that powers progress tracking and the leader dashboard. It runs inside Google Sheets, not on the site.
 - `tests/` and `tools/` — the automated checks and a small local server for trying the app on your own computer or phone (see the last two sections).
@@ -75,6 +76,7 @@ An effect starts with a line like `::: stack` and ends with a line of just `:::`
 | `::: retype Tap here to fix the mistake` … `:::` | Three lines: a sentence typed out big, a normal line under it, then a correction. The button (labelled with the words after `retype`) backspaces the big sentence to where the two differ and types the correction in its place | Day 7 |
 | `::: stack` … `:::` | Big words stamped down one line at a time | Not used right now |
 | `::: echo` … `:::` | Big words said again and again, one word per line. The first `::: echo` gathers in as you scroll (faint outlines drift in and settle into the words). Each one after it waits behind a button labelled with the words after `echo`, like `::: echo Again!`; add `\| Dear friend,` after the label for a line said first. Tapped, the words gather in and leave echoes behind them: one black the second time, orange after that. A word in `**bold**` is orange, with an extra echo and a pen underline | Day 9 |
+| `::: bridge` … `:::` | Day 5's Gospel bridge. Four parts, each starting with a line like `+ GOD`, then `+ MAN`, `+ JESUS` and `+ RESPONSE`. A hand-drawn bridge stays at the top of the screen while the parts scroll up under it, and each part draws its piece: God's side, our side and the pit of sin, the cross, and a person walking across in faith. In a part, a line like `> Isaiah 6:5 \| the verse` is shown as that part's verse. The drawing itself is fixed for these four parts | Day 5 |
 | `::: closing` … `:::` | A soft sign-off to end a study: the first line as a quiet greeting, the next a little larger, both fading up gently | Day 9 |
 | `::: video` and a YouTube ID, on one line | An embedded video (the ID is the part after `v=` in a YouTube link) | Days 1 and 8 |
 | `::: trinity`, on one line | The Shield of the Trinity — tap Father, Son, or Holy Spirit | Day 8 |

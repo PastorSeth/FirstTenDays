@@ -302,12 +302,49 @@ So what do I do when I don't feel like it? _I make sure my actions reflect what 
   {
     day: 5,
     passage: "1 John 2:18-29",
-    topic: "Why Is Life Still Hard?",
+    topic: "The Gospel",
     speaker: null,
+    words: ["Good", "News"],
     reflectFirst: true,
     reflectTitle: "MAPS",
     reflections: MAPS_PROMPTS,
-    study: ``,
+    study: `
+Well, whether I like it or not, the Bible makes it clear…
+> Life is really hard.
+And I just want to make sure you know that becoming a Christian doesn't make it any easier. Honestly, sometimes it even gets harder. Our Bible passage today says that many people close to John, people who had even called themselves "Christians," were already turning away because when their life got hard, false teachers told them what they wanted to hear and not what they needed to hear. John goes on to say that there will be people in your life that will try to do the same. There will be voices that seek to lead you astray.
+There are tons of counterfeit teachers out there that want to distort the truth. But when we look to God's word, with His Holy Spirit at work within us, we begin to discern what the truth really is.
+Verse 24 says "see that what you have heard from the beginning remains in you. If it does, you also will remain in the Son and in the Father." Go underline that in your Bible!
+When he says "What you have heard," he's talking about the GOSPEL.
+The Gospel is the good news of Jesus Christ. This Gospel is the foundation of everything we believe as Christians. This was the message that ushered you into the faith and changed your life, but you are not done with it! Now, this same Gospel message is the fuel that will sustain your faith for the rest of your life.
+So the Gospel is important to understand because others need to know this truth. But it's just as important to understand because YOU also need to know it, and continue to grow in this knowledge.
+## So… what is the Gospel?
+::: bridge
++ GOD
+In the beginning, God created the world and everything was PERFECT.
+Everything that exists was created to find true fulfillment in fellowship with God. And in the beginning, everything that existed DID find its true fulfillment in God.
+God is PERFECT, and His desire for your life is PERFECT.
+* **God is Glorious.** The very attribute of God's perfection demands our worship.
+* **God is Just.** He is so perfect that He cannot tolerate anything less than perfection.
+* **God is Holy.** He is so perfect that we cannot stand to be in His presence if we are not perfectly in accord with His standards.
+> Isaiah 6:5 | "Woe to me!" I cried. "I am ruined! For I am a man of unclean lips, and I live among a people of unclean lips, and my eyes have seen the King, the LORD Almighty."
++ MAN
+We've sinned. We've messed up and fallen short of God's standards. We have all alienated ourselves from God because of our actions.
+Though we were designed to be in communion with God, our sin has become a chasm that separates us from God, and there is nothing we can do to overcome it.
+When we look to ourselves to try and fix our problem, there is no hope for restoration. Sin can't satisfy our soul, and nobody can be righteous enough to stand before God's holiness.
+> Isaiah 59:2 | But your iniquities have separated you from your God; your sins have hidden his face from you, so that he will not hear.
++ JESUS
+Jesus is the second person of the eternal, triune God. (We'll talk more on that in a few days.)
+He was fully God and fully man. He left heaven to come and live the perfect, sinless life that you and I were supposed to live.
+He died the death that we deserved, in our place. He was the perfect sacrifice.
+He took on the wrath of God in our place. And three days later, He rose again, proving that His payment was accepted and that sin and death had been conquered.
+> 2 Corinthians 5:21 | God made him who had no sin to be sin for us, so that in him we might become the righteousness of God.
++ RESPONSE
+For ANYONE who puts their faith in Jesus, their sin is credited to Jesus and His righteousness is credited to them.
+Understand this: it's not enough to simply KNOW this truth. You have to do something about it!
+Putting your faith in Jesus means repenting of your sins and making Jesus the Lord of your life. It means looking to Jesus to satisfy you instead of anything else in this world.
+> Romans 4:24–25 | …but also for us, to whom God will credit righteousness—for us who believe in him who raised Jesus our Lord from the dead. He was delivered over to death for our sins and was raised to life for our justification.
+:::
+`,
     questions: [
       { id: "reflection", label: "Now that you've read today's study, what's one specific way you'll put this into practice this week?" }
     ]

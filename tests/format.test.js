@@ -254,3 +254,26 @@ test('format: ::: echo gathers the words; after the first, a button brings them 
   assert([...c.querySelectorAll('.echo-ghost, .echo-gather')].every(g => g.getAttribute('aria-hidden') === 'true'), 'screen readers hear each word once');
   assertEqual(c.style.getPropertyValue('--n'), '2');
 });
+test('format: ::: bridge pins the Gospel bridge drawing over four parts, each with its verse', () => {
+  const box = document.createElement('div');
+  box.innerHTML = formatStudy('::: bridge\n+ GOD\nGod is perfect.\n* **Holy.** Set apart.\n> Isaiah 6:5 | "Woe to me!" I cried.\n+ MAN\nWe have sinned.\n> Isaiah 59:2 | Your sins have hidden his face.\n+ JESUS\nHe died in our place.\n+ RESPONSE\nPut your faith in Him.\n:::');
+  const fx = box.querySelector('.fx-bridge[data-bridge]');
+  assert(fx, 'bridge block');
+  const stage = fx.querySelector('.bridge-stage');
+  const art = stage.querySelector('svg.bridge-art[role="img"]');
+  assert(art.getAttribute('aria-label').length > 20, 'the drawing is described');
+  assertEqual([...stage.querySelectorAll('.bridge-steps li')].map(li => li.textContent), ['GOD', 'MAN', 'JESUS', 'RESPONSE']);
+  const parts = [...fx.querySelectorAll('.bridge-part')];
+  assertEqual(parts.map(p => p.querySelector('.bridge-title').lastChild.textContent), ['GOD', 'MAN', 'JESUS', 'RESPONSE']);
+  assertEqual(parts[0].querySelector('.bridge-n').textContent, '1 of 4');
+  assertEqual(parts[0].querySelector('p').textContent, 'God is perfect.');
+  assertEqual(parts[0].querySelector('li strong').textContent, 'Holy.');
+  const verse = parts[0].querySelector('blockquote.scripture');
+  assertEqual(verse.querySelector('p').textContent, '“Woe to me!” I cried.');
+  assertEqual(verse.querySelector('cite').textContent, 'Isaiah 6:5');
+  assert(!parts[2].querySelector('blockquote'), 'a part without a verse line has no verse');
+  // The drawing: every line and label waits for its turn in the scroll.
+  assert(art.querySelectorAll('path[data-at][pathLength="1"]').length >= 20, 'pen lines draw by length');
+  assertEqual([...art.querySelectorAll('text')].map(t => t.textContent), ['GOD', 'Perfect', 'Just', 'Holy', 'MAN', 'SIN', 'JESUS', 'RESPONSE', 'in faith']);
+  assert(art.querySelector('[data-who] path.head'), 'the person, with a solid head');
+});

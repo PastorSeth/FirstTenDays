@@ -97,7 +97,7 @@ test('app: readingText default and custom', () => {
   assertEqual(readingText({ passage: 'x', reading: '  Custom.  ' }), 'Custom.');
   assertEqual(readingText({ passage: 'x', reading: '   ' }), 'Open your Bible to x and read it through.');
 });
-test('app: renderDay shows the Day 1 study and the Day 5 placeholder', () => {
+test('app: renderDay shows the Day 1 study and the Day 10 placeholder', () => {
   const v = document.createElement('div');
   renderDay(v, 1);
   assertEqual(v.querySelectorAll('.study .study-h').length, 2);
@@ -105,9 +105,9 @@ test('app: renderDay shows the Day 1 study and the Day 5 placeholder', () => {
   assertIncludes(v.querySelector('.read-callout').textContent, 'Open your Bible to 1 John 1:1–4 and read it through.');
   assertEqual(v.querySelectorAll('.word-row').length, 2);
   assertEqual(v.querySelector('.reflect .section-h').textContent, 'Context');
-  renderDay(v, 5);
+  renderDay(v, 10);
   assertEqual(v.querySelector('.study-placeholder').textContent.trim(), 'Study coming soon.');
-  assertIncludes(v.querySelector('h1').textContent, 'Why Is Life Still Hard');
+  assertIncludes(v.querySelector('h1').textContent, 'Abiding in Christ');
 });
 test('app: saved answers from the current version still load', () => {
   withStorage({ 'reflection:1:author': 'An answer I wrote last week' }, () => {
@@ -491,6 +491,46 @@ test('app: without motion, an echo button shows the words straight away', () => 
       assert(fx.querySelector('.echo-btn').hidden);
       assert(!fx.querySelector('.echo-reveal').hidden);
       assert(fx.classList.contains('is-on'));
+    });
+  } finally { if (hadMotion) html.classList.add('motion-on'); }
+});
+test('app: each part of the bridge counts as its top slides up under the drawing', () => {
+  // A part starts 10px in and is done 60% of the way through.
+  assertEqual(bridgeProgress(100, [{ top: 95, height: 500 }, { top: 595, height: 500 }]), 0);
+  assertEqual(bridgeProgress(100, [{ top: -60, height: 500 }, { top: 440, height: 500 }]), 0.5);
+  assertEqual(bridgeProgress(100, [{ top: -210, height: 500 }, { top: 290, height: 500 }]), 1);
+  assertEqual(bridgeProgress(100, [{ top: -800, height: 500 }, { top: -300, height: 500 }]), 2);
+});
+test('app: at each point in the scroll, the bridge shows just what has been reached', () => {
+  withDay5({ study: '::: bridge\n+ GOD\nA\n+ MAN\nB\n+ JESUS\nC\n+ RESPONSE\nD\n:::' }, v => {
+    const fx = v.querySelector('.fx-bridge');
+    const art = fx.querySelector('svg');
+    const text = name => [...art.querySelectorAll('text')].find(t => t.textContent === name);
+    const cross = art.querySelector('path.thick');
+    bridgeApply(fx, 0);
+    assertEqual(text('GOD').style.getPropertyValue('--p'), '0.000');
+    assertEqual(cross.style.opacity, '0', 'a line not yet started is hidden');
+    bridgeApply(fx, 2.35);   // halfway through drawing the cross
+    assertEqual(text('GOD').style.getPropertyValue('--p'), '1.000');
+    assertEqual(text('SIN').style.getPropertyValue('--p'), '1.000');
+    assertEqual(parseFloat(cross.style.strokeDashoffset), 0.5);
+    assertEqual(text('JESUS').style.getPropertyValue('--p'), '0.000');
+    assertEqual([...fx.querySelectorAll('.bridge-steps li')].map(li => li.className), ['done', 'done', 'now', '']);
+    bridgeApply(fx, 4);
+    assertEqual(art.querySelector('[data-who]').getAttribute('transform'), 'translate(218.0,0.0)', 'walked across to God');
+    assert([...art.querySelectorAll('path[data-at]')].every(p => parseFloat(p.style.strokeDashoffset) === 0), 'every line drawn');
+  });
+});
+test('app: without motion, the bridge drawing is simply complete', () => {
+  const html = document.documentElement;
+  const hadMotion = html.classList.contains('motion-on');
+  html.classList.remove('motion-on');
+  try {
+    withDay5({ study: '::: bridge\n+ GOD\nA\n+ MAN\nB\n+ JESUS\nC\n+ RESPONSE\nD\n:::' }, v => {
+      const art = v.querySelector('.fx-bridge svg');
+      const faith = [...art.querySelectorAll('text')].find(t => t.textContent === 'in faith');
+      assertEqual(faith.style.getPropertyValue('--p'), '1.000');
+      assertEqual(art.querySelector('[data-who]').getAttribute('transform'), 'translate(218.0,0.0)');
     });
   } finally { if (hadMotion) html.classList.add('motion-on'); }
 });

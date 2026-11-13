@@ -430,7 +430,7 @@ const Motion = (() => {
     lastTime = performance.now();
     writeVelocity();
     root.querySelectorAll('[data-drift]').forEach(el => register(el, drifting));
-    root.querySelectorAll('[data-scrub], [data-typewriter], [data-together], [data-echo-scrub]').forEach(el => register(el, scrubbing));
+    root.querySelectorAll('[data-scrub], [data-typewriter], [data-together], [data-echo-scrub], [data-bridge]').forEach(el => register(el, scrubbing));
     root.querySelectorAll('[data-slide-in]').forEach(el => register(el, sliding));
     updateAll([...drifting, ...sliding, ...scrubbing]);
   }

@@ -6,7 +6,7 @@
    caches get cleared out.
    ========================================================== */
 
-const CACHE_NAME = 'first-10-days-v35';
+const CACHE_NAME = 'first-10-days-v36';
 
 // The web font lives in its own cache, so bumping CACHE_NAME for an app
 // change doesn't throw away the font and make everyone download it again.
@@ -24,7 +24,8 @@ const APP_SHELL = [
   './format.js',
   './motion.js',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './fonts/biro-script.otf'
 ];
 
 /* Where a request is going decides how it's handled: the app's own

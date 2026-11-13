@@ -46,15 +46,29 @@ test('data: Day 7 types "That\'s why…" big, then corrects it to YOU', () => {
   assert(!s.includes('So, God has positioned'), 'the old "So," sentence is gone');
 });
 test('data: each written lesson has its own effect', () => {
-  const effects = { 3: '::: typewriter', 4: '::: terms', 6: '==', 7: '::: retype', 8: '::: trinity', 9: '::: echo' };
+  const effects = { 3: '::: typewriter', 4: '::: terms', 5: '::: bridge', 6: '==', 7: '::: retype', 8: '::: trinity', 9: '::: echo' };
   Object.keys(effects).forEach(day => {
     const d = DAYS[day - 1];
     assertIncludes(d.study, effects[day], `day ${day}`);
     assertEqual(d.words.length, 2, `day ${day} header words`);
   });
   assertEqual(DAYS[8].questions[0].type, 'scale');
-  assertEqual(DAYS[4].study, '');
   assertEqual(DAYS[9].study, '');
+});
+test('data: Day 5 is The Gospel, walking the bridge from GOD to RESPONSE', () => {
+  const d = DAYS.find(x => x.day === 5);
+  assertEqual(d.topic, 'The Gospel');
+  assertEqual(d.words, ['Good', 'News']);
+  assertEqual(d.passage, '1 John 2:18-29');
+  const s = d.study;
+  assertIncludes(s, '> Life is really hard.');
+  assertIncludes(s, '## So… what is the Gospel?\n::: bridge\n+ GOD\n');
+  assertIncludes(s, '\n+ MAN\n');
+  assertIncludes(s, '\n+ JESUS\n');
+  assertIncludes(s, '\n+ RESPONSE\n');
+  ['> Isaiah 6:5 |', '> Isaiah 59:2 |', '> 2 Corinthians 5:21 |', '> Romans 4:24–25 |'].forEach(v => assertIncludes(s, v));
+  assertIncludes(s, 'He took on the wrath of God in our place.');
+  assert(!/wrath of good|\bcant\b|\bits just\b/i.test(s), 'typos fixed');
 });
 test('data: notes to self stay off the site, and every effect is spelled right', () => {
   DAYS.forEach(d => {

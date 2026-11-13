@@ -885,6 +885,59 @@ function setUpEcho(fx) {
   });
 }
 
+/* Day 5's Gospel bridge (::: bridge). The drawing stays at the top of the
+   screen while its four parts scroll up under it. Each part counts from 0
+   to 1 as it goes: it starts once its top has slid 10px under the drawing
+   and is done 60% of the way through. Added up, that's s, from 0 to 4, and
+   every line and label in the drawing draws over its own data-at stretch
+   of s. With Reduce Motion the drawing is simply complete. */
+const BRIDGE_WALK = 218;   // how far the person walks, left cliff to right
+
+function bridgeProgress(stageBottom, parts) {
+  const line = stageBottom - 10;
+  return parts.reduce((s, part) => s + Math.min(1, Math.max(0, (line - part.top) / (part.height * 0.6))), 0);
+}
+
+function bridgeApply(fx, s) {
+  const clamp = v => Math.min(1, Math.max(0, v));
+  fx.querySelectorAll('[data-at]').forEach(el => {
+    const [a, b] = el.dataset.at.split(',').map(Number);
+    const p = clamp((s - a) / (b - a));
+    if (el.tagName.toLowerCase() === 'path') {
+      el.style.strokeDashoffset = (1 - p).toFixed(3);
+      // A line not yet started is hidden: its round pen tip would show a dot.
+      el.style.opacity = p > 0 ? '1' : '0';
+    } else {
+      el.style.setProperty('--p', p.toFixed(3));
+    }
+  });
+
+  // RESPONSE: the person walks across the cross, stepping up onto it.
+  const who = fx.querySelector('[data-who]');
+  if (who) {
+    const dx = BRIDGE_WALK * clamp((s - 3) / 0.7);
+    const x = 55 + dx;
+    const up = x < 98 ? 0 : x < 110 ? (x - 98) / 12 : x < 250 ? 1 : x < 262 ? (262 - x) / 12 : 0;
+    who.setAttribute('transform', `translate(${dx.toFixed(1)},${(-up * Number(who.dataset.lift || 0)).toFixed(1)})`);
+  }
+
+  const now = Math.min(3, Math.floor(s));
+  fx.querySelectorAll('.bridge-steps li').forEach((li, i) => {
+    li.classList.toggle('now', s > 0.05 && i === now && s < 3.95);
+    li.classList.toggle('done', i < now || s >= 3.95);
+  });
+}
+
+function setUpBridge(fx) {
+  const stage = fx.querySelector('.bridge-stage');
+  const parts = [...fx.querySelectorAll('.bridge-part')];
+  const read = () => bridgeApply(fx, bridgeProgress(stage.getBoundingClientRect().bottom,
+    parts.map(p => { const r = p.getBoundingClientRect(); return { top: r.top, height: r.height }; })));
+  fx.__read = read;
+  if (document.documentElement.classList.contains('motion-on')) read();
+  else bridgeApply(fx, 4);
+}
+
 /* The taps that make a study's effects work: swap tabs, hint buttons,
    church-vocab words, and the Trinity shield. */
 function wireStudyEffects(view) {
@@ -894,6 +947,7 @@ function wireStudyEffects(view) {
   view.querySelectorAll('.hl[data-pen]').forEach(setUpPen);
   view.querySelectorAll('.fx-retype').forEach(setUpRetype);
   view.querySelectorAll('.fx-echo').forEach(setUpEcho);
+  view.querySelectorAll('.fx-bridge').forEach(setUpBridge);
   let sheet = null;
   if (view.querySelector('.vocab')) {
     sheet = document.createElement('div');

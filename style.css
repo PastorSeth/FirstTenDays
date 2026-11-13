@@ -38,10 +38,22 @@
 
 * { box-sizing: border-box; }
 
+/* Nothing scrolls sideways. "clip" does that without turning the page into
+   its own scrolling box, which would stop anything (like Day 5's bridge
+   drawing) from staying pinned at the top; older browsers use "hidden". */
 html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Biró Script (ingoFonts, Ingo Zimmermann), used with permission: the
+   handwriting in Day 5's bridge drawing. */
+@font-face {
+  font-family: 'Biro Script';
+  src: url('fonts/biro-script.otf') format('opentype');
+  font-display: swap;
 }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -1906,6 +1918,110 @@ html:not(.motion-on) .celebrate--play {
 }
 
 .motion-on .fx-echo.is-on .echo-underline path + path { transition-delay: calc(var(--n) * 220ms + 2200ms); }
+
+/* Day 5 — the Gospel bridge (::: bridge). The drawing pins to the top of
+   the screen while GOD, MAN, JESUS and RESPONSE scroll up under it; app.js
+   draws each line (stroke-dashoffset) and writes on each label (--p) as the
+   scroll reaches it. Without motion app.js shows it all at once. */
+.fx-bridge { margin: 10px 0 28px; }
+
+.bridge-stage {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 3;
+  padding: 10px 0 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+
+.bridge-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 34vh;
+  overflow: hidden;
+}
+
+.bridge-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-60);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+/* Small labels, not study text (which .study li would make them). */
+.study .bridge-steps li {
+  margin: 0;
+  color: var(--ink-60);
+  font-size: 11px;
+  line-height: 1.4;
+  transition: color 200ms;
+}
+
+.study .bridge-steps li.done { color: var(--ink); }
+.study .bridge-steps li.now { color: var(--vermilion-text); }
+
+.bridge-part { padding: 30px 0 12px; min-height: 62vh; }
+
+.study .bridge-title {
+  margin: 0 0 14px;
+  font-size: clamp(56px, 18vw, 96px);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: .88;
+}
+
+.bridge-n {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--vermilion-text);
+  font-size: 11px;
+  font-stretch: 100%;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1;
+}
+
+/* The pen: ballpoint black lines, God's and Jesus's marks in orange, our
+   response (and its arrow) in red, the small lines thinner, the cliffs
+   gone over a second time. */
+.bridge-art path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bridge-art .red path,
+.bridge-art path.red { stroke: var(--vermilion); }
+.bridge-art path.thick { stroke-width: 2.7; }
+.bridge-art path.again { stroke-width: 1.4; stroke-opacity: .45; }
+.bridge-art path.faith { stroke: var(--vermilion-text); stroke-width: 1.6; }
+.bridge-art .rays path,
+.bridge-art path.pit { stroke-width: 1.6; }
+.bridge-art path.head { fill: var(--paper); }
+
+.bridge-art text {
+  font-family: 'Biro Script', 'Segoe Print', 'Bradley Hand', cursive;
+  fill: var(--ink);
+  text-anchor: middle;
+}
+
+.bridge-art text.red { fill: var(--vermilion-text); }
+
+/* Lines draw from nothing; labels are written on left to right. */
+.motion-on .bridge-art path[data-at] { stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+.motion-on .bridge-art text[data-at] {
+  -webkit-clip-path: inset(-30% calc((1 - var(--p, 0)) * 100%) -30% -10%);
+  clip-path: inset(-30% calc((1 - var(--p, 0)) * 100%) -30% -10%);
+}
 
 /* A soft sign-off at the end of a study: a short rule, the greeting in
    quiet italic, then the line itself a little larger. Both fade up gently. */

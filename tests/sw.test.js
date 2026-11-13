@@ -115,3 +115,6 @@ test('sw: the installed app opens at the top of the site, which every host serve
   const manifest = await (await fetch('../manifest.json', { cache: 'no-store' })).json();
   assertEqual(manifest.start_url, './');
 });
+test('sw: the handwriting in the bridge drawing is saved for offline use', () => {
+  assert(APP_SHELL.includes('./fonts/biro-script.otf'), 'Biró Script is in the app shell');
+});
